@@ -28,7 +28,7 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
      * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
      *
      * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      * @var \\' . $configuration['classname'] . '|null
      * @ORM\ManyToOne(targetEntity="'. $configuration['classname'] .'")
      * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')

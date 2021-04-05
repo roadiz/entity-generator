@@ -91,6 +91,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
     /**
      * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
      * @Serializer\VirtualProperty()
+     * @Serializer\MaxDepth(2)
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function '.$this->field->getGetterName().'()

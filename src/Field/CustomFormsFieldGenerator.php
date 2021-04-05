@@ -14,6 +14,7 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
     /**
      * @return \\'.$this->options['custom_form_class'].'[] CustomForm array
      * @Serializer\VirtualProperty
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"nodes_sources", "nodes_sources_custom_forms", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
      * @Serializer\SerializedName("'.$this->field->getVarName().'")
      */

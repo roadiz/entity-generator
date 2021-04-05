@@ -103,7 +103,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      * @return \\'.$this->getRepositoryClass().'[] '.$this->field->getVarName().' nodes-sources array
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      * @Serializer\SerializedName("'.$this->field->getVarName().'")
      */
     public function '.$this->field->getGetterName().'Sources()
