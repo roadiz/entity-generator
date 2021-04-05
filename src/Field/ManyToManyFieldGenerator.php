@@ -59,6 +59,7 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
      * ' . $this->field->getLabel() .'
      *
      * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
+     * @Serializer\MaxDepth(1)
      * @var \Doctrine\Common\Collections\ArrayCollection<' . $configuration['classname'] . '>
      * @ORM\ManyToMany(targetEntity="'. $configuration['classname'] .'")
      * ' . $orderByClause . '
