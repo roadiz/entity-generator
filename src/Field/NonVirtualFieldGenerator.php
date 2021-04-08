@@ -31,6 +31,20 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         return $this->field->getDoctrineType();
     }
 
+    protected function getFieldLength(): int
+    {
+        switch (true) {
+            case $this->field->isColor():
+                return 10;
+            case $this->field->isCountry():
+                return 5;
+            case $this->field->isPassword():
+                return 128;
+            default:
+                return 250;
+        }
+    }
+
     /**
      * @inheritDoc
      */
@@ -44,6 +58,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             'type' => '"' . $this->getDoctrineType() . '"',
             'nullable' => 'true',
             'name' => '"' . $this->field->getName() . '"',
+            'length' => $this->getFieldLength(),
         ];
 
         if ($this->field->isDecimal()) {
