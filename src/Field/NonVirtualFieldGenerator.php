@@ -31,14 +31,24 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         return $this->field->getDoctrineType();
     }
 
-    protected function getFieldLength(): int
+    /**
+     * @return int|null String field length, returns NULL if length is irrelevant.
+     */
+    protected function getFieldLength(): ?int
     {
+        /*
+         * Only set length for string (VARCHAR) type
+         */
+        if ($this->getDoctrineType() !== 'string') {
+            return null;
+        }
         switch (true) {
             case $this->field->isColor():
                 return 10;
             case $this->field->isCountry():
                 return 5;
             case $this->field->isPassword():
+            case $this->field->isGeoTag():
                 return 128;
             default:
                 return 250;
@@ -58,8 +68,12 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             'type' => '"' . $this->getDoctrineType() . '"',
             'nullable' => 'true',
             'name' => '"' . $this->field->getName() . '"',
-            'length' => $this->getFieldLength(),
         ];
+
+        $fieldLength = $this->getFieldLength();
+        if (null !== $fieldLength && $fieldLength > 0) {
+            $ormParams['length'] = $fieldLength;
+        }
 
         if ($this->field->isDecimal()) {
             $ormParams['precision'] = 18;
