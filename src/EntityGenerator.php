@@ -156,6 +156,8 @@ class EntityGenerator
     ' . $this->getClassProperties() .
         $this->getClassConstructor() .
         $this->getNodeTypeNameGetter() .
+        $this->getNodeTypeReachableGetter() .
+        $this->getNodeTypePublishableGetter() .
         $this->getClassMethods() . '
 }'.PHP_EOL;
     }
@@ -258,6 +260,40 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL.PHP_EOL;
     public function getNodeTypeName(): string
     {
         return \''.$this->nodeType->getName().'\';
+    }'.PHP_EOL;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getNodeTypeReachableGetter(): string
+    {
+        return '
+    /**
+     * $this->nodeType->isReachable() proxy.
+     *
+     * @return bool Does this nodeSource is reachable over network?
+     */
+    public function isReachable(): bool
+    {
+        return '. ($this->nodeType->isReachable() ? 'true' : 'false') . ';
+    }'.PHP_EOL;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getNodeTypePublishableGetter(): string
+    {
+        return '
+    /**
+     * $this->nodeType->isPublishable() proxy.
+     *
+     * @return bool Does this nodeSource is publishable with date and time?
+     */
+    public function isPublishable(): bool
+    {
+        return '. ($this->nodeType->isPublishable() ? 'true' : 'false') . ';
     }'.PHP_EOL;
     }
 
