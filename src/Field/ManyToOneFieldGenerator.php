@@ -50,6 +50,16 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
      */'.PHP_EOL;
     }
 
+    protected function getFieldTypeDeclaration(): string
+    {
+        return $this->configuration['classname'] . ' ';
+    }
+
+    protected function getFieldDefaultValueDeclaration(): string
+    {
+        return ' = null';
+    }
+
     /**
      * @inheritDoc
      */

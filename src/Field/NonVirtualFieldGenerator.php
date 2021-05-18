@@ -101,17 +101,37 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */'.PHP_EOL;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldDeclaration(): string
+    protected function getFieldTypeDeclaration(): string
     {
-        if ($this->field->isBool()) {
-            return static::TAB . 'private bool $'.$this->field->getVarName().' = false;'.PHP_EOL;
-        } elseif ($this->field->isInteger()) {
-            return static::TAB . 'private ?int $'.$this->field->getVarName().' = null;'.PHP_EOL;
-        } else {
-            return static::TAB . 'private $'.$this->field->getVarName().';'.PHP_EOL;
+        switch (true) {
+            case $this->field->isBool():
+                return 'bool';
+            case $this->field->isInteger():
+                return '?int';
+            case $this->field->isColor():
+            case $this->field->isEmail():
+            case $this->field->isString():
+            case $this->field->isCountry():
+            case $this->field->isMarkdown():
+            case $this->field->isText():
+            case $this->field->isRichText():
+            case $this->field->isEnum():
+                return '?string';
+            case $this->field->isDateTime():
+            case $this->field->isDate():
+                return '?\DateTime';
+            default:
+                return '';
+        }
+    }
+
+    protected function getFieldDefaultValueDeclaration(): string
+    {
+        switch (true) {
+            case $this->field->isBool():
+                return '= false';
+            default:
+                return '= null';
         }
     }
 
@@ -120,13 +140,21 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
+        $type = $this->getFieldTypeDeclaration();
+        if (empty($type)) {
+            $docType = 'mixed';
+            $typeHint = '';
+        } else {
+            $docType = $this->toPhpDocType($type);
+            $typeHint = ': ' . $type;
+        }
         $assignation = '$this->'.$this->field->getVarName();
 
         return '
     /**
-     * @return mixed
+     * @return '.$docType.'
      */
-    public function '.$this->field->getGetterName().'()
+    public function '.$this->field->getGetterName().'()'.$typeHint.'
     {
         return '.$assignation.';
     }'.PHP_EOL;
@@ -138,26 +166,53 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     public function getFieldSetter(): string
     {
         $assignation = '$'.$this->field->getVarName();
+        $nullable = true;
+        $casting = '';
 
-        if ($this->field->isBool()) {
-            $assignation = '(boolean) $'.$this->field->getVarName();
+        switch (true) {
+            case $this->field->isBool():
+                $casting = '(boolean) ';
+                $nullable = false;
+                break;
+            case $this->field->isInteger():
+                $casting = '(int) ';
+                break;
+            case $this->field->isColor():
+            case $this->field->isEmail():
+            case $this->field->isString():
+            case $this->field->isCountry():
+            case $this->field->isMarkdown():
+            case $this->field->isText():
+            case $this->field->isRichText():
+            case $this->field->isEnum():
+                $casting = '(string) ';
+                break;
         }
-        if ($this->field->isInteger()) {
-            $assignation = '(int) $'.$this->field->getVarName();
+
+        $type = $this->getFieldTypeDeclaration();
+        if (empty($type)) {
+            $docType = 'mixed';
+        } else {
+            $docType = $this->toPhpDocType($type);
         }
-        if ($this->field->isDecimal()) {
-            $assignation = '(double) $'.$this->field->getVarName();
+
+        if ($nullable && !empty($casting)) {
+            $assignation = '$this->'.$this->field->getVarName().' = null !== $'.$this->field->getVarName().' ?
+            '.$casting.$assignation.' :
+            null;';
+        } else {
+            $assignation = '$this->'.$this->field->getVarName().' = '.$assignation.';';
         }
 
         return '
     /**
-     * @param mixed $'.$this->field->getVarName().'
+     * @param '.$docType.' $'.$this->field->getVarName().'
      *
      * @return $this
      */
     public function '.$this->field->getSetterName().'($'.$this->field->getVarName().')
     {
-        $this->'.$this->field->getVarName().' = '.$assignation.';
+        '.$assignation.'
 
         return $this;
     }'.PHP_EOL;

@@ -99,10 +99,36 @@ abstract class AbstractFieldGenerator
      */
     protected function getFieldDeclaration(): string
     {
+        $type = $this->getFieldTypeDeclaration();
+        if (!empty($type)) {
+            $type .= ' ';
+        }
+        $defaultValue = $this->getFieldDefaultValueDeclaration();
+        if (!empty($defaultValue)) {
+            $defaultValue = ' ' . $defaultValue;
+        }
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
          */
-        return static::TAB . 'private $'.$this->field->getVarName().';'.PHP_EOL;
+        return static::TAB . 'private ' . $type . '$'.$this->field->getVarName() . $defaultValue . ';'.PHP_EOL;
+    }
+
+    protected function getFieldTypeDeclaration(): string
+    {
+        return '';
+    }
+
+    protected function toPhpDocType(string $typeHint): string
+    {
+        $unicode = new UnicodeString($typeHint);
+        return $unicode->startsWith('?') ?
+            $unicode->trimStart('?')->append('|null')->toString() :
+            $typeHint;
+    }
+
+    protected function getFieldDefaultValueDeclaration(): string
+    {
+        return '';
     }
 
     /**

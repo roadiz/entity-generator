@@ -389,7 +389,7 @@ final class NodeTypeField implements NodeTypeFieldInterface, SerializableInterfa
 
     public function isMarkdown(): bool
     {
-        return $this->typeName === 'markdozn';
+        return $this->typeName === 'markdown';
     }
 
     public function isBool(): bool

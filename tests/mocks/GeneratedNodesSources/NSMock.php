@@ -27,18 +27,18 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
      * @Serializer\MaxDepth(2)
      */
-    private $fooDatetime;
+    private ?\DateTime $fooDatetime = null;
 
     /**
-     * @return mixed
+     * @return \DateTime|null
      */
-    public function getFooDatetime()
+    public function getFooDatetime(): ?\DateTime
     {
         return $this->fooDatetime;
     }
 
     /**
-     * @param mixed $fooDatetime
+     * @param \DateTime|null $fooDatetime
      *
      * @return $this
      */
@@ -59,24 +59,26 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
      */
-    private $foo;
+    private ?string $foo = null;
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getFoo()
+    public function getFoo(): ?string
     {
         return $this->foo;
     }
 
     /**
-     * @param mixed $foo
+     * @param string|null $foo
      *
      * @return $this
      */
     public function setFoo($foo)
     {
-        $this->foo = $foo;
+        $this->foo = null !== $foo ?
+            (string) $foo :
+            null;
 
         return $this;
     }
@@ -91,24 +93,26 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
      */
-    private $fooMarkdown;
+    private ?string $fooMarkdown = null;
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getFooMarkdown()
+    public function getFooMarkdown(): ?string
     {
         return $this->fooMarkdown;
     }
 
     /**
-     * @param mixed $fooMarkdown
+     * @param string|null $fooMarkdown
      *
      * @return $this
      */
     public function setFooMarkdown($fooMarkdown)
     {
-        $this->fooMarkdown = $fooMarkdown;
+        $this->fooMarkdown = null !== $fooMarkdown ?
+            (string) $fooMarkdown :
+            null;
 
         return $this;
     }
@@ -122,24 +126,26 @@ class NSMock extends \mock\Entity\NodesSources
      * @ORM\Column(type="text", nullable=true, name="foo_markdown_excluded")
      * @Serializer\Exclude()
      */
-    private $fooMarkdownExcluded;
+    private ?string $fooMarkdownExcluded = null;
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getFooMarkdownExcluded()
+    public function getFooMarkdownExcluded(): ?string
     {
         return $this->fooMarkdownExcluded;
     }
 
     /**
-     * @param mixed $fooMarkdownExcluded
+     * @param string|null $fooMarkdownExcluded
      *
      * @return $this
      */
     public function setFooMarkdownExcluded($fooMarkdownExcluded)
     {
-        $this->fooMarkdownExcluded = $fooMarkdownExcluded;
+        $this->fooMarkdownExcluded = null !== $fooMarkdownExcluded ?
+            (string) $fooMarkdownExcluded :
+            null;
 
         return $this;
     }
@@ -156,7 +162,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\Exclude(if="object.foo == 'test'")
      * @Serializer\Type("double")
      */
-    private $fooDecimalExcluded;
+    private $fooDecimalExcluded = null;
 
     /**
      * @return mixed
@@ -173,7 +179,7 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function setFooDecimalExcluded($fooDecimalExcluded)
     {
-        $this->fooDecimalExcluded = (double) $fooDecimalExcluded;
+        $this->fooDecimalExcluded = $fooDecimalExcluded;
 
         return $this;
     }
