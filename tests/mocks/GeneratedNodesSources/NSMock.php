@@ -4,7 +4,7 @@ declare(strict_types=1);
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace \tests\mocks\GeneratedNodesSources;
+namespace tests\mocks\GeneratedNodesSources;
 
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
- * @ORM\Entity(repositoryClass="\mock\Entity\Repository\NodesSourcesRepository")
+ * @ORM\Entity(repositoryClass="mock\Entity\Repository\NodesSourcesRepository")
  * @ORM\Table(name="ns_mock", indexes={@ORM\Index(columns={"foo_datetime"}),@ORM\Index(columns={"foo_decimal_excluded"})})
  */
 class NSMock extends \mock\Entity\NodesSources

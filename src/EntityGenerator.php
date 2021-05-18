@@ -178,7 +178,7 @@ declare(strict_types=1);
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace '.$this->options['namespace'].';
+namespace '.ltrim($this->options['namespace'], '\\').';
 
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -201,7 +201,7 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
- * @ORM\Entity(repositoryClass="'.$this->options['repository_class'].'")
+ * @ORM\Entity(repositoryClass="'.ltrim($this->options['repository_class'], '\\').'")
  * @ORM\Table(name="'.$this->nodeType->getSourceEntityTableName().'", indexes={'.implode(',', $indexes).'})
  */'.PHP_EOL;
     }
