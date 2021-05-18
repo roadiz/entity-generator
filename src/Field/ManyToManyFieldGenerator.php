@@ -3,11 +3,21 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Yaml;
 
 class ManyToManyFieldGenerator extends AbstractFieldGenerator
 {
+    private array $configuration;
+
+    public function __construct(NodeTypeFieldInterface $field, array $options = [])
+    {
+        parent::__construct($field, $options);
+
+        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
+    }
+
     /**
      * @inheritDoc
      */
@@ -30,7 +40,6 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
             ->toString()
         ;
         $entityB = $this->field->getName();
-        $configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
         $joinColumnParams = [
             'name' => '"'.$entityA.'_id"',
             'referencedColumnName' => '"id"'
@@ -45,10 +54,10 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
             'inverseJoinColumns' => '{ @ORM\JoinColumn(' . static::flattenORMParameters($inverseJoinColumns) . ') }',
         ];
         $orderByClause = '';
-        if (count($configuration['orderBy']) > 0) {
+        if (count($this->configuration['orderBy']) > 0) {
             // use default order for Collections
             $orderBy = [];
-            foreach ($configuration['orderBy'] as $order) {
+            foreach ($this->configuration['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
             $orderByClause = '@ORM\OrderBy(value='.json_encode($orderBy).')';
@@ -65,8 +74,8 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     /**
      * ' . $this->field->getLabel() .'
      *' . $serializer . '
-     * @var \Doctrine\Common\Collections\ArrayCollection<' . $configuration['classname'] . '>
-     * @ORM\ManyToMany(targetEntity="'. $configuration['classname'] .'")
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '>
+     * @ORM\ManyToMany(targetEntity="'. $this->configuration['classname'] .'")
      * ' . $orderByClause . '
      * @ORM\JoinTable(' . static::flattenORMParameters($ormParams) . ')
      */'.PHP_EOL;
@@ -79,9 +88,9 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
      */
-    public function '.$this->field->getGetterName().'()
+    public function '.$this->field->getGetterName().'(): \Doctrine\Common\Collections\Collection
     {
         return $this->' . $this->field->getVarName() . ';
     }'.PHP_EOL;
@@ -94,10 +103,10 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $'.$this->field->getVarName().'
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '> $'.$this->field->getVarName().'
      * @return $this
      */
-    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().' = null)
+    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().')
     {
         $this->'.$this->field->getVarName().' = $'.$this->field->getVarName().';
 

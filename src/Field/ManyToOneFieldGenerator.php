@@ -3,10 +3,20 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class ManyToOneFieldGenerator extends AbstractFieldGenerator
 {
+    private array $configuration;
+
+    public function __construct(NodeTypeFieldInterface $field, array $options = [])
+    {
+        parent::__construct($field, $options);
+
+        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
+    }
+
     /**
      * @inheritDoc
      */
@@ -17,7 +27,6 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
          * @ORM\ManyToOne(targetEntity="Address")
          * @ORM\JoinColumn(name="address_id", referencedColumnName="id", onDelete="SET NULL")
          */
-        $configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
         $ormParams = [
             'name' => '"' . $this->field->getName() . '_id"',
             'referencedColumnName' => '"id"',
@@ -35,8 +44,8 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     /**
      * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
      *' . $serializer . '
-     * @var ' . $configuration['classname'] . '|null
-     * @ORM\ManyToOne(targetEntity="'. $configuration['classname'] .'")
+     * @var ' . $this->configuration['classname'] . '|null
+     * @ORM\ManyToOne(targetEntity="'. $this->configuration['classname'] .'")
      * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')
      */'.PHP_EOL;
     }
@@ -48,9 +57,9 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @return \RZ\Roadiz\Core\AbstractEntities\AbstractEntity|null
+     * @return ' . $this->configuration['classname'] . '|null
      */
-    public function '.$this->field->getGetterName().'()
+    public function '.$this->field->getGetterName().'(): ?' . $this->configuration['classname'] . '
     {
         return $this->' . $this->field->getVarName() . ';
     }'.PHP_EOL;
@@ -63,10 +72,10 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \RZ\Roadiz\Core\AbstractEntities\AbstractEntity|null $'.$this->field->getVarName().'
+     * @var ' . $this->configuration['classname'] . '|null $'.$this->field->getVarName().'
      * @return $this
      */
-    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().' = null)
+    public function '.$this->field->getSetterName().'(?' . $this->configuration['classname'] . ' $'.$this->field->getVarName().' = null)
     {
         $this->'.$this->field->getVarName().' = $'.$this->field->getVarName().';
 

@@ -107,9 +107,9 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     public function getFieldDeclaration(): string
     {
         if ($this->field->isBool()) {
-            return static::TAB . 'private $'.$this->field->getVarName().' = false;'.PHP_EOL;
+            return static::TAB . 'private bool $'.$this->field->getVarName().' = false;'.PHP_EOL;
         } elseif ($this->field->isInteger()) {
-            return static::TAB . 'private $'.$this->field->getVarName().' = 0;'.PHP_EOL;
+            return static::TAB . 'private ?int $'.$this->field->getVarName().' = null;'.PHP_EOL;
         } else {
             return static::TAB . 'private $'.$this->field->getVarName().';'.PHP_EOL;
         }
