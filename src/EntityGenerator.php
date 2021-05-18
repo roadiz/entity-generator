@@ -239,7 +239,7 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
     {
         parent::__construct($node, $translation);
 
-        '.implode(PHP_EOL, $constructorArray).'
+        '.implode(PHP_EOL.AbstractFieldGenerator::TAB.AbstractFieldGenerator::TAB, $constructorArray).'
     }'.PHP_EOL;
         }
 

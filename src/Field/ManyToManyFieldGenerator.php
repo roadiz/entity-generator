@@ -15,6 +15,9 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         parent::__construct($field, $options);
 
+        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
+            throw new \LogicException('Default values must be a valid YAML for '.ManyToManyFieldGenerator::class);
+        }
         $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
     }
 

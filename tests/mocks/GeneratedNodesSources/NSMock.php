@@ -310,6 +310,149 @@ class NSMock extends \mock\Entity\NodesSources
 
 
     /**
+     * For many_to_one field.
+     * Default values: classname: \MyCustomEntity
+     *     displayable: getName
+     *
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
+     * @var \MyCustomEntity|null
+     * @ORM\ManyToOne(targetEntity="\MyCustomEntity")
+     * @ORM\JoinColumn(name="foo_many_to_one_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private ?\MyCustomEntity $fooManyToOne = null;
+
+    /**
+     * @return \MyCustomEntity|null
+     */
+    public function getFooManyToOne(): ?\MyCustomEntity
+    {
+        return $this->fooManyToOne;
+    }
+
+    /**
+     * @var \MyCustomEntity|null $fooManyToOne
+     * @return $this
+     */
+    public function setFooManyToOne(?\MyCustomEntity $fooManyToOne = null)
+    {
+        $this->fooManyToOne = $fooManyToOne;
+
+        return $this;
+    }
+
+
+    /**
+     * For many_to_many field
+     *
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
+     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity>
+     * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
+     * @ORM\OrderBy(value={"name":"asc"})
+     * @ORM\JoinTable(name="node_type_foo_many_to_many", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id") }, inverseJoinColumns={ @ORM\JoinColumn(name="foo_many_to_many_id", referencedColumnName="id") })
+     */
+    private $fooManyToMany;
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<\MyCustomEntity>
+     */
+    public function getFooManyToMany(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->fooManyToMany;
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity> $fooManyToMany
+     * @return $this
+     */
+    public function setFooManyToMany($fooManyToMany)
+    {
+        $this->fooManyToMany = $fooManyToMany;
+
+        return $this;
+    }
+
+
+    /**
+     * For many_to_many proxied field
+     *
+     * @Serializer\Exclude()
+     * @var \Doctrine\Common\Collections\ArrayCollection<\Themes\MyTheme\Entities\PositionedCity>
+     * @ORM\OneToMany(targetEntity="\Themes\MyTheme\Entities\PositionedCity", mappedBy="nodeSource", orphanRemoval=true, cascade={"persist", "remove"})
+     * @ORM\OrderBy(value={"position":"ASC"})
+     */
+    private $fooManyToManyProxiedProxy;
+
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getFooManyToManyProxiedProxy()
+    {
+        return $this->fooManyToManyProxiedProxy;
+    }
+
+    /**
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(1)
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("fooManyToManyProxied")
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getFooManyToManyProxied()
+    {
+        return $this->fooManyToManyProxiedProxy->map(function (\Themes\MyTheme\Entities\PositionedCity $proxyEntity) {
+            return $proxyEntity->getCity();
+        });
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection $fooManyToManyProxiedProxy
+     * @Serializer\VirtualProperty()
+     * @return $this
+     */
+    public function setFooManyToManyProxiedProxy($fooManyToManyProxiedProxy = null)
+    {
+        $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxy;
+
+        return $this;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $fooManyToManyProxied
+     * @return $this
+     */
+    public function setFooManyToManyProxied($fooManyToManyProxied = null)
+    {
+        foreach ($this->getFooManyToManyProxiedProxy() as $item) {
+            $item->setNodeSource(null);
+        }
+        $this->fooManyToManyProxiedProxy->clear();
+        if (null !== $fooManyToManyProxied) {
+            $position = 0;
+            foreach ($fooManyToManyProxied as $singleFooManyToManyProxied) {
+                $proxyEntity = new \Themes\MyTheme\Entities\PositionedCity();
+                $proxyEntity->setNodeSource($this);
+                if ($proxyEntity instanceof \RZ\Roadiz\Core\AbstractEntities\PositionedInterface) {
+                    $proxyEntity->setPosition(++$position);
+                }
+                $proxyEntity->setCity($singleFooManyToManyProxied);
+                $this->fooManyToManyProxiedProxy->add($proxyEntity);
+            }
+        }
+
+        return $this;
+    }
+
+
+    public function __construct(\mock\Entity\Node $node, \mock\Entity\Translation $translation)
+    {
+        parent::__construct($node, $translation);
+
+        $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->fooManyToManyProxiedProxy = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
      * @return string
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})

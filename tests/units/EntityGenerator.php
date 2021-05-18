@@ -78,6 +78,52 @@ class EntityGenerator extends atoum
                     ->setLabel('ForBar nodes field')
                     ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                     ->setIndexed(false),
+                (new NodeTypeField())
+                    ->setName('foo_many_to_one')
+                    ->setTypeName('many_to_one')
+                    ->setVirtual(false)
+                    ->setLabel('For many_to_one field')
+                    ->setDefaultValues(<<<EOT
+classname: \MyCustomEntity
+displayable: getName
+EOT)
+                    ->setIndexed(false),
+                (new NodeTypeField())
+                    ->setName('foo_many_to_many')
+                    ->setTypeName('many_to_many')
+                    ->setVirtual(false)
+                    ->setLabel('For many_to_many field')
+                    ->setDefaultValues(<<<EOT
+classname: \MyCustomEntity
+displayable: getName
+orderBy:
+    - field: name
+      direction: asc
+EOT)
+                    ->setIndexed(false),
+                (new NodeTypeField())
+                    ->setName('foo_many_to_many_proxied')
+                    ->setTypeName('many_to_many')
+                    ->setVirtual(false)
+                    ->setSerializationMaxDepth(1)
+                    ->setLabel('For many_to_many proxied field')
+                    ->setDefaultValues(<<<EOT
+classname: \MyCustomEntity
+displayable: getName
+orderBy:
+    - field: name
+      direction: asc
+# Use a proxy entity
+proxy:
+    classname: Themes\MyTheme\Entities\PositionedCity
+    self: nodeSource
+    relation: city
+    # This order will preserve position
+    orderBy:
+        - field: position
+          direction: ASC
+EOT)
+                    ->setIndexed(false),
             ]);
         };
         $mockNodeType->getMockController()->getSourceEntityTableName = function() {

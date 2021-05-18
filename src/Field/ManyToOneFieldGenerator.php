@@ -14,6 +14,9 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     {
         parent::__construct($field, $options);
 
+        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
+            throw new \LogicException('Default values must be a valid YAML for '.ManyToOneFieldGenerator::class);
+        }
         $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
     }
 
@@ -52,12 +55,12 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
 
     protected function getFieldTypeDeclaration(): string
     {
-        return $this->configuration['classname'] . ' ';
+        return '?'.$this->configuration['classname'];
     }
 
     protected function getFieldDefaultValueDeclaration(): string
     {
-        return ' = null';
+        return '= null';
     }
 
     /**

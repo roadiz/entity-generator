@@ -3,22 +3,22 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\String\UnicodeString;
 
 class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
 {
-    protected ?array $configuration = null;
+    protected array $configuration;
 
-    /**
-     * @return array
-     */
-    protected function getConfiguration(): array
+    public function __construct(NodeTypeFieldInterface $field, array $options = [])
     {
-        if (null === $this->configuration) {
-            $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
+        parent::__construct($field, $options);
+
+        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
+            throw new \LogicException('Default values must be a valid YAML for '.ProxiedManyToManyFieldGenerator::class);
         }
-        return $this->configuration;
+        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
     }
 
     protected function getSerializationAnnotations(): array
@@ -52,19 +52,18 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
          *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
          *      inverseJoinColumns={@JoinColumn(name="group_id", referencedColumnName="id")}
          */
-        $configuration = $this->getConfiguration();
         $orderByClause = '';
-        if (isset($configuration['proxy']['orderBy']) && count($configuration['proxy']['orderBy']) > 0) {
+        if (isset($this->configuration['proxy']['orderBy']) && count($this->configuration['proxy']['orderBy']) > 0) {
             // use default order for Collections
             $orderBy = [];
-            foreach ($configuration['proxy']['orderBy'] as $order) {
+            foreach ($this->configuration['proxy']['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
             $orderByClause = '@ORM\OrderBy(value='.json_encode($orderBy).')';
         }
         $ormParams = [
             'targetEntity' => '"' . $this->getProxyClassname() . '"',
-            'mappedBy' => '"' . $configuration['proxy']['self'] . '"',
+            'mappedBy' => '"' . $this->configuration['proxy']['self'] . '"',
             'orphanRemoval' => 'true',
             'cascade' => '{"persist", "remove"}'
         ];
@@ -190,24 +189,21 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
      */
     protected function getProxySelfSetterName(): string
     {
-        $configuration = $this->getConfiguration();
-        return 'set' . ucwords($configuration['proxy']['self']);
+        return 'set' . ucwords($this->configuration['proxy']['self']);
     }
     /**
      * @return string
      */
     protected function getProxyRelationSetterName(): string
     {
-        $configuration = $this->getConfiguration();
-        return 'set' . ucwords($configuration['proxy']['relation']);
+        return 'set' . ucwords($this->configuration['proxy']['relation']);
     }
     /**
      * @return string
      */
     protected function getProxyRelationGetterName(): string
     {
-        $configuration = $this->getConfiguration();
-        return 'get' . ucwords($configuration['proxy']['relation']);
+        return 'get' . ucwords($this->configuration['proxy']['relation']);
     }
 
     /**
@@ -215,10 +211,9 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
      */
     protected function getProxyClassname(): string
     {
-        $configuration = $this->getConfiguration();
 
-        return (new UnicodeString($configuration['proxy']['classname']))->startsWith('\\') ?
-            $configuration['proxy']['classname'] :
-            '\\' . $configuration['proxy']['classname'];
+        return (new UnicodeString($this->configuration['proxy']['classname']))->startsWith('\\') ?
+            $this->configuration['proxy']['classname'] :
+            '\\' . $this->configuration['proxy']['classname'];
     }
 }
