@@ -54,12 +54,17 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
             $orderByClause = '@ORM\OrderBy(value='.json_encode($orderBy).')';
         }
 
+        $serializer = '';
+        if (!empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
+        }
+
         return '
     /**
      * ' . $this->field->getLabel() .'
-     *
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\MaxDepth(2)
+     *' . $serializer . '
      * @var \Doctrine\Common\Collections\ArrayCollection<' . $configuration['classname'] . '>
      * @ORM\ManyToMany(targetEntity="'. $configuration['classname'] .'")
      * ' . $orderByClause . '

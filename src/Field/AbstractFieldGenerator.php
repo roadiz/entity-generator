@@ -4,19 +4,17 @@ declare(strict_types=1);
 namespace RZ\Roadiz\EntityGenerator\Field;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
+use RZ\Roadiz\Contracts\NodeType\SerializableInterface;
+use Symfony\Component\String\UnicodeString;
 
 abstract class AbstractFieldGenerator
 {
     const USE_NATIVE_JSON = 'use_native_json';
+    const TAB = '    ';
+    const ANNOTATION_PREFIX = AbstractFieldGenerator::TAB . ' * ';
 
-    /**
-     * @var NodeTypeFieldInterface
-     */
-    protected $field;
-    /**
-     * @var array
-     */
-    protected $options;
+    protected NodeTypeFieldInterface $field;
+    protected array $options;
 
     /**
      * @param NodeTypeFieldInterface $field
@@ -64,7 +62,6 @@ abstract class AbstractFieldGenerator
     {
         $docs = [
             $this->field->getLabel().'.',
-            ''
         ];
         if (!empty($this->field->getDescription())) {
             $docs[] = $this->field->getDescription().'.';
@@ -83,9 +80,14 @@ abstract class AbstractFieldGenerator
      */
     protected function getFieldAnnotation(): string
     {
+        $autodoc = '';
+        if (!empty($this->getFieldAutodoc())) {
+            $autodoc = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
+        }
         return '
-    /**
-     * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
+    /**' . $autodoc .'
      *
      * (Virtual field, this var is a buffer)
      * @Serializer\Exclude
@@ -100,7 +102,7 @@ abstract class AbstractFieldGenerator
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
          */
-        return '    private $'.$this->field->getVarName().';'.PHP_EOL;
+        return static::TAB . 'private $'.$this->field->getVarName().';'.PHP_EOL;
     }
 
     /**
@@ -155,6 +157,71 @@ abstract class AbstractFieldGenerator
      */
     protected function excludeFromSerialization(): bool
     {
+        if ($this->field instanceof SerializableInterface) {
+            return $this->field->isExcludedFromSerialization();
+        }
         return false;
+    }
+
+    protected function getSerializationExclusionExpression(): ?string
+    {
+        if ($this->field instanceof SerializableInterface &&
+            null !== $this->field->getSerializationExclusionExpression()) {
+            return $this->field->getSerializationExclusionExpression();
+        }
+        return null;
+    }
+
+    protected function getSerializationMaxDepth(): int
+    {
+        if ($this->field instanceof SerializableInterface && $this->field->getSerializationMaxDepth() > 0) {
+            return $this->field->getSerializationMaxDepth();
+        }
+        return 2;
+    }
+
+    protected function getDefaultSerializationGroups(): array
+    {
+        return [
+            'nodes_sources',
+            'nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default')
+        ];
+    }
+
+    protected function getSerializationGroups(): string
+    {
+        if ($this->field instanceof SerializableInterface && !empty($this->field->getSerializationGroups())) {
+            $groups = $this->field->getSerializationGroups();
+        } else {
+            $groups = $this->getDefaultSerializationGroups();
+        }
+        return '{' . implode(', ', array_map(function (string $group) {
+            return '"' . (new UnicodeString($group))
+                    ->replaceMatches('/[^A-Za-z0-9]++/', '_')
+                    ->trim('_')->toString() . '"';
+        }, $groups)) . '}';
+    }
+
+    protected function getSerializationAnnotations(): array
+    {
+        if ($this->excludeFromSerialization()) {
+            return ['@Serializer\Exclude()'];
+        }
+        $annotations = [];
+        $annotations[] = '@Serializer\Groups(' . $this->getSerializationGroups() . ')';
+        if ($this->getSerializationMaxDepth() > 0) {
+            $annotations[] = '@Serializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+        }
+        if (null !== $this->getSerializationExclusionExpression()) {
+            $annotations[] = '@Serializer\Exclude(if="' . $this->getSerializationExclusionExpression() . '")';
+        }
+        if ($this->field->isDecimal()) {
+            $annotations[] = '@Serializer\Type("double")';
+        } elseif ($this->field->isBool()) {
+            $annotations[] = '@Serializer\Type("boolean")';
+        } elseif ($this->field->isInteger()) {
+            $annotations[] = '@Serializer\Type("integer")';
+        }
+        return $annotations;
     }
 }

@@ -60,10 +60,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldAnnotation(): string
     {
-        $serializationType = '';
-        $exclusion = $this->excludeFromSerialization() ?
-            '@Serializer\Exclude()' :
-            '@Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})';
         $ormParams = [
             'type' => '"' . $this->getDoctrineType() . '"',
             'nullable' => 'true',
@@ -78,23 +74,30 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         if ($this->field->isDecimal()) {
             $ormParams['precision'] = 18;
             $ormParams['scale'] = 3;
-            $serializationType = '@Serializer\Type("double")';
         } elseif ($this->field->isBool()) {
             $ormParams['nullable'] = 'false';
             $ormParams['options'] = '{"default" = false}';
-            $serializationType = '@Serializer\Type("boolean")';
-        } elseif ($this->field->isInteger()) {
-            $serializationType = '@Serializer\Type("integer")';
+        }
+
+        $autodoc = '';
+        if (!empty($this->getFieldAutodoc())) {
+            $autodoc = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
+        }
+
+        $serializer = '';
+        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
         }
 
         return '
-    /**
-     * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
+    /**' . $autodoc .'
      *
      * @Gedmo\Versioned
-     * @ORM\Column(' . static::flattenORMParameters($ormParams) . ')
-     * ' . $exclusion . '
-     * ' . $serializationType . '
+     * @ORM\Column(' . static::flattenORMParameters($ormParams) . ')' . $serializer . '
      */'.PHP_EOL;
     }
 
@@ -104,11 +107,11 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     public function getFieldDeclaration(): string
     {
         if ($this->field->isBool()) {
-            return '    private $'.$this->field->getVarName().' = false;'.PHP_EOL;
+            return static::TAB . 'private $'.$this->field->getVarName().' = false;'.PHP_EOL;
         } elseif ($this->field->isInteger()) {
-            return '    private $'.$this->field->getVarName().' = 0;'.PHP_EOL;
+            return static::TAB . 'private $'.$this->field->getVarName().' = 0;'.PHP_EOL;
         } else {
-            return '    private $'.$this->field->getVarName().';'.PHP_EOL;
+            return static::TAB . 'private $'.$this->field->getVarName().';'.PHP_EOL;
         }
     }
 

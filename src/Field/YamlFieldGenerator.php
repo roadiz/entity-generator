@@ -5,12 +5,19 @@ namespace RZ\Roadiz\EntityGenerator\Field;
 
 class YamlFieldGenerator extends NonVirtualFieldGenerator
 {
-    /**
-     * @inheritDoc
-     */
-    protected function excludeFromSerialization(): bool
+    protected function getSerializationAnnotations(): array
     {
-        return true;
+        $annotations = parent::getSerializationAnnotations();
+        $annotations[] = '@Serializer\VirtualProperty';
+        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        return $annotations;
+    }
+
+    protected function getDefaultSerializationGroups(): array
+    {
+        $groups = parent::getDefaultSerializationGroups();
+        $groups[] = 'nodes_sources_yaml';
+        return $groups;
     }
 
     /**
@@ -18,13 +25,16 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
      */
     public function getFieldAlternativeGetter(): string
     {
+        $serializer = '';
+        if (!empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
+        }
         $assignation = '$this->'.$this->field->getVarName();
         return '
     /**
-     * @return object|null
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\SerializedName("'.$this->field->getVarName().'")
+     * @return object|null' . $serializer . '
      */
     public function '.$this->field->getGetterName().'AsObject()
     {

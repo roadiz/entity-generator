@@ -23,13 +23,19 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
             'referencedColumnName' => '"id"',
             'onDelete' => '"SET NULL"',
         ];
+
+        $serializer = '';
+        if (!empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
+        }
+
         return '
     /**
      * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
-     *
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\MaxDepth(2)
-     * @var \\' . $configuration['classname'] . '|null
+     *' . $serializer . '
+     * @var ' . $configuration['classname'] . '|null
      * @ORM\ManyToOne(targetEntity="'. $configuration['classname'] .'")
      * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')
      */'.PHP_EOL;

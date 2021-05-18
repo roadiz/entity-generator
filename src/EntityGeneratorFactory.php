@@ -8,14 +8,8 @@ use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
 
 final class EntityGeneratorFactory
 {
-    /**
-     * @var NodeTypeResolverInterface
-     */
-    private $nodeTypeResolverBag;
-    /**
-     * @var array
-     */
-    private $options;
+    private NodeTypeResolverInterface $nodeTypeResolverBag;
+    private array $options;
 
     /**
      * @param NodeTypeResolverInterface $nodeTypeResolverBag

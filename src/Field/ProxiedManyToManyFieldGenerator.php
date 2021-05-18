@@ -8,10 +8,7 @@ use Symfony\Component\String\UnicodeString;
 
 class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
 {
-    /**
-     * @var array|null
-     */
-    protected $configuration;
+    protected ?array $configuration = null;
 
     /**
      * @return array
@@ -22,6 +19,14 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
             $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
         }
         return $this->configuration;
+    }
+
+    protected function getSerializationAnnotations(): array
+    {
+        $annotations = parent::getSerializationAnnotations();
+        $annotations[] = '@Serializer\VirtualProperty';
+        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        return $annotations;
     }
 
     /**
@@ -80,6 +85,13 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
+        $serializer = '';
+        if (!empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
+        }
+
         return '
     /**
      * @return \Doctrine\Common\Collections\ArrayCollection
@@ -88,10 +100,8 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return $this->'.$this->getProxiedVarName().';
     }
-    /**
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\VirtualProperty()
-     * @Serializer\MaxDepth(2)
+
+    /**' . $serializer . '
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function '.$this->field->getGetterName().'()

@@ -17,29 +17,15 @@ use RZ\Roadiz\EntityGenerator\Field\NonVirtualFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\ProxiedManyToManyFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\YamlFieldGenerator;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Yaml;
 
 class EntityGenerator
 {
-    /**
-     * @var NodeTypeInterface
-     */
-    private $nodeType;
-
-    /**
-     * @var array
-     */
-    private $fieldGenerators;
-
-    /**
-     * @var NodeTypeResolverInterface
-     */
-    private $nodeTypeResolver;
-
-    /**
-     * @var array
-     */
-    protected $options;
+    private NodeTypeInterface $nodeType;
+    private array $fieldGenerators;
+    private NodeTypeResolverInterface $nodeTypeResolver;
+    protected array $options;
 
     /**
      * @param NodeTypeInterface $nodeType
@@ -92,6 +78,22 @@ class EntityGenerator
         $resolver->setAllowedTypes('repository_class', 'string');
         $resolver->setAllowedTypes('namespace', 'string');
         $resolver->setAllowedTypes('use_native_json', 'bool');
+
+        $normalizeClassName = function (OptionsResolver $resolver, string $className) {
+            return (new UnicodeString($className))->startsWith('\\') ?
+                $className :
+                '\\' . $className;
+        };
+
+        $resolver->setNormalizer('parent_class', $normalizeClassName);
+        $resolver->setNormalizer('node_class', $normalizeClassName);
+        $resolver->setNormalizer('translation_class', $normalizeClassName);
+        $resolver->setNormalizer('document_class', $normalizeClassName);
+        $resolver->setNormalizer('document_proxy_class', $normalizeClassName);
+        $resolver->setNormalizer('custom_form_class', $normalizeClassName);
+        $resolver->setNormalizer('custom_form_proxy_class', $normalizeClassName);
+        $resolver->setNormalizer('repository_class', $normalizeClassName);
+        $resolver->setNormalizer('namespace', $normalizeClassName);
     }
 
     /**
@@ -151,9 +153,8 @@ class EntityGenerator
      */
     protected function getClassBody(): string
     {
-        return 'class '.$this->nodeType->getSourceEntityClassName().' extends \\'.$this->options['parent_class'].'
-{
-    ' . $this->getClassProperties() .
+        return 'class '.$this->nodeType->getSourceEntityClassName().' extends '.$this->options['parent_class'].'
+{' . $this->getClassProperties() .
         $this->getClassConstructor() .
         $this->getNodeTypeNameGetter() .
         $this->getNodeTypeReachableGetter() .
@@ -181,7 +182,7 @@ namespace '.$this->options['namespace'].';
 
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Doctrine\ORM\Mapping as ORM;'.PHP_EOL.PHP_EOL;
+use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
     }
 
     /**
@@ -200,7 +201,7 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL.PHP_EOL;
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
- * @ORM\Entity(repositoryClass="\\'.$this->options['repository_class'].'")
+ * @ORM\Entity(repositoryClass="'.$this->options['repository_class'].'")
  * @ORM\Table(name="'.$this->nodeType->getSourceEntityTableName().'", indexes={'.implode(',', $indexes).'})
  */'.PHP_EOL;
     }
@@ -234,7 +235,7 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL.PHP_EOL;
 
         if (count($constructorArray) > 0) {
             return '
-    public function __construct(\\'.$this->options['node_class'].' $node, \\'.$this->options['translation_class'].' $translation)
+    public function __construct('.$this->options['node_class'].' $node, '.$this->options['translation_class'].' $translation)
     {
         parent::__construct($node, $translation);
 

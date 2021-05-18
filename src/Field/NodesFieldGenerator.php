@@ -8,10 +8,7 @@ use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
 
 class NodesFieldGenerator extends AbstractFieldGenerator
 {
-    /**
-     * @var NodeTypeResolverInterface
-     */
-    private $nodeTypeResolver;
+    private NodeTypeResolverInterface $nodeTypeResolver;
 
     /**
      * @param NodeTypeFieldInterface $field
@@ -22,6 +19,21 @@ class NodesFieldGenerator extends AbstractFieldGenerator
     {
         parent::__construct($field, $options);
         $this->nodeTypeResolver = $nodeTypeResolver;
+    }
+
+    protected function getSerializationAnnotations(): array
+    {
+        $annotations = parent::getSerializationAnnotations();
+        $annotations[] = '@Serializer\VirtualProperty';
+        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        return $annotations;
+    }
+
+    protected function getDefaultSerializationGroups(): array
+    {
+        $groups = parent::getDefaultSerializationGroups();
+        $groups[] = 'nodes_sources_nodes';
+        return $groups;
     }
 
     /**
@@ -63,9 +75,16 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
+        $serializer = '';
+        if (!empty($this->getSerializationAnnotations())) {
+            $serializer = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
+        }
+
         return '
     /**
-     * @return \\'.$this->options['node_class'].'[] '.$this->field->getVarName().' array
+     * @return '.$this->options['node_class'].'[] '.$this->field->getVarName().' array
      * @deprecated Use '.$this->field->getGetterName().'Sources() instead to directly handle node-sources
      * @Serializer\Exclude
      */
@@ -78,13 +97,13 @@ class NodesFieldGenerator extends AbstractFieldGenerator
 
         if (null === $this->' . $this->field->getVarName() . ') {
             if (null !== $this->objectManager) {
-                 $this->' . $this->field->getVarName() . ' = $this->objectManager
-                      ->getRepository(\\'.$this->options['node_class'].'::class)
-                      ->findByNodeAndFieldAndTranslation(
-                          $this->getNode(),
-                          $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getVarName().'"),
-                          $this->getTranslation()
-                      );
+                $this->' . $this->field->getVarName() . ' = $this->objectManager
+                    ->getRepository('.$this->options['node_class'].'::class)
+                    ->findByNodeAndFieldAndTranslation(
+                        $this->getNode(),
+                        $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getVarName().'"),
+                        $this->getTranslation()
+                    );
             } else {
                 $this->' . $this->field->getVarName() . ' = [];
             }
@@ -95,27 +114,23 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      * ' . $this->getFieldSourcesName() .' NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
      * @Serializer\Exclude
-     * @var \\'.$this->getRepositoryClass().'[]|null
+     * @var '.$this->getRepositoryClass().'[]|null
      */
     private $'.$this->getFieldSourcesName().';
 
     /**
-     * @return \\'.$this->getRepositoryClass().'[] '.$this->field->getVarName().' nodes-sources array
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default').'"})
-     * @Serializer\MaxDepth(2)
-     * @Serializer\SerializedName("'.$this->field->getVarName().'")
+     * @return '.$this->getRepositoryClass().'[] '.$this->field->getVarName().' nodes-sources array' . $serializer . '
      */
     public function '.$this->field->getGetterName().'Sources()
     {
         if (null === $this->' . $this->getFieldSourcesName() . ') {
             if (null !== $this->objectManager) {
-                 $this->' . $this->getFieldSourcesName() . ' = $this->objectManager
-                      ->getRepository(\\'. $this->getRepositoryClass() .'::class)
-                      ->findByNodesSourcesAndFieldAndTranslation(
-                          $this,
-                          $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'")
-                      );
+                $this->' . $this->getFieldSourcesName() . ' = $this->objectManager
+                    ->getRepository('. $this->getRepositoryClass() .'::class)
+                    ->findByNodesSourcesAndFieldAndTranslation(
+                        $this,
+                        $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'")
+                    );
             } else {
                 $this->' . $this->getFieldSourcesName() . ' = [];
             }
