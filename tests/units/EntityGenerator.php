@@ -79,6 +79,13 @@ class EntityGenerator extends atoum
                     ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                     ->setIndexed(false),
                 (new NodeTypeField())
+                    ->setName('foo_bar_typed')
+                    ->setTypeName('nodes')
+                    ->setVirtual(true)
+                    ->setLabel('ForBar nodes typed field')
+                    ->setIndexed(false)
+                    ->setDefaultValues('MockTwo'),
+                (new NodeTypeField())
                     ->setName('foo_many_to_one')
                     ->setTypeName('many_to_one')
                     ->setVirtual(false)
@@ -142,6 +149,14 @@ EOT)
             return true;
         };
         $mockNodeTypeResolver = $this->newMockInstance(NodeTypeResolverInterface::class);
+        $test = $this;
+        $mockNodeTypeResolver->getMockController()->get = function(string $nodeTypeName) use ($test) {
+            $mockNodeType = $test->newMockInstance(NodeTypeInterface::class);
+            $mockNodeType->getMockController()->getSourceEntityFullQualifiedClassName = function() use ($nodeTypeName) {
+                return 'tests\mocks\GeneratedNodesSources\NS' . $nodeTypeName;
+            };
+            return $mockNodeType;
+        };
 
 //        $dumpInstance = $this->newTestedInstance($mockNodeType, $mockNodeTypeResolver, [
 //            'parent_class' => '\mock\Entity\NodesSources',

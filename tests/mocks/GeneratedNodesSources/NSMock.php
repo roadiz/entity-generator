@@ -26,6 +26,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @ORM\Column(type="datetime", nullable=true, name="foo_datetime")
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
      * @Serializer\MaxDepth(2)
+     * @Serializer\Type("DateTime")
      */
     private ?\DateTime $fooDatetime = null;
 
@@ -58,6 +59,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @ORM\Column(type="string", nullable=true, name="foo", length=250)
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
+     * @Serializer\Type("string")
      */
     private ?string $foo = null;
 
@@ -92,6 +94,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @ORM\Column(type="text", nullable=true, name="foo_markdown")
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
+     * @Serializer\Type("string")
      */
     private ?string $fooMarkdown = null;
 
@@ -200,6 +203,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\MaxDepth(1)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("bar")
+     * @Serializer\Type("array<mock\Entity\Document>")
      */
     public function getBar()
     {
@@ -290,6 +294,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\MaxDepth(2)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("fooBar")
+     * @Serializer\Type("array<mock\Entity\NodesSources>")
      */
     public function getFooBarSources()
     {
@@ -306,6 +311,76 @@ class NSMock extends \mock\Entity\NodesSources
             }
         }
         return $this->fooBarSources;
+    }
+
+
+    /**
+     * ForBar nodes typed field.
+     * Default values: MockTwo
+     *
+     * (Virtual field, this var is a buffer)
+     * @Serializer\Exclude
+     */
+    private $fooBarTyped;
+
+    /**
+     * @return \mock\Entity\Node[] fooBarTyped array
+     * @deprecated Use getFooBarTypedSources() instead to directly handle node-sources
+     * @Serializer\Exclude
+     */
+    public function getFooBarTyped()
+    {
+        trigger_error(
+            'Method ' . __METHOD__ . ' is deprecated and will be removed in Roadiz v1.6. Use getFooBarTypedSources instead to deal with NodesSources.',
+            E_USER_DEPRECATED
+        );
+
+        if (null === $this->fooBarTyped) {
+            if (null !== $this->objectManager) {
+                $this->fooBarTyped = $this->objectManager
+                    ->getRepository(\mock\Entity\Node::class)
+                    ->findByNodeAndFieldAndTranslation(
+                        $this->getNode(),
+                        $this->getNode()->getNodeType()->getFieldByName("fooBarTyped"),
+                        $this->getTranslation()
+                    );
+            } else {
+                $this->fooBarTyped = [];
+            }
+        }
+        return $this->fooBarTyped;
+    }
+    /**
+     * fooBarTypedSources NodesSources direct field buffer.
+     * (Virtual field, this var is a buffer)
+     * @Serializer\Exclude
+     * @var \tests\mocks\GeneratedNodesSources\NSMockTwo[]|null
+     */
+    private $fooBarTypedSources;
+
+    /**
+     * @return \tests\mocks\GeneratedNodesSources\NSMockTwo[] fooBarTyped nodes-sources array
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
+     * @Serializer\MaxDepth(2)
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("fooBarTyped")
+     * @Serializer\Type("array<mock\Entity\NodesSources>")
+     */
+    public function getFooBarTypedSources()
+    {
+        if (null === $this->fooBarTypedSources) {
+            if (null !== $this->objectManager) {
+                $this->fooBarTypedSources = $this->objectManager
+                    ->getRepository(\tests\mocks\GeneratedNodesSources\NSMockTwo::class)
+                    ->findByNodesSourcesAndFieldAndTranslation(
+                        $this,
+                        $this->getNode()->getNodeType()->getFieldByName("foo_bar_typed")
+                    );
+            } else {
+                $this->fooBarTypedSources = [];
+            }
+        }
+        return $this->fooBarTypedSources;
     }
 
 
