@@ -5,6 +5,7 @@ namespace RZ\Roadiz\EntityGenerator\Field;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use Symfony\Component\String\UnicodeString;
 
 class NodesFieldGenerator extends AbstractFieldGenerator
 {
@@ -26,6 +27,9 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        $annotations[] = '@Serializer\Type("array<'.
+            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
+            '>")';
         return $annotations;
     }
 
@@ -64,7 +68,10 @@ class NodesFieldGenerator extends AbstractFieldGenerator
 
             $nodeType = $this->nodeTypeResolver->get($nodeTypeName);
             if (null !== $nodeType) {
-                return $nodeType->getSourceEntityFullQualifiedClassName();
+                $className = $nodeType->getSourceEntityFullQualifiedClassName();
+                return (new UnicodeString($className))->startsWith('\\') ?
+                    $className :
+                    '\\' . $className;
             }
         }
         return $this->options['parent_class'];

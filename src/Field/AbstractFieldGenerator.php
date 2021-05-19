@@ -241,12 +241,31 @@ abstract class AbstractFieldGenerator
         if (null !== $this->getSerializationExclusionExpression()) {
             $annotations[] = '@Serializer\Exclude(if="' . $this->getSerializationExclusionExpression() . '")';
         }
-        if ($this->field->isDecimal()) {
-            $annotations[] = '@Serializer\Type("double")';
-        } elseif ($this->field->isBool()) {
-            $annotations[] = '@Serializer\Type("boolean")';
-        } elseif ($this->field->isInteger()) {
-            $annotations[] = '@Serializer\Type("integer")';
+
+        switch (true) {
+            case $this->field->isBool():
+                $annotations[] = '@Serializer\Type("bool")';
+                break;
+            case $this->field->isInteger():
+                $annotations[] = '@Serializer\Type("int")';
+                break;
+            case $this->field->isDecimal():
+                $annotations[] = '@Serializer\Type("double")';
+                break;
+            case $this->field->isColor():
+            case $this->field->isEmail():
+            case $this->field->isString():
+            case $this->field->isCountry():
+            case $this->field->isMarkdown():
+            case $this->field->isText():
+            case $this->field->isRichText():
+            case $this->field->isEnum():
+                $annotations[] = '@Serializer\Type("string")';
+                break;
+            case $this->field->isDateTime():
+            case $this->field->isDate():
+                $annotations[] = '@Serializer\Type("DateTime")';
+                break;
         }
         return $annotations;
     }

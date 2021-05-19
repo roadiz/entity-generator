@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use Symfony\Component\String\UnicodeString;
+
 class DocumentsFieldGenerator extends AbstractFieldGenerator
 {
     protected function getSerializationAnnotations(): array
@@ -10,6 +12,9 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        $annotations[] = '@Serializer\Type("array<'.
+            (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString().
+            '>")';
         return $annotations;
     }
 
