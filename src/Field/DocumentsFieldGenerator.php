@@ -75,7 +75,8 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
      */
     public function add'.ucfirst($this->field->getVarName()).'('.$this->options['document_class'].' $document)
     {
-        if (null !== $this->getNode() &&
+        if (null !== $this->objectManager &&
+            null !== $this->getNode() &&
             null !== $this->getNode()->getNodeType()) {
             $field = $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'");
             if (null !== $field) {

@@ -70,7 +70,8 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
      */
     public function add'.ucfirst($this->field->getVarName()).'('.$this->options['custom_form_class'].' $customForm)
     {
-        if (null !== $this->getNode() &&
+        if (null !== $this->objectManager &&
+            null !== $this->getNode() &&
             null !== $this->getNode()->getNodeType()) {
             $field = $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'");
             if (null !== $field) {

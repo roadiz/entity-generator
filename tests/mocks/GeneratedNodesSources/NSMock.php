@@ -231,7 +231,8 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addBar(\mock\Entity\Document $document)
     {
-        if (null !== $this->getNode() &&
+        if (null !== $this->objectManager &&
+            null !== $this->getNode() &&
             null !== $this->getNode()->getNodeType()) {
             $field = $this->getNode()->getNodeType()->getFieldByName("bar");
             if (null !== $field) {
