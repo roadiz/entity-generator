@@ -251,6 +251,66 @@ class NSMock extends \mock\Entity\NodesSources
 
 
     /**
+     * Custom forms field.
+     *
+     * (Virtual field, this var is a buffer)
+     * @Serializer\Exclude
+     */
+    private $theForms;
+
+    /**
+     * @return \mock\Entity\CustomForm[] CustomForm array
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_custom_forms"})
+     * @Serializer\MaxDepth(2)
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("theForms")
+     */
+    public function getTheForms()
+    {
+        if (null === $this->theForms) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
+                $this->theForms = $this->objectManager
+                    ->getRepository(\mock\Entity\CustomForm::class)
+                    ->findByNodeAndField(
+                        $this->getNode(),
+                        $this->getNode()->getNodeType()->getFieldByName("the_forms")
+                    );
+            } else {
+                $this->theForms = [];
+            }
+        }
+        return $this->theForms;
+    }
+
+    /**
+     * @param \mock\Entity\CustomForm $customForm
+     *
+     * @return $this
+     */
+    public function addTheForms(\mock\Entity\CustomForm $customForm)
+    {
+        if (null !== $this->objectManager &&
+            null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("the_forms");
+            if (null !== $field) {
+                $nodeCustomForm = new \mock\Entity\NodesSourcesCustomForm(
+                    $this->getNode(),
+                    $customForm,
+                    $field
+                );
+                $this->objectManager->persist($nodeCustomForm);
+                $this->getNode()->addCustomForm($nodeCustomForm);
+                $this->theForms = null;
+            }
+        }
+        return $this;
+    }
+
+
+    /**
      * ForBar nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      *

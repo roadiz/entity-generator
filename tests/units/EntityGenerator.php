@@ -72,6 +72,12 @@ class EntityGenerator extends atoum
                     ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                     ->setIndexed(false),
                 (new NodeTypeField())
+                    ->setName('the_forms')
+                    ->setTypeName('custom_forms')
+                    ->setVirtual(true)
+                    ->setLabel('Custom forms field')
+                    ->setIndexed(false),
+                (new NodeTypeField())
                     ->setName('foo_bar')
                     ->setTypeName('nodes')
                     ->setVirtual(true)
