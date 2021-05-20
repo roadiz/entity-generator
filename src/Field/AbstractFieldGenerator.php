@@ -193,7 +193,11 @@ abstract class AbstractFieldGenerator
     {
         if ($this->field instanceof SerializableInterface &&
             null !== $this->field->getSerializationExclusionExpression()) {
-            return $this->field->getSerializationExclusionExpression();
+            return (new UnicodeString($this->field->getSerializationExclusionExpression()))
+                ->replace('"', '')
+                ->replace('\\', '')
+                ->trim()
+                ->toString();
         }
         return null;
     }
