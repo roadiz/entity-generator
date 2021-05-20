@@ -145,4 +145,23 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         return $this->' . $this->getFieldSourcesName() . ';
     }'.PHP_EOL;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldSetter(): string
+    {
+        return '
+    /**
+     * @param '.$this->getRepositoryClass().'[]|null $'.$this->getFieldSourcesName().'
+     *
+     * @return $this
+     */
+    public function '.$this->field->getSetterName().'Sources(?array $'.$this->getFieldSourcesName().')
+    {
+        $this->' . $this->getFieldSourcesName() . ' = $'.$this->getFieldSourcesName().';
+
+        return $this;
+    }'.PHP_EOL;
+    }
 }
