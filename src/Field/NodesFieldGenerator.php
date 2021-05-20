@@ -103,7 +103,9 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         );
 
         if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->' . $this->field->getVarName() . ' = $this->objectManager
                     ->getRepository('.$this->options['node_class'].'::class)
                     ->findByNodeAndFieldAndTranslation(
@@ -131,7 +133,9 @@ class NodesFieldGenerator extends AbstractFieldGenerator
     public function '.$this->field->getGetterName().'Sources()
     {
         if (null === $this->' . $this->getFieldSourcesName() . ') {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->' . $this->getFieldSourcesName() . ' = $this->objectManager
                     ->getRepository('. $this->getRepositoryClass() .'::class)
                     ->findByNodesSourcesAndFieldAndTranslation(

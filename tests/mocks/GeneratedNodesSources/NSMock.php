@@ -208,7 +208,9 @@ class NSMock extends \mock\Entity\NodesSources
     public function getBar()
     {
         if (null === $this->bar) {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->bar = $this->objectManager
                     ->getRepository(\mock\Entity\Document::class)
                     ->findByNodeSourceAndField(
@@ -229,16 +231,19 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addBar(\mock\Entity\Document $document)
     {
-        $field = $this->getNode()->getNodeType()->getFieldByName("bar");
-        if (null !== $field) {
-            $nodeSourceDocument = new \mock\Entity\NodesSourcesDocument(
-                $this,
-                $document,
-                $field
-            );
-            $this->objectManager->persist($nodeSourceDocument);
-            $this->addDocumentsByFields($nodeSourceDocument);
-            $this->bar = null;
+        if (null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("bar");
+            if (null !== $field) {
+                $nodeSourceDocument = new \mock\Entity\NodesSourcesDocument(
+                    $this,
+                    $document,
+                    $field
+                );
+                $this->objectManager->persist($nodeSourceDocument);
+                $this->addDocumentsByFields($nodeSourceDocument);
+                $this->bar = null;
+            }
         }
         return $this;
     }
@@ -266,7 +271,9 @@ class NSMock extends \mock\Entity\NodesSources
         );
 
         if (null === $this->fooBar) {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->fooBar = $this->objectManager
                     ->getRepository(\mock\Entity\Node::class)
                     ->findByNodeAndFieldAndTranslation(
@@ -299,7 +306,9 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarSources()
     {
         if (null === $this->fooBarSources) {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->fooBarSources = $this->objectManager
                     ->getRepository(\mock\Entity\NodesSources::class)
                     ->findByNodesSourcesAndFieldAndTranslation(
@@ -348,7 +357,9 @@ class NSMock extends \mock\Entity\NodesSources
         );
 
         if (null === $this->fooBarTyped) {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->fooBarTyped = $this->objectManager
                     ->getRepository(\mock\Entity\Node::class)
                     ->findByNodeAndFieldAndTranslation(
@@ -381,7 +392,9 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarTypedSources()
     {
         if (null === $this->fooBarTypedSources) {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->fooBarTypedSources = $this->objectManager
                     ->getRepository(\tests\mocks\GeneratedNodesSources\NSMockTwo::class)
                     ->findByNodesSourcesAndFieldAndTranslation(

@@ -34,7 +34,7 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
         $assignation = '$this->'.$this->field->getVarName();
         return '
     /**
-     * @return object|null' . $serializer . '
+     * @return object|array|null' . $serializer . '
      */
     public function '.$this->field->getGetterName().'AsObject()
     {

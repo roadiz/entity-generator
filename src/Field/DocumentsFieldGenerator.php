@@ -43,7 +43,9 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
     public function '.$this->field->getGetterName().'()
     {
         if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager) {
+            if (null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()) {
                 $this->' . $this->field->getVarName() . ' = $this->objectManager
                     ->getRepository('.$this->options['document_class'].'::class)
                     ->findByNodeSourceAndField(
@@ -73,16 +75,19 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
      */
     public function add'.ucfirst($this->field->getVarName()).'('.$this->options['document_class'].' $document)
     {
-        $field = $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'");
-        if (null !== $field) {
-            $nodeSourceDocument = new '.$this->options['document_proxy_class'].'(
-                $this,
-                $document,
-                $field
-            );
-            $this->objectManager->persist($nodeSourceDocument);
-            $this->addDocumentsByFields($nodeSourceDocument);
-            $this->' . $this->field->getVarName() . ' = null;
+        if (null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'");
+            if (null !== $field) {
+                $nodeSourceDocument = new '.$this->options['document_proxy_class'].'(
+                    $this,
+                    $document,
+                    $field
+                );
+                $this->objectManager->persist($nodeSourceDocument);
+                $this->addDocumentsByFields($nodeSourceDocument);
+                $this->' . $this->field->getVarName() . ' = null;
+            }
         }
         return $this;
     }'.PHP_EOL;
