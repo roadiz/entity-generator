@@ -158,6 +158,9 @@ EOT)
             return $mockNodeType;
         };
 
+        /*
+         * Uncomment for generating a mock file from tests
+         */
 //        $dumpInstance = $this->newTestedInstance($mockNodeType, $mockNodeTypeResolver, [
 //            'parent_class' => '\mock\Entity\NodesSources',
 //            'node_class' => '\mock\Entity\Node',
@@ -170,7 +173,10 @@ EOT)
 //            'namespace' => '\tests\mocks\GeneratedNodesSources',
 //            'use_native_json' => true
 //        ]);
-//        var_dump($dumpInstance->getClassContent());
+//        file_put_contents(
+//            dirname(__DIR__) . '/mocks/GeneratedNodesSources/NSMock.php',
+//            $dumpInstance->getClassContent()
+//        );
 
         $this
             // creation of a new instance of the tested class

@@ -313,6 +313,18 @@ class NSMock extends \mock\Entity\NodesSources
         return $this->fooBarSources;
     }
 
+    /**
+     * @param \mock\Entity\NodesSources[]|null $fooBarSources
+     *
+     * @return $this
+     */
+    public function setFooBarSources(?array $fooBarSources)
+    {
+        $this->fooBarSources = $fooBarSources;
+
+        return $this;
+    }
+
 
     /**
      * ForBar nodes typed field.
@@ -381,6 +393,18 @@ class NSMock extends \mock\Entity\NodesSources
             }
         }
         return $this->fooBarTypedSources;
+    }
+
+    /**
+     * @param \tests\mocks\GeneratedNodesSources\NSMockTwo[]|null $fooBarTypedSources
+     *
+     * @return $this
+     */
+    public function setFooBarTypedSources(?array $fooBarTypedSources)
+    {
+        $this->fooBarTypedSources = $fooBarTypedSources;
+
+        return $this;
     }
 
 
