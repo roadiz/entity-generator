@@ -241,9 +241,11 @@ class NSMock extends \mock\Entity\NodesSources
                     $document,
                     $field
                 );
-                $this->objectManager->persist($nodeSourceDocument);
-                $this->addDocumentsByFields($nodeSourceDocument);
-                $this->bar = null;
+                if (!$this->hasNodesSourcesDocuments($nodeSourceDocument)) {
+                    $this->objectManager->persist($nodeSourceDocument);
+                    $this->addDocumentsByFields($nodeSourceDocument);
+                    $this->bar = null;
+                }
             }
         }
         return $this;
