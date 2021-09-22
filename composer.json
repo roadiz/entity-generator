@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "roadiz/nodetype-contracts": "dev-main",
+        "roadiz/nodetype-contracts": "~1.1.0",
         "symfony/string": "^5.0.7",
         "symfony/yaml": "~4.4.1 || ^5.0.7",
         "symfony/options-resolver": "~4.4.1 || ^5.0.7"
