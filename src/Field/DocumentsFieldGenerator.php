@@ -12,6 +12,7 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         $annotations[] = '@Serializer\Type("array<'.
             (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString().
             '>")';

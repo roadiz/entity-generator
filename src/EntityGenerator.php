@@ -181,6 +181,7 @@ declare(strict_types=1);
 namespace '.ltrim($this->options['namespace'], '\\').';
 
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
     }
@@ -257,6 +258,8 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\SerializedName("@type")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\SerializedName("@type")
      */
     public function getNodeTypeName(): string
     {

@@ -27,6 +27,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         $annotations[] = '@Serializer\Type("array<'.
             (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
             '>")';
@@ -94,6 +95,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      * @return '.$this->options['node_class'].'[] '.$this->field->getVarName().' array
      * @deprecated Use '.$this->field->getGetterName().'Sources() instead to directly handle node-sources
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      */
     public function '.$this->field->getGetterName().'()
     {
@@ -123,6 +125,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      * ' . $this->getFieldSourcesName() .' NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      * @var '.$this->getRepositoryClass().'[]|null
      */
     private $'.$this->getFieldSourcesName().';

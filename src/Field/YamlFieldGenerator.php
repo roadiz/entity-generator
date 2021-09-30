@@ -10,6 +10,7 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
+        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         return $annotations;
     }
 

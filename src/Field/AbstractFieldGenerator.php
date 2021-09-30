@@ -58,7 +58,7 @@ abstract class AbstractFieldGenerator
     /**
      * @return array<string>
      */
-    protected function getFieldAutodoc(): array
+    protected function getFieldAutodoc(bool $exclude = false): array
     {
         $docs = [
             $this->field->getLabel().'.',
@@ -72,6 +72,11 @@ abstract class AbstractFieldGenerator
         if (!empty($this->field->getGroupName())) {
             $docs[] = 'Group: ' . $this->field->getGroupName().'.';
         }
+        if ($exclude) {
+            $docs[] = '@Serializer\Exclude';
+            $docs[] = '@SymfonySerializer\Ignore()';
+        }
+
         return $docs;
     }
 
@@ -81,16 +86,16 @@ abstract class AbstractFieldGenerator
     protected function getFieldAnnotation(): string
     {
         $autodoc = '';
-        if (!empty($this->getFieldAutodoc())) {
+        $fieldAutoDoc = $this->getFieldAutodoc(true);
+        if (!empty($fieldAutoDoc)) {
             $autodoc = PHP_EOL .
                 static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $fieldAutoDoc);
         }
         return '
     /**' . $autodoc .'
      *
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
      */'.PHP_EOL;
     }
 
@@ -235,12 +240,17 @@ abstract class AbstractFieldGenerator
     protected function getSerializationAnnotations(): array
     {
         if ($this->excludeFromSerialization()) {
-            return ['@Serializer\Exclude()'];
+            return [
+                '@Serializer\Exclude()',
+                '@SymfonySerializer\Ignore()'
+            ];
         }
         $annotations = [];
         $annotations[] = '@Serializer\Groups(' . $this->getSerializationGroups() . ')';
+        $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
         if ($this->getSerializationMaxDepth() > 0) {
             $annotations[] = '@Serializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+            $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
         }
         if (null !== $this->getSerializationExclusionExpression()) {
             $annotations[] = '@Serializer\Exclude(if="' . $this->getSerializationExclusionExpression() . '")';

@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace tests\mocks\GeneratedNodesSources;
 
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,7 +26,9 @@ class NSMock extends \mock\Entity\NodesSources
      * @Gedmo\Versioned
      * @ORM\Column(type="datetime", nullable=true, name="foo_datetime")
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @Serializer\Type("DateTime")
      */
     private ?\DateTime $fooDatetime = null;
@@ -58,7 +61,9 @@ class NSMock extends \mock\Entity\NodesSources
      * @Gedmo\Versioned
      * @ORM\Column(type="string", nullable=true, name="foo", length=250)
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
+     * @SymfonySerializer\MaxDepth(1)
      * @Serializer\Type("string")
      */
     private ?string $foo = null;
@@ -93,7 +98,9 @@ class NSMock extends \mock\Entity\NodesSources
      * @Gedmo\Versioned
      * @ORM\Column(type="text", nullable=true, name="foo_markdown")
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
+     * @SymfonySerializer\MaxDepth(1)
      * @Serializer\Type("string")
      */
     private ?string $fooMarkdown = null;
@@ -128,6 +135,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Gedmo\Versioned
      * @ORM\Column(type="text", nullable=true, name="foo_markdown_excluded")
      * @Serializer\Exclude()
+     * @SymfonySerializer\Ignore()
      */
     private ?string $fooMarkdownExcluded = null;
 
@@ -161,7 +169,9 @@ class NSMock extends \mock\Entity\NodesSources
      * @Gedmo\Versioned
      * @ORM\Column(type="decimal", nullable=true, name="foo_decimal_excluded", precision=18, scale=3)
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @Serializer\Exclude(if="object.foo == 'test'")
      * @Serializer\Type("double")
      */
@@ -191,18 +201,22 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Bar documents field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      *
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
      */
     private $bar;
 
     /**
      * @return \mock\Entity\Document[] Documents array
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_documents"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_documents"})
      * @Serializer\MaxDepth(1)
+     * @SymfonySerializer\MaxDepth(1)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("bar")
+     * @SymfonySerializer\SerializedName("bar")
      * @Serializer\Type("array<mock\Entity\Document>")
      */
     public function getBar()
@@ -254,18 +268,22 @@ class NSMock extends \mock\Entity\NodesSources
 
     /**
      * Custom forms field.
+     * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      *
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
      */
     private $theForms;
 
     /**
      * @return \mock\Entity\CustomForm[] CustomForm array
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_custom_forms"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_custom_forms"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("theForms")
+     * @SymfonySerializer\SerializedName("theForms")
      */
     public function getTheForms()
     {
@@ -315,9 +333,10 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * ForBar nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      *
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
      */
     private $fooBar;
 
@@ -325,6 +344,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @return \mock\Entity\Node[] fooBar array
      * @deprecated Use getFooBarSources() instead to directly handle node-sources
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      */
     public function getFooBar()
     {
@@ -354,6 +374,7 @@ class NSMock extends \mock\Entity\NodesSources
      * fooBarSources NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      * @var \mock\Entity\NodesSources[]|null
      */
     private $fooBarSources;
@@ -361,9 +382,12 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * @return \mock\Entity\NodesSources[] fooBar nodes-sources array
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("fooBar")
+     * @SymfonySerializer\SerializedName("fooBar")
      * @Serializer\Type("array<mock\Entity\NodesSources>")
      */
     public function getFooBarSources()
@@ -401,9 +425,10 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * ForBar nodes typed field.
      * Default values: MockTwo
+     * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      *
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
      */
     private $fooBarTyped;
 
@@ -411,6 +436,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @return \mock\Entity\Node[] fooBarTyped array
      * @deprecated Use getFooBarTypedSources() instead to directly handle node-sources
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      */
     public function getFooBarTyped()
     {
@@ -440,6 +466,7 @@ class NSMock extends \mock\Entity\NodesSources
      * fooBarTypedSources NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
      * @Serializer\Exclude
+     * @SymfonySerializer\Ignore()
      * @var \tests\mocks\GeneratedNodesSources\NSMockTwo[]|null
      */
     private $fooBarTypedSources;
@@ -447,9 +474,12 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * @return \tests\mocks\GeneratedNodesSources\NSMockTwo[] fooBarTyped nodes-sources array
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("fooBarTyped")
+     * @SymfonySerializer\SerializedName("fooBarTyped")
      * @Serializer\Type("array<mock\Entity\NodesSources>")
      */
     public function getFooBarTypedSources()
@@ -490,7 +520,9 @@ class NSMock extends \mock\Entity\NodesSources
      *     displayable: getName
      *
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @var \MyCustomEntity|null
      * @ORM\ManyToOne(targetEntity="\MyCustomEntity")
      * @ORM\JoinColumn(name="foo_many_to_one_id", referencedColumnName="id", onDelete="SET NULL")
@@ -521,7 +553,9 @@ class NSMock extends \mock\Entity\NodesSources
      * For many_to_many field
      *
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(2)
+     * @SymfonySerializer\MaxDepth(2)
      * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity>
      * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
      * @ORM\OrderBy(value={"name":"asc"})
@@ -553,6 +587,7 @@ class NSMock extends \mock\Entity\NodesSources
      * For many_to_many proxied field
      *
      * @Serializer\Exclude()
+     * @SymfonySerializer\Ignore()
      * @var \Doctrine\Common\Collections\ArrayCollection<\Themes\MyTheme\Entities\PositionedCity>
      * @ORM\OneToMany(targetEntity="\Themes\MyTheme\Entities\PositionedCity", mappedBy="nodeSource", orphanRemoval=true, cascade={"persist", "remove"})
      * @ORM\OrderBy(value={"position":"ASC"})
@@ -569,9 +604,12 @@ class NSMock extends \mock\Entity\NodesSources
 
     /**
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(1)
+     * @SymfonySerializer\MaxDepth(1)
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("fooManyToManyProxied")
+     * @SymfonySerializer\SerializedName("fooManyToManyProxied")
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function getFooManyToManyProxied()
@@ -632,6 +670,8 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\SerializedName("@type")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\SerializedName("@type")
      */
     public function getNodeTypeName(): string
     {
