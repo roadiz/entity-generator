@@ -10,7 +10,6 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         return $annotations;
     }
 
@@ -19,6 +18,16 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
         $groups = parent::getDefaultSerializationGroups();
         $groups[] = 'nodes_sources_custom_forms';
         return $groups;
+    }
+
+    protected function getFieldTypeDeclaration(): string
+    {
+        return '?array';
+    }
+
+    protected function getFieldDefaultValueDeclaration(): string
+    {
+        return 'null';
     }
 
     /**
@@ -36,7 +45,7 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
     /**
      * @return '.$this->options['custom_form_class'].'[] CustomForm array' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'()
+    public function '.$this->field->getGetterName().'(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
             if (null !== $this->objectManager &&

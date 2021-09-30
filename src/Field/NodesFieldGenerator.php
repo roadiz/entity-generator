@@ -27,7 +27,6 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         $annotations[] = '@Serializer\Type("array<'.
             (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
             '>")';
@@ -90,50 +89,27 @@ class NodesFieldGenerator extends AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
         }
 
-        return '
-    /**
-     * @return '.$this->options['node_class'].'[] '.$this->field->getVarName().' array
-     * @deprecated Use '.$this->field->getGetterName().'Sources() instead to directly handle node-sources
-     * @Serializer\Exclude
-     * @SymfonySerializer\Ignore()
-     */
-    public function '.$this->field->getGetterName().'()
-    {
-        trigger_error(
-            \'Method \' . __METHOD__ . \' is deprecated and will be removed in Roadiz v1.6. Use '.$this->field->getGetterName().'Sources instead to deal with NodesSources.\',
-            E_USER_DEPRECATED
-        );
-
-        if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager &&
-                null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
-                $this->' . $this->field->getVarName() . ' = $this->objectManager
-                    ->getRepository('.$this->options['node_class'].'::class)
-                    ->findByNodeAndFieldAndTranslation(
-                        $this->getNode(),
-                        $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getVarName().'"),
-                        $this->getTranslation()
-                    );
-            } else {
-                $this->' . $this->field->getVarName() . ' = [];
-            }
+        $autodoc = '';
+        $fieldAutoDoc = $this->getFieldAutodoc(true);
+        if (!empty($fieldAutoDoc)) {
+            $autodoc = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $fieldAutoDoc);
         }
-        return $this->' . $this->field->getVarName() . ';
-    }
+
+        return '
     /**
      * ' . $this->getFieldSourcesName() .' NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
-     * @Serializer\Exclude
-     * @SymfonySerializer\Ignore()
+     * '.$autodoc.'
      * @var '.$this->getRepositoryClass().'[]|null
      */
-    private $'.$this->getFieldSourcesName().';
+    private ?array $'.$this->getFieldSourcesName().' = null;
 
     /**
      * @return '.$this->getRepositoryClass().'[] '.$this->field->getVarName().' nodes-sources array' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'Sources()
+    public function '.$this->field->getGetterName().'Sources(): array
     {
         if (null === $this->' . $this->getFieldSourcesName() . ') {
             if (null !== $this->objectManager &&

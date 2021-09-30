@@ -12,7 +12,6 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
         $annotations[] = '@Serializer\Type("array<'.
             (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString().
             '>")';
@@ -24,6 +23,16 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
         $groups = parent::getDefaultSerializationGroups();
         $groups[] = 'nodes_sources_documents';
         return $groups;
+    }
+
+    protected function getFieldTypeDeclaration(): string
+    {
+        return '?array';
+    }
+
+    protected function getFieldDefaultValueDeclaration(): string
+    {
+        return 'null';
     }
 
     /**
@@ -41,7 +50,7 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
     /**
      * @return '.$this->options['document_class'].'[] Documents array' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'()
+    public function '.$this->field->getGetterName().'(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
             if (null !== $this->objectManager &&

@@ -74,7 +74,20 @@ abstract class AbstractFieldGenerator
         }
         if ($exclude) {
             $docs[] = '@Serializer\Exclude';
+        }
+        /*
+         * Symfony serializer is using getter / setter by default
+         */
+        $docs[] = '';
+        $docs[] = 'Symfony serializer annotations must be set on property';
+        if ($this->excludeFromSerialization()) {
             $docs[] = '@SymfonySerializer\Ignore()';
+        } else {
+            $docs[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
+            $docs[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
+            if ($this->getSerializationMaxDepth() > 0) {
+                $docs[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+            }
         }
 
         return $docs;
@@ -110,7 +123,7 @@ abstract class AbstractFieldGenerator
         }
         $defaultValue = $this->getFieldDefaultValueDeclaration();
         if (!empty($defaultValue)) {
-            $defaultValue = ' ' . $defaultValue;
+            $defaultValue = ' = ' . $defaultValue;
         }
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
@@ -241,16 +254,13 @@ abstract class AbstractFieldGenerator
     {
         if ($this->excludeFromSerialization()) {
             return [
-                '@Serializer\Exclude()',
-                '@SymfonySerializer\Ignore()'
+                '@Serializer\Exclude()'
             ];
         }
         $annotations = [];
         $annotations[] = '@Serializer\Groups(' . $this->getSerializationGroups() . ')';
-        $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
         if ($this->getSerializationMaxDepth() > 0) {
             $annotations[] = '@Serializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
-            $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
         }
         if (null !== $this->getSerializationExclusionExpression()) {
             $annotations[] = '@Serializer\Exclude(if="' . $this->getSerializationExclusionExpression() . '")';

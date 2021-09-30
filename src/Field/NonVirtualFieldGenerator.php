@@ -129,9 +129,9 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     {
         switch (true) {
             case $this->field->isBool():
-                return '= false';
+                return 'false';
             default:
-                return '= null';
+                return 'null';
         }
     }
 

@@ -60,7 +60,7 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
 
     protected function getFieldDefaultValueDeclaration(): string
     {
-        return '= null';
+        return 'null';
     }
 
     /**
