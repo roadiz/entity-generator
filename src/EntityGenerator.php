@@ -173,6 +173,7 @@ class EntityGenerator
          * are using ::class syntax!
          */
         return '<?php
+
 declare(strict_types=1);
 /*
  * THIS IS A GENERATED FILE, DO NOT EDIT IT

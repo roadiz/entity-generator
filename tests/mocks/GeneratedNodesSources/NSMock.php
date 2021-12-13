@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
@@ -532,7 +533,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity>
      * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
      * @ORM\OrderBy(value={"name":"asc"})
-     * @ORM\JoinTable(name="node_type_foo_many_to_many", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id") }, inverseJoinColumns={ @ORM\JoinColumn(name="foo_many_to_many_id", referencedColumnName="id") })
+     * @ORM\JoinTable(name="node_type_foo_many_to_many", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id", onDelete="CASCADE") }, inverseJoinColumns={ @ORM\JoinColumn(name="foo_many_to_many_id", referencedColumnName="id", onDelete="CASCADE") })
      */
     private $fooManyToMany;
 

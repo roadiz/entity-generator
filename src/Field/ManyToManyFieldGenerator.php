@@ -45,11 +45,13 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
         $entityB = $this->field->getName();
         $joinColumnParams = [
             'name' => '"'.$entityA.'_id"',
-            'referencedColumnName' => '"id"'
+            'referencedColumnName' => '"id"',
+            'onDelete' => '"CASCADE"'
         ];
         $inverseJoinColumns = [
             'name' => '"'.$entityB.'_id"',
-            'referencedColumnName' => '"id"'
+            'referencedColumnName' => '"id"',
+            'onDelete' => '"CASCADE"'
         ];
         $ormParams = [
             'name' => '"'. $entityA .'_' . $entityB . '"',
