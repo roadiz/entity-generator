@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -11,11 +12,15 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
     {
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@Serializer\Type("array<'.
-            (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString().
+        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
+        $annotations[] = '@Serializer\Type("array<' .
+            (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString() .
             '>")';
-        return $annotations;
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -48,26 +53,28 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
         }
         return '
     /**
-     * @return '.$this->options['document_class'].'[] Documents array' . $serializer . '
+     * @return ' . $this->options['document_class'] . '[] Documents array' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'(): array
+    public function ' . $this->field->getGetterName() . '(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->' . $this->field->getVarName() . ' = $this->objectManager
-                    ->getRepository('.$this->options['document_class'].'::class)
+                    ->getRepository(' . $this->options['document_class'] . '::class)
                     ->findByNodeSourceAndField(
                         $this,
-                        $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'")
+                        $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '")
                     );
             } else {
                 $this->' . $this->field->getVarName() . ' = [];
             }
         }
         return $this->' . $this->field->getVarName() . ';
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -79,18 +86,20 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @param '.$this->options['document_class'].' $document
+     * @param ' . $this->options['document_class'] . ' $document
      *
      * @return $this
      */
-    public function add'.ucfirst($this->field->getVarName()).'('.$this->options['document_class'].' $document)
+    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document)
     {
-        if (null !== $this->objectManager &&
+        if (
+            null !== $this->objectManager &&
             null !== $this->getNode() &&
-            null !== $this->getNode()->getNodeType()) {
-            $field = $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'");
+            null !== $this->getNode()->getNodeType()
+        ) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '");
             if (null !== $field) {
-                $nodeSourceDocument = new '.$this->options['document_proxy_class'].'(
+                $nodeSourceDocument = new ' . $this->options['document_proxy_class'] . '(
                     $this,
                     $document,
                     $field
@@ -103,6 +112,6 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
             }
         }
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 }

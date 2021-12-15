@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -11,7 +12,7 @@ abstract class AbstractFieldGenerator
 {
     const USE_NATIVE_JSON = 'use_native_json';
     const TAB = '    ';
-    const ANNOTATION_PREFIX = AbstractFieldGenerator::TAB . ' * ';
+    const ANNOTATION_PREFIX = AbstractFieldGenerator::TAB . ' *';
 
     protected NodeTypeFieldInterface $field;
     protected array $options;
@@ -48,11 +49,11 @@ abstract class AbstractFieldGenerator
      */
     public function getField(): string
     {
-        return $this->getFieldAnnotation().
-            $this->getFieldDeclaration().
-            $this->getFieldGetter().
-            $this->getFieldAlternativeGetter().
-            $this->getFieldSetter().PHP_EOL;
+        return $this->getFieldAnnotation() .
+            $this->getFieldDeclaration() .
+            $this->getFieldGetter() .
+            $this->getFieldAlternativeGetter() .
+            $this->getFieldSetter() . PHP_EOL;
     }
 
     /**
@@ -61,16 +62,16 @@ abstract class AbstractFieldGenerator
     protected function getFieldAutodoc(bool $exclude = false): array
     {
         $docs = [
-            $this->field->getLabel().'.',
+            $this->field->getLabel() . '.',
         ];
         if (!empty($this->field->getDescription())) {
-            $docs[] = $this->field->getDescription().'.';
+            $docs[] = $this->field->getDescription() . '.';
         }
         if (!empty($this->field->getDefaultValues())) {
             $docs[] = 'Default values: ' . str_replace("\n", "\n     *     ", $this->field->getDefaultValues());
         }
         if (!empty($this->field->getGroupName())) {
-            $docs[] = 'Group: ' . $this->field->getGroupName().'.';
+            $docs[] = 'Group: ' . $this->field->getGroupName() . '.';
         }
         if ($exclude) {
             $docs[] = '@Serializer\Exclude';
@@ -83,14 +84,17 @@ abstract class AbstractFieldGenerator
         if ($this->excludeFromSerialization()) {
             $docs[] = '@SymfonySerializer\Ignore()';
         } else {
-            $docs[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
+            $docs[] = '@SymfonySerializer\SerializedName("' . $this->field->getVarName() . '")';
             $docs[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
             if ($this->getSerializationMaxDepth() > 0) {
                 $docs[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
             }
         }
 
-        return $docs;
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            return !empty($line) ? ' ' . $line : $line;
+        }, $docs);
     }
 
     /**
@@ -106,10 +110,10 @@ abstract class AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $fieldAutoDoc);
         }
         return '
-    /**' . $autodoc .'
+    /**' . $autodoc . '
      *
      * (Virtual field, this var is a buffer)
-     */'.PHP_EOL;
+     */' . PHP_EOL;
     }
 
     /**
@@ -128,7 +132,7 @@ abstract class AbstractFieldGenerator
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
          */
-        return static::TAB . 'private ' . $type . '$'.$this->field->getVarName() . $defaultValue . ';'.PHP_EOL;
+        return static::TAB . 'private ' . $type . '$' . $this->field->getVarName() . $defaultValue . ';' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
@@ -209,8 +213,10 @@ abstract class AbstractFieldGenerator
 
     protected function getSerializationExclusionExpression(): ?string
     {
-        if ($this->field instanceof SerializableInterface &&
-            null !== $this->field->getSerializationExclusionExpression()) {
+        if (
+            $this->field instanceof SerializableInterface &&
+            null !== $this->field->getSerializationExclusionExpression()
+        ) {
             return (new UnicodeString($this->field->getSerializationExclusionExpression()))
                 ->replace('"', '')
                 ->replace('\\', '')
@@ -232,7 +238,7 @@ abstract class AbstractFieldGenerator
     {
         return [
             'nodes_sources',
-            'nodes_sources_'.($this->field->getGroupNameCanonical() ?: 'default')
+            'nodes_sources_' . ($this->field->getGroupNameCanonical() ?: 'default')
         ];
     }
 
@@ -254,7 +260,8 @@ abstract class AbstractFieldGenerator
     {
         if ($this->excludeFromSerialization()) {
             return [
-                '@Serializer\Exclude()'
+                // Add whitespace before each line for PHPDoc syntax
+                ' @Serializer\Exclude()'
             ];
         }
         $annotations = [];
@@ -291,6 +298,10 @@ abstract class AbstractFieldGenerator
                 $annotations[] = '@Serializer\Type("DateTime")';
                 break;
         }
-        return $annotations;
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
     }
 }

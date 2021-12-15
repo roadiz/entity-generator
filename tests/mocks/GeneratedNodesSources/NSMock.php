@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /*
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
@@ -23,7 +24,7 @@ class NSMock extends \mock\Entity\NodesSources
 {
     /**
      * Foo DateTime field.
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooDatetime")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
@@ -61,7 +62,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("foo")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
@@ -101,7 +102,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo markdown field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooMarkdown")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
@@ -141,7 +142,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo excluded markdown field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\Ignore()
      *
@@ -177,7 +178,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo expression excluded decimal.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooDecimalExcluded")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
@@ -217,7 +218,7 @@ class NSMock extends \mock\Entity\NodesSources
      * Bar documents field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("bar")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_documents"})
@@ -238,9 +239,11 @@ class NSMock extends \mock\Entity\NodesSources
     public function getBar(): array
     {
         if (null === $this->bar) {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->bar = $this->objectManager
                     ->getRepository(\mock\Entity\Document::class)
                     ->findByNodeSourceAndField(
@@ -261,9 +264,11 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addBar(\mock\Entity\Document $document)
     {
-        if (null !== $this->objectManager &&
+        if (
+            null !== $this->objectManager &&
             null !== $this->getNode() &&
-            null !== $this->getNode()->getNodeType()) {
+            null !== $this->getNode()->getNodeType()
+        ) {
             $field = $this->getNode()->getNodeType()->getFieldByName("bar");
             if (null !== $field) {
                 $nodeSourceDocument = new \mock\Entity\NodesSourcesDocument(
@@ -285,7 +290,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Custom forms field.
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("theForms")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_custom_forms"})
@@ -305,9 +310,11 @@ class NSMock extends \mock\Entity\NodesSources
     public function getTheForms(): array
     {
         if (null === $this->theForms) {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->theForms = $this->objectManager
                     ->getRepository(\mock\Entity\CustomForm::class)
                     ->findByNodeAndField(
@@ -328,9 +335,11 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addTheForms(\mock\Entity\CustomForm $customForm)
     {
-        if (null !== $this->objectManager &&
+        if (
+            null !== $this->objectManager &&
             null !== $this->getNode() &&
-            null !== $this->getNode()->getNodeType()) {
+            null !== $this->getNode()->getNodeType()
+        ) {
             $field = $this->getNode()->getNodeType()->getFieldByName("the_forms");
             if (null !== $field) {
                 $nodeCustomForm = new \mock\Entity\NodesSourcesCustomForm(
@@ -351,7 +360,7 @@ class NSMock extends \mock\Entity\NodesSources
      * ForBar nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooBar")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
@@ -364,11 +373,11 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * fooBarSources NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
-     * 
+     *
      * ForBar nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooBar")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
@@ -388,9 +397,11 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarSources(): array
     {
         if (null === $this->fooBarSources) {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->fooBarSources = $this->objectManager
                     ->getRepository(\mock\Entity\NodesSources::class)
                     ->findByNodesSourcesAndFieldAndTranslation(
@@ -421,7 +432,7 @@ class NSMock extends \mock\Entity\NodesSources
      * ForBar nodes typed field.
      * Default values: MockTwo
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooBarTyped")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
@@ -434,11 +445,11 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * fooBarTypedSources NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
-     * 
+     *
      * ForBar nodes typed field.
      * Default values: MockTwo
      * @Serializer\Exclude
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooBarTyped")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
@@ -458,9 +469,11 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarTypedSources(): array
     {
         if (null === $this->fooBarTypedSources) {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->fooBarTypedSources = $this->objectManager
                     ->getRepository(\tests\mocks\GeneratedNodesSources\NSMockTwo::class)
                     ->findByNodesSourcesAndFieldAndTranslation(
@@ -491,12 +504,11 @@ class NSMock extends \mock\Entity\NodesSources
      * For many_to_one field.
      * Default values: classname: \MyCustomEntity
      *     displayable: getName
-     * 
+     *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName("fooManyToOne")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @SymfonySerializer\MaxDepth(2)
-     *
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(2)
      * @var \MyCustomEntity|null

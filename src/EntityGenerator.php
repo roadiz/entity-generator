@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator;
@@ -143,8 +144,8 @@ class EntityGenerator
      */
     public function getClassContent(): string
     {
-        return $this->getClassHeader().
-            $this->getClassAnnotations().
+        return $this->getClassHeader() .
+            $this->getClassAnnotations() .
             $this->getClassBody();
     }
 
@@ -153,14 +154,14 @@ class EntityGenerator
      */
     protected function getClassBody(): string
     {
-        return 'class '.$this->nodeType->getSourceEntityClassName().' extends '.$this->options['parent_class'].'
+        return 'class ' . $this->nodeType->getSourceEntityClassName() . ' extends ' . $this->options['parent_class'] . '
 {' . $this->getClassProperties() .
         $this->getClassConstructor() .
         $this->getNodeTypeNameGetter() .
         $this->getNodeTypeReachableGetter() .
         $this->getNodeTypePublishableGetter() .
         $this->getClassMethods() . '
-}'.PHP_EOL;
+}' . PHP_EOL;
     }
 
     /**
@@ -175,16 +176,17 @@ class EntityGenerator
         return '<?php
 
 declare(strict_types=1);
+
 /*
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace '.ltrim($this->options['namespace'], '\\').';
+namespace ' . ltrim($this->options['namespace'], '\\') . ';
 
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
+use Doctrine\ORM\Mapping as ORM;' . PHP_EOL;
     }
 
     /**
@@ -203,9 +205,9 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
- * @ORM\Entity(repositoryClass="'.ltrim($this->options['repository_class'], '\\').'")
- * @ORM\Table(name="'.$this->nodeType->getSourceEntityTableName().'", indexes={'.implode(',', $indexes).'})
- */'.PHP_EOL;
+ * @ORM\Entity(repositoryClass="' . ltrim($this->options['repository_class'], '\\') . '")
+ * @ORM\Table(name="' . $this->nodeType->getSourceEntityTableName() . '", indexes={' . implode(',', $indexes) . '})
+ */' . PHP_EOL;
     }
 
     /**
@@ -237,12 +239,12 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
 
         if (count($constructorArray) > 0) {
             return '
-    public function __construct('.$this->options['node_class'].' $node, '.$this->options['translation_class'].' $translation)
+    public function __construct(' . $this->options['node_class'] . ' $node, ' . $this->options['translation_class'] . ' $translation)
     {
         parent::__construct($node, $translation);
 
-        '.implode(PHP_EOL.AbstractFieldGenerator::TAB.AbstractFieldGenerator::TAB, $constructorArray).'
-    }'.PHP_EOL;
+        ' . implode(PHP_EOL . AbstractFieldGenerator::TAB . AbstractFieldGenerator::TAB, $constructorArray) . '
+    }' . PHP_EOL;
         }
 
         return '';
@@ -264,8 +266,8 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
      */
     public function getNodeTypeName(): string
     {
-        return \''.$this->nodeType->getName().'\';
-    }'.PHP_EOL;
+        return \'' . $this->nodeType->getName() . '\';
+    }' . PHP_EOL;
     }
 
     /**
@@ -281,8 +283,8 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
      */
     public function isReachable(): bool
     {
-        return '. ($this->nodeType->isReachable() ? 'true' : 'false') . ';
-    }'.PHP_EOL;
+        return ' . ($this->nodeType->isReachable() ? 'true' : 'false') . ';
+    }' . PHP_EOL;
     }
 
     /**
@@ -298,8 +300,8 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
      */
     public function isPublishable(): bool
     {
-        return '. ($this->nodeType->isPublishable() ? 'true' : 'false') . ';
-    }'.PHP_EOL;
+        return ' . ($this->nodeType->isPublishable() ? 'true' : 'false') . ';
+    }' . PHP_EOL;
     }
 
     /**
@@ -310,7 +312,7 @@ use Doctrine\ORM\Mapping as ORM;'.PHP_EOL;
         return '
     public function __toString()
     {
-        return \'['.$this->nodeType->getSourceEntityClassName().'] \' . parent::__toString();
+        return \'[' . $this->nodeType->getSourceEntityClassName() . '] \' . parent::__toString();
     }';
     }
 }

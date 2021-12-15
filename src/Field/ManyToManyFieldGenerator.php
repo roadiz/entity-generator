@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -16,7 +17,7 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
         parent::__construct($field, $options);
 
         if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
-            throw new \LogicException('Default values must be a valid YAML for '.ManyToManyFieldGenerator::class);
+            throw new \LogicException('Default values must be a valid YAML for ' . ManyToManyFieldGenerator::class);
         }
         $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
     }
@@ -44,17 +45,17 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
         ;
         $entityB = $this->field->getName();
         $joinColumnParams = [
-            'name' => '"'.$entityA.'_id"',
+            'name' => '"' . $entityA . '_id"',
             'referencedColumnName' => '"id"',
             'onDelete' => '"CASCADE"'
         ];
         $inverseJoinColumns = [
-            'name' => '"'.$entityB.'_id"',
+            'name' => '"' . $entityB . '_id"',
             'referencedColumnName' => '"id"',
             'onDelete' => '"CASCADE"'
         ];
         $ormParams = [
-            'name' => '"'. $entityA .'_' . $entityB . '"',
+            'name' => '"' . $entityA . '_' . $entityB . '"',
             'joinColumns' => '{ @ORM\JoinColumn(' . static::flattenORMParameters($joinColumnParams) . ') }',
             'inverseJoinColumns' => '{ @ORM\JoinColumn(' . static::flattenORMParameters($inverseJoinColumns) . ') }',
         ];
@@ -65,7 +66,7 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
             foreach ($this->configuration['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
-            $orderByClause = '@ORM\OrderBy(value='.json_encode($orderBy).')';
+            $orderByClause = '@ORM\OrderBy(value=' . json_encode($orderBy) . ')';
         }
 
         $serializer = '';
@@ -77,13 +78,13 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
 
         return '
     /**
-     * ' . $this->field->getLabel() .'
+     * ' . $this->field->getLabel() . '
      *' . $serializer . '
      * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '>
-     * @ORM\ManyToMany(targetEntity="'. $this->configuration['classname'] .'")
+     * @ORM\ManyToMany(targetEntity="' . $this->configuration['classname'] . '")
      * ' . $orderByClause . '
      * @ORM\JoinTable(' . static::flattenORMParameters($ormParams) . ')
-     */'.PHP_EOL;
+     */' . PHP_EOL;
     }
 
     /**
@@ -95,10 +96,10 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     /**
      * @return \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
      */
-    public function '.$this->field->getGetterName().'(): \Doctrine\Common\Collections\Collection
+    public function ' . $this->field->getGetterName() . '(): \Doctrine\Common\Collections\Collection
     {
         return $this->' . $this->field->getVarName() . ';
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -108,15 +109,15 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '> $'.$this->field->getVarName().'
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().')
+    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
     {
-        $this->'.$this->field->getVarName().' = $'.$this->field->getVarName().';
+        $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
 
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**

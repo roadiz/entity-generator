@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -26,11 +27,15 @@ class NodesFieldGenerator extends AbstractFieldGenerator
     {
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@Serializer\Type("array<'.
-            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
+        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
+        $annotations[] = '@Serializer\Type("array<' .
+            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString() .
             '>")';
-        return $annotations;
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -45,7 +50,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      */
     protected function getFieldSourcesName(): string
     {
-        return $this->field->getVarName().'Sources';
+        return $this->field->getVarName() . 'Sources';
     }
     /**
      * @return bool
@@ -99,34 +104,36 @@ class NodesFieldGenerator extends AbstractFieldGenerator
 
         return '
     /**
-     * ' . $this->getFieldSourcesName() .' NodesSources direct field buffer.
+     * ' . $this->getFieldSourcesName() . ' NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
-     * '.$autodoc.'
-     * @var '.$this->getRepositoryClass().'[]|null
+     *' . $autodoc . '
+     * @var ' . $this->getRepositoryClass() . '[]|null
      */
-    private ?array $'.$this->getFieldSourcesName().' = null;
+    private ?array $' . $this->getFieldSourcesName() . ' = null;
 
     /**
-     * @return '.$this->getRepositoryClass().'[] '.$this->field->getVarName().' nodes-sources array' . $serializer . '
+     * @return ' . $this->getRepositoryClass() . '[] ' . $this->field->getVarName() . ' nodes-sources array' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'Sources(): array
+    public function ' . $this->field->getGetterName() . 'Sources(): array
     {
         if (null === $this->' . $this->getFieldSourcesName() . ') {
-            if (null !== $this->objectManager &&
+            if (
+                null !== $this->objectManager &&
                 null !== $this->getNode() &&
-                null !== $this->getNode()->getNodeType()) {
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->' . $this->getFieldSourcesName() . ' = $this->objectManager
-                    ->getRepository('. $this->getRepositoryClass() .'::class)
+                    ->getRepository(' . $this->getRepositoryClass() . '::class)
                     ->findByNodesSourcesAndFieldAndTranslation(
                         $this,
-                        $this->getNode()->getNodeType()->getFieldByName("'.$this->field->getName().'")
+                        $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '")
                     );
             } else {
                 $this->' . $this->getFieldSourcesName() . ' = [];
             }
         }
         return $this->' . $this->getFieldSourcesName() . ';
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -136,15 +143,15 @@ class NodesFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @param '.$this->getRepositoryClass().'[]|null $'.$this->getFieldSourcesName().'
+     * @param ' . $this->getRepositoryClass() . '[]|null $' . $this->getFieldSourcesName() . '
      *
      * @return $this
      */
-    public function '.$this->field->getSetterName().'Sources(?array $'.$this->getFieldSourcesName().')
+    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . ')
     {
-        $this->' . $this->getFieldSourcesName() . ' = $'.$this->getFieldSourcesName().';
+        $this->' . $this->getFieldSourcesName() . ' = $' . $this->getFieldSourcesName() . ';
 
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 }

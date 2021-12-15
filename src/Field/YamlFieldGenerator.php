@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -9,9 +10,13 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
     {
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
-        return $annotations;
+        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
+        $annotations[] = '@SymfonySerializer\SerializedName("' . $this->field->getVarName() . '")';
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -32,17 +37,17 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
                 static::ANNOTATION_PREFIX .
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
         }
-        $assignation = '$this->'.$this->field->getVarName();
+        $assignation = '$this->' . $this->field->getVarName();
         return '
     /**
      * @return object|array|null' . $serializer . '
      */
-    public function '.$this->field->getGetterName().'AsObject()
+    public function ' . $this->field->getGetterName() . 'AsObject()
     {
-        if (null !== '.$assignation.') {
-            return \Symfony\Component\Yaml\Yaml::parse('.$assignation.');
+        if (null !== ' . $assignation . ') {
+            return \Symfony\Component\Yaml\Yaml::parse(' . $assignation . ');
         }
         return null;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 }

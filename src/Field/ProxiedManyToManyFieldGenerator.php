@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -15,19 +16,23 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         parent::__construct($field, $options);
 
-        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
-            throw new \LogicException('Default values must be a valid YAML for '.ProxiedManyToManyFieldGenerator::class);
+        if (empty($this->field->getDefaultValues())) {
+            throw new \LogicException('Default values must be a valid YAML for ' . ProxiedManyToManyFieldGenerator::class);
         }
-        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
+        $this->configuration = Yaml::parse($this->field->getDefaultValues());
     }
 
     protected function getSerializationAnnotations(): array
     {
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("'.$this->field->getVarName().'")';
-        $annotations[] = '@SymfonySerializer\SerializedName("'.$this->field->getVarName().'")';
-        return $annotations;
+        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
+        $annotations[] = '@SymfonySerializer\SerializedName("' . $this->field->getVarName() . '")';
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
     }
 
     /**
@@ -38,7 +43,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
          */
-        return '    private $'.$this->getProxiedVarName().';'.PHP_EOL;
+        return '    private $' . $this->getProxiedVarName() . ';' . PHP_EOL;
     }
 
     /**
@@ -60,7 +65,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
             foreach ($this->configuration['proxy']['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
-            $orderByClause = '@ORM\OrderBy(value='.json_encode($orderBy).')';
+            $orderByClause = '@ORM\OrderBy(value=' . json_encode($orderBy) . ')';
         }
         $ormParams = [
             'targetEntity' => '"' . $this->getProxyClassname() . '"',
@@ -71,14 +76,14 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
 
         return '
     /**
-     * ' . $this->field->getLabel() .'
+     * ' . $this->field->getLabel() . '
      *
      * @Serializer\Exclude()
      * @SymfonySerializer\Ignore()
      * @var \Doctrine\Common\Collections\ArrayCollection<' . $this->getProxyClassname() . '>
      * @ORM\OneToMany(' . static::flattenORMParameters($ormParams) . ')
      * ' . $orderByClause . '
-     */'.PHP_EOL;
+     */' . PHP_EOL;
     }
 
     /**
@@ -97,20 +102,20 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
     /**
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
-    public function '.$this->getProxiedGetterName().'()
+    public function ' . $this->getProxiedGetterName() . '()
     {
-        return $this->'.$this->getProxiedVarName().';
+        return $this->' . $this->getProxiedVarName() . ';
     }
 
     /**' . $serializer . '
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
-    public function '.$this->field->getGetterName().'()
+    public function ' . $this->field->getGetterName() . '()
     {
-        return $this->'.$this->getProxiedVarName().'->map(function ('.$this->getProxyClassname().' $proxyEntity) {
-            return $proxyEntity->'.$this->getProxyRelationGetterName().'();
+        return $this->' . $this->getProxiedVarName() . '->map(function (' . $this->getProxyClassname() . ' $proxyEntity) {
+            return $proxyEntity->' . $this->getProxyRelationGetterName() . '();
         });
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -120,41 +125,41 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $'.$this->getProxiedVarName().'
+     * @var \Doctrine\Common\Collections\ArrayCollection $' . $this->getProxiedVarName() . '
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function '.$this->getProxiedSetterName().'($'.$this->getProxiedVarName().' = null)
+    public function ' . $this->getProxiedSetterName() . '($' . $this->getProxiedVarName() . ' = null)
     {
-        $this->'.$this->getProxiedVarName().' = $'.$this->getProxiedVarName().';
+        $this->' . $this->getProxiedVarName() . ' = $' . $this->getProxiedVarName() . ';
 
         return $this;
     }
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $'.$this->field->getVarName().'
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().' = null)
+    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ' = null)
     {
-        foreach ($this->'.$this->getProxiedGetterName().'() as $item) {
-            $item->'.$this->getProxySelfSetterName().'(null);
+        foreach ($this->' . $this->getProxiedGetterName() . '() as $item) {
+            $item->' . $this->getProxySelfSetterName() . '(null);
         }
-        $this->'.$this->getProxiedVarName().'->clear();
-        if (null !== $'.$this->field->getVarName().') {
+        $this->' . $this->getProxiedVarName() . '->clear();
+        if (null !== $' . $this->field->getVarName() . ') {
             $position = 0;
-            foreach ($'.$this->field->getVarName().' as $single'.ucwords($this->field->getVarName()).') {
-                $proxyEntity = new '.$this->getProxyClassname().'();
-                $proxyEntity->'.$this->getProxySelfSetterName().'($this);
+            foreach ($' . $this->field->getVarName() . ' as $single' . ucwords($this->field->getVarName()) . ') {
+                $proxyEntity = new ' . $this->getProxyClassname() . '();
+                $proxyEntity->' . $this->getProxySelfSetterName() . '($this);
                 if ($proxyEntity instanceof \RZ\Roadiz\Core\AbstractEntities\PositionedInterface) {
                     $proxyEntity->setPosition(++$position);
                 }
-                $proxyEntity->'.$this->getProxyRelationSetterName().'($single'.ucwords($this->field->getVarName()).');
-                $this->'.$this->getProxiedVarName().'->add($proxyEntity);
+                $proxyEntity->' . $this->getProxyRelationSetterName() . '($single' . ucwords($this->field->getVarName()) . ');
+                $this->' . $this->getProxiedVarName() . '->add($proxyEntity);
             }
         }
 
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -170,21 +175,21 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
      */
     protected function getProxiedVarName(): string
     {
-        return $this->field->getVarName(). 'Proxy';
+        return $this->field->getVarName() . 'Proxy';
     }
     /**
      * @return string
      */
     protected function getProxiedSetterName(): string
     {
-        return $this->field->getSetterName(). 'Proxy';
+        return $this->field->getSetterName() . 'Proxy';
     }
     /**
      * @return string
      */
     protected function getProxiedGetterName(): string
     {
-        return $this->field->getGetterName(). 'Proxy';
+        return $this->field->getGetterName() . 'Proxy';
     }
     /**
      * @return string

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -13,7 +14,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     public function getFieldIndex(): string
     {
         if ($this->field->isIndexed()) {
-            return '@ORM\Index(columns={"'.$this->field->getName().'"})';
+            return '@ORM\Index(columns={"' . $this->field->getName() . '"})';
         }
 
         return '';
@@ -24,8 +25,10 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */
     protected function getDoctrineType(): string
     {
-        if ($this->field->isMultiProvider() &&
-            $this->options[AbstractFieldGenerator::USE_NATIVE_JSON] === true) {
+        if (
+            $this->field->isMultiProvider() &&
+            $this->options[AbstractFieldGenerator::USE_NATIVE_JSON] === true
+        ) {
             return 'json';
         }
         return $this->field->getDoctrineType();
@@ -94,11 +97,11 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         }
 
         return '
-    /**' . $autodoc .'
+    /**' . $autodoc . '
      *
      * @Gedmo\Versioned
      * @ORM\Column(' . static::flattenORMParameters($ormParams) . ')' . $serializer . '
-     */'.PHP_EOL;
+     */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
@@ -148,16 +151,16 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             $docType = $this->toPhpDocType($type);
             $typeHint = ': ' . $type;
         }
-        $assignation = '$this->'.$this->field->getVarName();
+        $assignation = '$this->' . $this->field->getVarName();
 
         return '
     /**
-     * @return '.$docType.'
+     * @return ' . $docType . '
      */
-    public function '.$this->field->getGetterName().'()'.$typeHint.'
+    public function ' . $this->field->getGetterName() . '()' . $typeHint . '
     {
-        return '.$assignation.';
-    }'.PHP_EOL;
+        return ' . $assignation . ';
+    }' . PHP_EOL;
     }
 
     /**
@@ -165,7 +168,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldSetter(): string
     {
-        $assignation = '$'.$this->field->getVarName();
+        $assignation = '$' . $this->field->getVarName();
         $nullable = true;
         $casting = '';
 
@@ -197,24 +200,24 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         }
 
         if ($nullable && !empty($casting)) {
-            $assignation = '$this->'.$this->field->getVarName().' = null !== $'.$this->field->getVarName().' ?
-            '.$casting.$assignation.' :
+            $assignation = '$this->' . $this->field->getVarName() . ' = null !== $' . $this->field->getVarName() . ' ?
+            ' . $casting . $assignation . ' :
             null;';
         } else {
-            $assignation = '$this->'.$this->field->getVarName().' = '.$assignation.';';
+            $assignation = '$this->' . $this->field->getVarName() . ' = ' . $assignation . ';';
         }
 
         return '
     /**
-     * @param '.$docType.' $'.$this->field->getVarName().'
+     * @param ' . $docType . ' $' . $this->field->getVarName() . '
      *
      * @return $this
      */
-    public function '.$this->field->getSetterName().'($'.$this->field->getVarName().')
+    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
     {
-        '.$assignation.'
+        ' . $assignation . '
 
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 }

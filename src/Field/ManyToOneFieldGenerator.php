@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
@@ -14,10 +15,10 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     {
         parent::__construct($field, $options);
 
-        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
-            throw new \LogicException('Default values must be a valid YAML for '.ManyToOneFieldGenerator::class);
+        if (empty($this->field->getDefaultValues())) {
+            throw new \LogicException('Default values must be a valid YAML for ' . ManyToOneFieldGenerator::class);
         }
-        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
+        $this->configuration = Yaml::parse($this->field->getDefaultValues());
     }
 
     /**
@@ -45,17 +46,16 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
 
         return '
     /**
-     * ' . implode("\n     * ", $this->getFieldAutodoc()) .'
-     *' . $serializer . '
+     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . '
      * @var ' . $this->configuration['classname'] . '|null
-     * @ORM\ManyToOne(targetEntity="'. $this->configuration['classname'] .'")
+     * @ORM\ManyToOne(targetEntity="' . $this->configuration['classname'] . '")
      * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')
-     */'.PHP_EOL;
+     */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
     {
-        return '?'.$this->configuration['classname'];
+        return '?' . $this->configuration['classname'];
     }
 
     protected function getFieldDefaultValueDeclaration(): string
@@ -72,10 +72,10 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     /**
      * @return ' . $this->configuration['classname'] . '|null
      */
-    public function '.$this->field->getGetterName().'(): ?' . $this->configuration['classname'] . '
+    public function ' . $this->field->getGetterName() . '(): ?' . $this->configuration['classname'] . '
     {
         return $this->' . $this->field->getVarName() . ';
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 
     /**
@@ -85,14 +85,14 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var ' . $this->configuration['classname'] . '|null $'.$this->field->getVarName().'
+     * @var ' . $this->configuration['classname'] . '|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function '.$this->field->getSetterName().'(?' . $this->configuration['classname'] . ' $'.$this->field->getVarName().' = null)
+    public function ' . $this->field->getSetterName() . '(?' . $this->configuration['classname'] . ' $' . $this->field->getVarName() . ' = null)
     {
-        $this->'.$this->field->getVarName().' = $'.$this->field->getVarName().';
+        $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
 
         return $this;
-    }'.PHP_EOL;
+    }' . PHP_EOL;
     }
 }
