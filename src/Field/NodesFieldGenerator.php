@@ -23,6 +23,18 @@ class NodesFieldGenerator extends AbstractFieldGenerator
         $this->nodeTypeResolver = $nodeTypeResolver;
     }
 
+    /**
+     * Generate PHP code for current doctrine field.
+     *
+     * @return string
+     */
+    public function getField(): string
+    {
+        return $this->getFieldGetter() .
+            $this->getFieldAlternativeGetter() .
+            $this->getFieldSetter() . PHP_EOL;
+    }
+
     protected function getSerializationAnnotations(): array
     {
         $annotations = parent::getSerializationAnnotations();

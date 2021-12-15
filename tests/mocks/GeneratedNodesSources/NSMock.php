@@ -357,20 +357,6 @@ class NSMock extends \mock\Entity\NodesSources
 
 
     /**
-     * ForBar nodes field.
-     * Maecenas sed diam eget risus varius blandit sit amet non magna.
-     * @Serializer\Exclude
-     *
-     * Symfony serializer annotations must be set on property
-     * @SymfonySerializer\SerializedName("fooBar")
-     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
-     * @SymfonySerializer\MaxDepth(2)
-     *
-     * (Virtual field, this var is a buffer)
-     */
-    private $fooBar;
-
-    /**
      * fooBarSources NodesSources direct field buffer.
      * (Virtual field, this var is a buffer)
      *
@@ -427,20 +413,6 @@ class NSMock extends \mock\Entity\NodesSources
         return $this;
     }
 
-
-    /**
-     * ForBar nodes typed field.
-     * Default values: MockTwo
-     * @Serializer\Exclude
-     *
-     * Symfony serializer annotations must be set on property
-     * @SymfonySerializer\SerializedName("fooBarTyped")
-     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "nodes_sources_nodes"})
-     * @SymfonySerializer\MaxDepth(2)
-     *
-     * (Virtual field, this var is a buffer)
-     */
-    private $fooBarTyped;
 
     /**
      * fooBarTypedSources NodesSources direct field buffer.
