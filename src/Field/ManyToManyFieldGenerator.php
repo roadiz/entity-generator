@@ -80,11 +80,16 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     /**
      * ' . $this->field->getLabel() . '
      *' . $serializer . '
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '>
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
      * @ORM\ManyToMany(targetEntity="' . $this->configuration['classname'] . '")
      * ' . $orderByClause . '
      * @ORM\JoinTable(' . static::flattenORMParameters($ormParams) . ')
      */' . PHP_EOL;
+    }
+
+    protected function getFieldTypeDeclaration(): string
+    {
+        return '\Doctrine\Common\Collections\Collection';
     }
 
     /**
@@ -109,7 +114,7 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
      * @return $this
      */
     public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')

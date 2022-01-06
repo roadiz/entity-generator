@@ -262,7 +262,7 @@ use Doctrine\ORM\Mapping as ORM;' . PHP_EOL;
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\SerializedName("@type")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
-     * @SymfonySerializer\SerializedName("@type")
+     * @SymfonySerializer\SerializedName(serializedName="@type")
      */
     public function getNodeTypeName(): string
     {

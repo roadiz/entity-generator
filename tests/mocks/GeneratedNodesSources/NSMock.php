@@ -516,12 +516,12 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\MaxDepth(2)
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @SymfonySerializer\MaxDepth(2)
-     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity>
+     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>
      * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
      * @ORM\OrderBy(value={"name":"asc"})
      * @ORM\JoinTable(name="node_type_foo_many_to_many", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id", onDelete="CASCADE") }, inverseJoinColumns={ @ORM\JoinColumn(name="foo_many_to_many_id", referencedColumnName="id", onDelete="CASCADE") })
      */
-    private $fooManyToMany;
+    private \Doctrine\Common\Collections\Collection $fooManyToMany;
 
     /**
      * @return \Doctrine\Common\Collections\Collection<\MyCustomEntity>
@@ -532,7 +532,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>|array<\MyCustomEntity> $fooManyToMany
+     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity> $fooManyToMany
      * @return $this
      */
     public function setFooManyToMany($fooManyToMany)
@@ -631,7 +631,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\SerializedName("@type")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
-     * @SymfonySerializer\SerializedName("@type")
+     * @SymfonySerializer\SerializedName(serializedName="@type")
      */
     public function getNodeTypeName(): string
     {
