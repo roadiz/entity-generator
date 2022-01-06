@@ -27,7 +27,11 @@ class ProxiedManyToManyFieldGenerator extends AbstractFieldGenerator
         $annotations = parent::getSerializationAnnotations();
         $annotations[] = '@Serializer\VirtualProperty';
         $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-        $annotations[] = '@SymfonySerializer\SerializedName("' . $this->field->getVarName() . '")';
+        $annotations[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
+        $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
+        if ($this->getSerializationMaxDepth() > 0) {
+            $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+        }
         // Add whitespace before each line for PHPDoc syntax
         return array_map(function ($line) {
             $line = trim($line);

@@ -84,7 +84,7 @@ abstract class AbstractFieldGenerator
         if ($this->excludeFromSerialization()) {
             $docs[] = '@SymfonySerializer\Ignore()';
         } else {
-            $docs[] = '@SymfonySerializer\SerializedName("' . $this->field->getVarName() . '")';
+            $docs[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
             $docs[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
             if ($this->getSerializationMaxDepth() > 0) {
                 $docs[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';

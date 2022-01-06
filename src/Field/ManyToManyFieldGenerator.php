@@ -127,4 +127,18 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '$this->' . $this->field->getVarName() . ' = new \Doctrine\Common\Collections\ArrayCollection();';
     }
+
+    protected function getSerializationAnnotations(): array
+    {
+        $annotations = parent::getSerializationAnnotations();
+        $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
+        if ($this->getSerializationMaxDepth() > 0) {
+            $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+        }
+        // Add whitespace before each line for PHPDoc syntax
+        return array_map(function ($line) {
+            $line = trim($line);
+            return !empty($line) ? ' ' . $line : '';
+        }, $annotations);
+    }
 }
