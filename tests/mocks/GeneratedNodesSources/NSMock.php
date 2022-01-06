@@ -537,7 +537,11 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function setFooManyToMany($fooManyToMany)
     {
-        $this->fooManyToMany = $fooManyToMany;
+        if ($fooManyToMany instanceof \Doctrine\Common\Collections\Collection) {
+            $this->fooManyToMany = $fooManyToMany;
+        } else {
+            $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection($fooManyToMany);
+        }
 
         return $this;
     }
