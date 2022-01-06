@@ -21,7 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Yaml;
 
-class EntityGenerator
+class EntityGenerator implements EntityGeneratorInterface
 {
     private NodeTypeInterface $nodeType;
     private array $fieldGenerators;

@@ -22,8 +22,31 @@ final class EntityGeneratorFactory
         $this->options = $options;
     }
 
-    public function create(NodeTypeInterface $nodeType): EntityGenerator
+    public function create(NodeTypeInterface $nodeType): EntityGeneratorInterface
     {
         return new EntityGenerator($nodeType, $this->nodeTypeResolverBag, $this->options);
+    }
+
+    public function createWithCustomRepository(NodeTypeInterface $nodeType): EntityGeneratorInterface
+    {
+        $options = $this->options;
+        $options['repository_class'] =
+            $options['namespace'] .
+            '\\Repository\\' .
+            $nodeType->getSourceEntityClassName() . 'Repository';
+
+        return new EntityGenerator($nodeType, $this->nodeTypeResolverBag, $options);
+    }
+
+    public function createCustomRepository(NodeTypeInterface $nodeType): RepositoryGeneratorInterface
+    {
+        $options = [
+            'entity_namespace' => $this->options['namespace'],
+            'parent_class' => 'RZ\Roadiz\CoreBundle\Repository\NodesSourcesRepository',
+        ];
+        $options['namespace'] = $this->options['namespace'] . '\\Repository';
+        $options['class_name'] = $nodeType->getSourceEntityClassName() . 'Repository';
+
+        return new RepositoryGenerator($nodeType, $options);
     }
 }
