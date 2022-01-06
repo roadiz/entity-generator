@@ -24,7 +24,7 @@ class RepositoryGenerator implements RepositoryGeneratorInterface
 
     public function getClassContent(): string
     {
-        return $this->getClassHeader() .
+        return $this->getClassHeader() . PHP_EOL .
             $this->getClassBody();
     }
 

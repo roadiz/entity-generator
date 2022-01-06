@@ -13,6 +13,7 @@ use RZ\Roadiz\CoreBundle\Preview\PreviewResolverInterface;
 use RZ\Roadiz\CoreBundle\SearchEngine\NodeSourceSearchHandlerInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
 class NSMockRepository extends \RZ\Roadiz\CoreBundle\Repository\NodesSourcesRepository
 {
     public function __construct(
