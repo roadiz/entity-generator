@@ -76,10 +76,17 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
         }
 
+        $apiFilter = '';
+        if ($this->options['use_api_platform_filters'] === true) {
+            $apiFilter = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                ' @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")';
+        }
+
         return '
     /**
      * ' . $this->field->getLabel() . '
-     *' . $serializer . '
+     *' . $serializer . $apiFilter .  '
      * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
      * @ORM\ManyToMany(targetEntity="' . $this->configuration['classname'] . '")
      * ' . $orderByClause . '

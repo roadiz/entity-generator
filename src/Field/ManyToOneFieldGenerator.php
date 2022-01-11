@@ -44,9 +44,16 @@ class ManyToOneFieldGenerator extends AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
         }
 
+        $apiFilter = '';
+        if ($this->options['use_api_platform_filters'] === true) {
+            $apiFilter = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                ' @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")';
+        }
+
         return '
     /**
-     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . '
+     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . $apiFilter . '
      * @var ' . $this->configuration['classname'] . '|null
      * @ORM\ManyToOne(targetEntity="' . $this->configuration['classname'] . '")
      * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')

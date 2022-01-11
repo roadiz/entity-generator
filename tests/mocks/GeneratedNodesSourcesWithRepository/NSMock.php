@@ -570,6 +570,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @SymfonySerializer\MaxDepth(2)
      * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @Serializer\MaxDepth(2)
+     * @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")
      * @var \MyCustomEntity|null
      * @ORM\ManyToOne(targetEntity="\MyCustomEntity")
      * @ORM\JoinColumn(name="foo_many_to_one_id", referencedColumnName="id", onDelete="SET NULL")
@@ -603,6 +604,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\MaxDepth(2)
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @SymfonySerializer\MaxDepth(2)
+     * @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")
      * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>
      * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
      * @ORM\OrderBy(value={"name":"asc"})
