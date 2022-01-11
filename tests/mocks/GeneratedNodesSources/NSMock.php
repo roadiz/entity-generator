@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Generated custom node-source type by Roadiz.
  *
  * @ORM\Entity(repositoryClass="mock\Entity\Repository\NodesSourcesRepository")
- * @ORM\Table(name="ns_mock", indexes={@ORM\Index(columns={"foo_datetime"}),@ORM\Index(columns={"foo_decimal_excluded"})})
+ * @ORM\Table(name="ns_mock", indexes={@ORM\Index(columns={"foo_datetime"}), @ORM\Index(columns={"fooIndexed"}), @ORM\Index(columns={"boolIndexed"}), @ORM\Index(columns={"foo_decimal_excluded"})})
  */
 class NSMock extends \mock\Entity\NodesSources
 {
@@ -94,6 +94,84 @@ class NSMock extends \mock\Entity\NodesSources
         $this->foo = null !== $foo ?
             (string) $foo :
             null;
+
+        return $this;
+    }
+
+
+    /**
+     * Foo indexed field.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="fooIndexed")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(1)
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(type="string", nullable=true, name="fooIndexed", length=250)
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Type("string")
+     */
+    private ?string $fooIndexed = null;
+
+    /**
+     * @return string|null
+     */
+    public function getFooIndexed(): ?string
+    {
+        return $this->fooIndexed;
+    }
+
+    /**
+     * @param string|null $fooIndexed
+     *
+     * @return $this
+     */
+    public function setFooIndexed($fooIndexed)
+    {
+        $this->fooIndexed = null !== $fooIndexed ?
+            (string) $fooIndexed :
+            null;
+
+        return $this;
+    }
+
+
+    /**
+     * Bool indexed field.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="boolIndexed")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(1)
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(type="boolean", nullable=false, name="boolIndexed", options={"default" = false})
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Type("bool")
+     */
+    private bool $boolIndexed = false;
+
+    /**
+     * @return bool
+     */
+    public function getBoolIndexed(): bool
+    {
+        return $this->boolIndexed;
+    }
+
+    /**
+     * @param bool $boolIndexed
+     *
+     * @return $this
+     */
+    public function setBoolIndexed($boolIndexed)
+    {
+        $this->boolIndexed = $boolIndexed;
 
         return $this;
     }

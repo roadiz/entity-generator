@@ -12,13 +12,17 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter as OrmFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 
 /**
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
  * @ORM\Entity(repositoryClass="tests\mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository")
- * @ORM\Table(name="ns_mock", indexes={@ORM\Index(columns={"foo_datetime"}),@ORM\Index(columns={"foo_decimal_excluded"})})
+ * @ORM\Table(name="ns_mock", indexes={@ORM\Index(columns={"foo_datetime"}), @ORM\Index(columns={"fooIndexed"}), @ORM\Index(columns={"boolIndexed"}), @ORM\Index(columns={"foo_decimal_excluded"})})
+ * @ApiFilter(PropertyFilter::class)
  */
 class NSMock extends \mock\Entity\NodesSources
 {
@@ -29,6 +33,8 @@ class NSMock extends \mock\Entity\NodesSources
      * @SymfonySerializer\SerializedName(serializedName="fooDatetime")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default", "foo_datetime"})
      * @SymfonySerializer\MaxDepth(2)
+     * @ApiFilter(OrmFilter\OrderFilter::class)
+     * @ApiFilter(OrmFilter\DateFilter::class)
      *
      * @Gedmo\Versioned
      * @ORM\Column(type="datetime", nullable=true, name="foo_datetime")
@@ -94,6 +100,87 @@ class NSMock extends \mock\Entity\NodesSources
         $this->foo = null !== $foo ?
             (string) $foo :
             null;
+
+        return $this;
+    }
+
+
+    /**
+     * Foo indexed field.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="fooIndexed")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(1)
+     * @ApiFilter(OrmFilter\SearchFilter::class, strategy="partial")
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(type="string", nullable=true, name="fooIndexed", length=250)
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Type("string")
+     */
+    private ?string $fooIndexed = null;
+
+    /**
+     * @return string|null
+     */
+    public function getFooIndexed(): ?string
+    {
+        return $this->fooIndexed;
+    }
+
+    /**
+     * @param string|null $fooIndexed
+     *
+     * @return $this
+     */
+    public function setFooIndexed($fooIndexed)
+    {
+        $this->fooIndexed = null !== $fooIndexed ?
+            (string) $fooIndexed :
+            null;
+
+        return $this;
+    }
+
+
+    /**
+     * Bool indexed field.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="boolIndexed")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(1)
+     * @ApiFilter(OrmFilter\OrderFilter::class)
+     * @ApiFilter(OrmFilter\BooleanFilter::class)
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(type="boolean", nullable=false, name="boolIndexed", options={"default" = false})
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Type("bool")
+     */
+    private bool $boolIndexed = false;
+
+    /**
+     * @return bool
+     */
+    public function getBoolIndexed(): bool
+    {
+        return $this->boolIndexed;
+    }
+
+    /**
+     * @param bool $boolIndexed
+     *
+     * @return $this
+     */
+    public function setBoolIndexed($boolIndexed)
+    {
+        $this->boolIndexed = $boolIndexed;
 
         return $this;
     }

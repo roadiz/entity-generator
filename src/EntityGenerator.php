@@ -56,6 +56,7 @@ class EntityGenerator implements EntityGeneratorInterface
     {
         $resolver->setDefaults([
             'use_native_json' => true,
+            'use_api_platform_filters' => false,
         ]);
         $resolver->setRequired([
             'parent_class',
@@ -67,7 +68,8 @@ class EntityGenerator implements EntityGeneratorInterface
             'custom_form_proxy_class',
             'repository_class',
             'namespace',
-            'use_native_json'
+            'use_native_json',
+            'use_api_platform_filters'
         ]);
         $resolver->setAllowedTypes('parent_class', 'string');
         $resolver->setAllowedTypes('node_class', 'string');
@@ -79,6 +81,7 @@ class EntityGenerator implements EntityGeneratorInterface
         $resolver->setAllowedTypes('repository_class', 'string');
         $resolver->setAllowedTypes('namespace', 'string');
         $resolver->setAllowedTypes('use_native_json', 'bool');
+        $resolver->setAllowedTypes('use_api_platform_filters', 'bool');
 
         $normalizeClassName = function (OptionsResolver $resolver, string $className) {
             return (new UnicodeString($className))->startsWith('\\') ?
@@ -169,6 +172,18 @@ class EntityGenerator implements EntityGeneratorInterface
      */
     protected function getClassHeader(): string
     {
+        $useStatements = [
+            'use JMS\Serializer\Annotation as Serializer;',
+            'use Symfony\Component\Serializer\Annotation as SymfonySerializer;',
+            'use Gedmo\Mapping\Annotation as Gedmo;',
+            'use Doctrine\ORM\Mapping as ORM;',
+        ];
+
+        if ($this->options['use_api_platform_filters'] === true) {
+            $useStatements[] = 'use ApiPlatform\Core\Annotation\ApiFilter;';
+            $useStatements[] = 'use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter as OrmFilter;';
+            $useStatements[] = 'use ApiPlatform\Core\Serializer\Filter\PropertyFilter;';
+        }
         /*
          * BE CAREFUL, USE statements are required for field generators which
          * are using ::class syntax!
@@ -183,10 +198,7 @@ declare(strict_types=1);
  */
 namespace ' . ltrim($this->options['namespace'], '\\') . ';
 
-use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\Serializer\Annotation as SymfonySerializer;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Doctrine\ORM\Mapping as ORM;' . PHP_EOL;
+' . implode(PHP_EOL, $useStatements) . PHP_EOL;
     }
 
     /**
@@ -200,13 +212,25 @@ use Doctrine\ORM\Mapping as ORM;' . PHP_EOL;
             $indexes[] = $fieldGenerator->getFieldIndex();
         }
         $indexes = array_filter($indexes);
+
+        $classAnnotations = [
+            '@ORM\Entity(repositoryClass="' . ltrim($this->options['repository_class'], '\\') . '")',
+            '@ORM\Table(name="' . $this->nodeType->getSourceEntityTableName() . '", indexes={' . implode(', ', $indexes) . '})',
+        ];
+
+        if ($this->options['use_api_platform_filters'] === true) {
+            $classAnnotations[] = '@ApiFilter(PropertyFilter::class)';
+        }
+
+        $classAnnotations = array_map(function (string $annotation) {
+            return ' * ' . $annotation;
+        }, $classAnnotations);
         return '
 /**
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
  *
- * @ORM\Entity(repositoryClass="' . ltrim($this->options['repository_class'], '\\') . '")
- * @ORM\Table(name="' . $this->nodeType->getSourceEntityTableName() . '", indexes={' . implode(',', $indexes) . '})
+' . implode(PHP_EOL, $classAnnotations) . '
  */' . PHP_EOL;
     }
 

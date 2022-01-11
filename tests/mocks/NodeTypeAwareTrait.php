@@ -35,6 +35,23 @@ trait NodeTypeAwareTrait
                     ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                     ->setIndexed(false),
                 (new NodeTypeField())
+                    ->setName('fooIndexed')
+                    ->setTypeName('string')
+                    ->setVirtual(false)
+                    ->setSerializationMaxDepth(1)
+                    ->setLabel('Foo indexed field')
+                    ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
+                    ->setIndexed(true),
+                (new NodeTypeField())
+                    ->setName('boolIndexed')
+                    ->setTypeName('bool')
+                    ->setDoctrineType('boolean')
+                    ->setVirtual(false)
+                    ->setSerializationMaxDepth(1)
+                    ->setLabel('Bool indexed field')
+                    ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
+                    ->setIndexed(true),
+                (new NodeTypeField())
                     ->setName('foo_markdown')
                     ->setTypeName('markdown')
                     ->setDoctrineType('text')

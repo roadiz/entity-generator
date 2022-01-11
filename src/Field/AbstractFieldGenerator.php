@@ -91,6 +91,26 @@ abstract class AbstractFieldGenerator
             }
         }
 
+        if (
+            $this->field->isIndexed() &&
+            $this->options['use_api_platform_filters'] === true
+        ) {
+            switch (true) {
+                case $this->field->isString():
+                    $docs[] = '@ApiFilter(OrmFilter\SearchFilter::class, strategy="partial")';
+                    break;
+                case $this->field->isBool():
+                    $docs[] = '@ApiFilter(OrmFilter\OrderFilter::class)';
+                    $docs[] = '@ApiFilter(OrmFilter\BooleanFilter::class)';
+                    break;
+                case $this->field->isDate():
+                case $this->field->isDateTime():
+                    $docs[] = '@ApiFilter(OrmFilter\OrderFilter::class)';
+                    $docs[] = '@ApiFilter(OrmFilter\DateFilter::class)';
+                    break;
+            }
+        }
+
         // Add whitespace before each line for PHPDoc syntax
         return array_map(function ($line) {
             return !empty($line) ? ' ' . $line : $line;

@@ -27,7 +27,8 @@ class EntityGeneratorFactory extends atoum
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => '\tests\mocks\GeneratedNodesSources',
-                'use_native_json' => true
+                'use_native_json' => true,
+                'use_api_platform_filters' => false,
             ]))
             ->then
             ->string($this->testedInstance->create($mockNodeType)->getClassContent())
@@ -39,6 +40,27 @@ class EntityGeneratorFactory extends atoum
     {
         $mockNodeType = $this->getMockNodeType();
         $mockNodeTypeResolver = $this->getMockNodeTypeResolver();
+
+        /*
+         * Uncomment for generating a mock file from tests
+         */
+//        $dumpInstance = $this->newTestedInstance($mockNodeTypeResolver, [
+//            'parent_class' => '\mock\Entity\NodesSources',
+//            'node_class' => '\mock\Entity\Node',
+//            'translation_class' => '\mock\Entity\Translation',
+//            'document_class' => '\mock\Entity\Document',
+//            'document_proxy_class' => '\mock\Entity\NodesSourcesDocument',
+//            'custom_form_class' => '\mock\Entity\CustomForm',
+//            'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
+//            'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
+//            'namespace' => '\tests\mocks\GeneratedNodesSourcesWithRepository',
+//            'use_native_json' => true,
+//            'use_api_platform_filters' => true,
+//        ]);
+//        file_put_contents(
+//            dirname(__DIR__) . '/mocks/GeneratedNodesSourcesWithRepository/NSMock.php',
+//            $dumpInstance->createWithCustomRepository($mockNodeType)->getClassContent()
+//        );
 
         $this
             // creation of a new instance of the tested class
@@ -52,7 +74,8 @@ class EntityGeneratorFactory extends atoum
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => '\tests\mocks\GeneratedNodesSourcesWithRepository',
-                'use_native_json' => true
+                'use_native_json' => true,
+                'use_api_platform_filters' => true,
             ]))
             ->then
             ->string($this->testedInstance->createWithCustomRepository($mockNodeType)->getClassContent())
@@ -78,7 +101,8 @@ class EntityGeneratorFactory extends atoum
 //            'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
 //            'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
 //            'namespace' => '\tests\mocks\GeneratedNodesSourcesWithRepository',
-//            'use_native_json' => true
+//            'use_native_json' => true,
+//            'use_api_platform_filters' => true,
 //        ]);
 //        file_put_contents(
 //            dirname(__DIR__) . '/mocks/GeneratedNodesSourcesWithRepository/NSMockRepository.php',
@@ -97,7 +121,8 @@ class EntityGeneratorFactory extends atoum
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => '\tests\mocks\GeneratedNodesSourcesWithRepository',
-                'use_native_json' => true
+                'use_native_json' => true,
+                'use_api_platform_filters' => true,
             ]))
             ->then
             ->string($this->testedInstance->createCustomRepository($mockNodeType)->getClassContent())
