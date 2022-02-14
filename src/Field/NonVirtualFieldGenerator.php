@@ -25,12 +25,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      */
     protected function getDoctrineType(): string
     {
-        if (
-            $this->field->isMultiProvider() &&
-            $this->options[AbstractFieldGenerator::USE_NATIVE_JSON] === true
-        ) {
-            return 'json';
-        }
         return $this->field->getDoctrineType();
     }
 
