@@ -281,7 +281,8 @@ abstract class AbstractFieldGenerator
         if ($this->excludeFromSerialization()) {
             return [
                 // Add whitespace before each line for PHPDoc syntax
-                ' @Serializer\Exclude()'
+                ' @Serializer\Exclude()',
+                ' @SymfonySerializer\Ignore()'
             ];
         }
         $annotations = [];
