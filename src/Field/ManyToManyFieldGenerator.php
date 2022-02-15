@@ -85,8 +85,7 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
 
         return '
     /**
-     * ' . $this->field->getLabel() . '
-     *' . $serializer . $apiFilter .  '
+     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . $apiFilter .  '
      * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
      * @ORM\ManyToMany(targetEntity="' . $this->configuration['classname'] . '")
      * ' . $orderByClause . '
@@ -142,19 +141,5 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     public function getFieldConstructorInitialization(): string
     {
         return '$this->' . $this->field->getVarName() . ' = new \Doctrine\Common\Collections\ArrayCollection();';
-    }
-
-    protected function getSerializationAnnotations(): array
-    {
-        $annotations = parent::getSerializationAnnotations();
-        $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
-        if ($this->getSerializationMaxDepth() > 0) {
-            $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
-        }
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
     }
 }

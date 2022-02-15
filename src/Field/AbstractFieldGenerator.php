@@ -68,7 +68,11 @@ abstract class AbstractFieldGenerator
             $docs[] = $this->field->getDescription() . '.';
         }
         if (!empty($this->field->getDefaultValues())) {
-            $docs[] = 'Default values: ' . str_replace("\n", "\n     *     ", $this->field->getDefaultValues());
+            $docs[] = 'Default values: ' . preg_replace(
+                "#(?:\\r\\n|\\n)#",
+                PHP_EOL . "     *     ",
+                $this->field->getDefaultValues()
+            );
         }
         if (!empty($this->field->getGroupName())) {
             $docs[] = 'Group: ' . $this->field->getGroupName() . '.';
@@ -81,9 +85,7 @@ abstract class AbstractFieldGenerator
          */
         $docs[] = '';
         $docs[] = 'Symfony serializer annotations must be set on property';
-        if ($this->excludeFromSerialization()) {
-            $docs[] = '@SymfonySerializer\Ignore()';
-        } else {
+        if (!$this->excludeFromSerialization()) {
             $docs[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
             $docs[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
             if ($this->getSerializationMaxDepth() > 0) {

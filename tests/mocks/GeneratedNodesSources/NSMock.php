@@ -180,6 +180,22 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo markdown field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values: allow_h2: false
+     *     allow_h3: false
+     *     allow_h4: false
+     *     allow_h5: false
+     *     allow_h6: false
+     *     allow_bold: true
+     *     allow_italic: true
+     *     allow_blockquote: false
+     *     allow_image: false
+     *     allow_list: false
+     *     allow_nbsp: true
+     *     allow_nb_hyphen: true
+     *     allow_return: true
+     *     allow_link: false
+     *     allow_hr: false
+     *     allow_preview: true
      *
      * Symfony serializer annotations must be set on property
      * @SymfonySerializer\SerializedName(serializedName="fooMarkdown")
@@ -220,13 +236,29 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Foo excluded markdown field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values: allow_h2: false
+     *     allow_h3: false
+     *     allow_h4: false
+     *     allow_h5: false
+     *     allow_h6: false
+     *     allow_bold: true
+     *     allow_italic: true
+     *     allow_blockquote: false
+     *     allow_image: false
+     *     allow_list: false
+     *     allow_nbsp: true
+     *     allow_nb_hyphen: true
+     *     allow_return: true
+     *     allow_link: false
+     *     allow_hr: false
+     *     allow_preview: true
      *
      * Symfony serializer annotations must be set on property
-     * @SymfonySerializer\Ignore()
      *
      * @Gedmo\Versioned
      * @ORM\Column(type="text", nullable=true, name="foo_markdown_excluded")
      * @Serializer\Exclude()
+     * @SymfonySerializer\Ignore()
      */
     private ?string $fooMarkdownExcluded = null;
 
@@ -287,6 +319,243 @@ class NSMock extends \mock\Entity\NodesSources
     public function setFooDecimalExcluded($fooDecimalExcluded)
     {
         $this->fooDecimalExcluded = $fooDecimalExcluded;
+
+        return $this;
+    }
+
+
+    /**
+     * Référence à l'événement.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values: # Entity class name
+     *     classname: \App\Entity\Base\Event
+     *     # Displayable is the method used to display entity name
+     *     displayable: getName
+     *     # Same as Displayable but for a secondary information
+     *     alt_displayable: getSortingFirstDateTime
+     *     # Same as Displayable but for a secondary information
+     *     thumbnail: getMainDocument
+     *     # Searchable entity fields
+     *     searchable:
+     *         - name
+     *         - slug
+     *     # This order will only be used for explorer
+     *     orderBy:
+     *         - field: sortingLastDateTime
+     *           direction: DESC
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="singleEventReference")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(2)
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
+     * @var \App\Entity\Base\Event|null
+     * @ORM\ManyToOne(targetEntity="\App\Entity\Base\Event")
+     * @ORM\JoinColumn(name="single_event_reference_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private ?\App\Entity\Base\Event $singleEventReference = null;
+
+    /**
+     * @return \App\Entity\Base\Event|null
+     */
+    public function getSingleEventReference(): ?\App\Entity\Base\Event
+    {
+        return $this->singleEventReference;
+    }
+
+    /**
+     * @var \App\Entity\Base\Event|null $singleEventReference
+     * @return $this
+     */
+    public function setSingleEventReference(?\App\Entity\Base\Event $singleEventReference = null)
+    {
+        $this->singleEventReference = $singleEventReference;
+
+        return $this;
+    }
+
+
+    /**
+     * Remontée d'événements manuelle.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values: # Entity class name
+     *     classname: \App\Entity\Base\Event
+     *     # Displayable is the method used to display entity name
+     *     displayable: getName
+     *     # Same as Displayable but for a secondary information
+     *     alt_displayable: getSortingFirstDateTime
+     *     # Same as Displayable but for a secondary information
+     *     thumbnail: getMainDocument
+     *     # Searchable entity fields
+     *     searchable:
+     *         - name
+     *         - slug
+     *     # This order will only be used for explorer
+     *     orderBy:
+     *         - field: sortingLastDateTime
+     *           direction: DESC
+     *
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="eventReferences")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(2)
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
+     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @ORM\ManyToMany(targetEntity="\App\Entity\Base\Event")
+     * @ORM\OrderBy(value={"sortingLastDateTime":"DESC"})
+     * @ORM\JoinTable(name="node_type_event_references", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id", onDelete="CASCADE") }, inverseJoinColumns={ @ORM\JoinColumn(name="event_references_id", referencedColumnName="id", onDelete="CASCADE") })
+     */
+    private \Doctrine\Common\Collections\Collection $eventReferences;
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     */
+    public function getEventReferences(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->eventReferences;
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event> $eventReferences
+     * @return $this
+     */
+    public function setEventReferences($eventReferences)
+    {
+        if ($eventReferences instanceof \Doctrine\Common\Collections\Collection) {
+            $this->eventReferences = $eventReferences;
+        } else {
+            $this->eventReferences = new \Doctrine\Common\Collections\ArrayCollection($eventReferences);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remontée d'événements manuelle
+     *
+     * @Serializer\Exclude()
+     * @SymfonySerializer\Ignore()
+     * @var \Doctrine\Common\Collections\ArrayCollection<\App\Entity\PositionedCity>
+     * @ORM\OneToMany(targetEntity="\App\Entity\PositionedCity", mappedBy="nodeSource", orphanRemoval=true, cascade={"persist", "remove"})
+     * @ORM\OrderBy(value={"position":"ASC"})
+     */
+    private $eventReferencesProxiedProxy;
+
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getEventReferencesProxiedProxy()
+    {
+        return $this->eventReferencesProxiedProxy;
+    }
+
+    /**
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("eventReferencesProxied")
+     * @SymfonySerializer\SerializedName(serializedName="eventReferencesProxied")
+     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @SymfonySerializer\MaxDepth(2)
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getEventReferencesProxied()
+    {
+        return $this->eventReferencesProxiedProxy->map(function (\App\Entity\PositionedCity $proxyEntity) {
+            return $proxyEntity->getCity();
+        });
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection $eventReferencesProxiedProxy
+     * @Serializer\VirtualProperty()
+     * @return $this
+     */
+    public function setEventReferencesProxiedProxy($eventReferencesProxiedProxy = null)
+    {
+        $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxy;
+
+        return $this;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $eventReferencesProxied
+     * @return $this
+     */
+    public function setEventReferencesProxied($eventReferencesProxied = null)
+    {
+        foreach ($this->getEventReferencesProxiedProxy() as $item) {
+            $item->setNodeSource(null);
+        }
+        $this->eventReferencesProxiedProxy->clear();
+        if (null !== $eventReferencesProxied) {
+            $position = 0;
+            foreach ($eventReferencesProxied as $singleEventReferencesProxied) {
+                $proxyEntity = new \App\Entity\PositionedCity();
+                $proxyEntity->setNodeSource($this);
+                if ($proxyEntity instanceof \RZ\Roadiz\Core\AbstractEntities\PositionedInterface) {
+                    $proxyEntity->setPosition(++$position);
+                }
+                $proxyEntity->setCity($singleEventReferencesProxied);
+                $this->eventReferencesProxiedProxy->add($proxyEntity);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remontée d'événements manuelle exclue.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values: # Entity class name
+     *     classname: \App\Entity\Base\Event
+     *     # Displayable is the method used to display entity name
+     *     displayable: getName
+     *     # Same as Displayable but for a secondary information
+     *     alt_displayable: getSortingFirstDateTime
+     *     # Same as Displayable but for a secondary information
+     *     thumbnail: getMainDocument
+     *     # Searchable entity fields
+     *     searchable:
+     *         - name
+     *         - slug
+     *     # This order will only be used for explorer
+     *     orderBy:
+     *         - field: sortingLastDateTime
+     *           direction: DESC
+     *
+     * Symfony serializer annotations must be set on property
+     * @Serializer\Exclude()
+     * @SymfonySerializer\Ignore()
+     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @ORM\ManyToMany(targetEntity="\App\Entity\Base\Event")
+     * @ORM\OrderBy(value={"sortingLastDateTime":"DESC"})
+     * @ORM\JoinTable(name="node_type_event_references_excluded", joinColumns={ @ORM\JoinColumn(name="node_type_id", referencedColumnName="id", onDelete="CASCADE") }, inverseJoinColumns={ @ORM\JoinColumn(name="event_references_excluded_id", referencedColumnName="id", onDelete="CASCADE") })
+     */
+    private \Doctrine\Common\Collections\Collection $eventReferencesExcluded;
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     */
+    public function getEventReferencesExcluded(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->eventReferencesExcluded;
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event> $eventReferencesExcluded
+     * @return $this
+     */
+    public function setEventReferencesExcluded($eventReferencesExcluded)
+    {
+        if ($eventReferencesExcluded instanceof \Doctrine\Common\Collections\Collection) {
+            $this->eventReferencesExcluded = $eventReferencesExcluded;
+        } else {
+            $this->eventReferencesExcluded = new \Doctrine\Common\Collections\ArrayCollection($eventReferencesExcluded);
+        }
 
         return $this;
     }
@@ -588,12 +857,19 @@ class NSMock extends \mock\Entity\NodesSources
 
 
     /**
-     * For many_to_many field
+     * For many_to_many field.
+     * Default values: classname: \MyCustomEntity
+     *     displayable: getName
+     *     orderBy:
+     *         - field: name
+     *           direction: asc
      *
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
-     * @Serializer\MaxDepth(2)
+     * Symfony serializer annotations must be set on property
+     * @SymfonySerializer\SerializedName(serializedName="fooManyToMany")
      * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
      * @SymfonySerializer\MaxDepth(2)
+     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
+     * @Serializer\MaxDepth(2)
      * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>
      * @ORM\ManyToMany(targetEntity="\MyCustomEntity")
      * @ORM\OrderBy(value={"name":"asc"})
@@ -703,6 +979,9 @@ class NSMock extends \mock\Entity\NodesSources
     {
         parent::__construct($node, $translation);
 
+        $this->eventReferences = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->eventReferencesProxiedProxy = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->eventReferencesExcluded = new \Doctrine\Common\Collections\ArrayCollection();
         $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection();
         $this->fooManyToManyProxiedProxy = new \Doctrine\Common\Collections\ArrayCollection();
     }
