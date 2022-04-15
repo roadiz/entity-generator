@@ -103,6 +103,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         switch (true) {
             case $this->field->isBool():
                 return 'bool';
+            case $this->field->isMultiple():
+                return '?array';
             case $this->field->isInteger():
                 return '?int';
             case $this->field->isColor():
@@ -146,6 +148,10 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             $typeHint = ': ' . $type;
         }
         $assignation = '$this->' . $this->field->getVarName();
+
+        if ($this->field->isMultiple()) {
+            $assignation = sprintf('null !== %s ? array_values(%s) : null', $assignation, $assignation);
+        }
 
         return '
     /**
