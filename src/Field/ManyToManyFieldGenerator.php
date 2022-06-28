@@ -4,24 +4,10 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
-use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use Symfony\Component\String\UnicodeString;
-use Symfony\Component\Yaml\Yaml;
 
-class ManyToManyFieldGenerator extends AbstractFieldGenerator
+class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    private array $configuration;
-
-    public function __construct(NodeTypeFieldInterface $field, array $options = [])
-    {
-        parent::__construct($field, $options);
-
-        if (null === $this->field->getDefaultValues() || empty($this->field->getDefaultValues())) {
-            throw new \LogicException('Default values must be a valid YAML for ' . ManyToManyFieldGenerator::class);
-        }
-        $this->configuration = Yaml::parse($this->field->getDefaultValues() ?? '');
-    }
-
     /**
      * @inheritDoc
      */

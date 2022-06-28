@@ -123,9 +123,13 @@ class EntityGenerator implements EntityGeneratorInterface
         }
         if ($field->isManyToMany()) {
             $configuration = Yaml::parse($field->getDefaultValues() ?? '');
-            if (isset($configuration['proxy']) && !empty($configuration['proxy']['classname'])) {
+            if (
+                is_array($configuration) &&
+                isset($configuration['proxy']) &&
+                !empty($configuration['proxy']['classname'])
+            ) {
                 /*
-                 * Manually create a Many to Many relation using a proxy class
+                 * Manually create a Many-to-Many relation using a proxy class
                  * for handling position for example.
                  */
                 return new ProxiedManyToManyFieldGenerator($field, $this->options);

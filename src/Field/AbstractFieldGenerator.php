@@ -152,7 +152,7 @@ abstract class AbstractFieldGenerator
             $defaultValue = ' = ' . $defaultValue;
         }
         /*
-         * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
+         * Buffer var to get referenced entities (documents, nodes, custom-forms, doctrine entities)
          */
         return static::TAB . 'private ' . $type . '$' . $this->field->getVarName() . $defaultValue . ';' . PHP_EOL;
     }
