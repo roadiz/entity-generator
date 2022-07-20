@@ -1,3 +1,9 @@
+## 2.0.2 (2022-07-20)
+
+### Bug Fixes
+
+* Missing `$this->objectManager->persist($proxyEntity)` after creating proxy objects ([9e3fc09](https://github.com/roadiz/entity-generator/commit/9e3fc09491dc837a8e9dd123ba1baaf73e7ee6bc))
+
 ## 2.0.1 (2022-06-28)
 
 ### Features
