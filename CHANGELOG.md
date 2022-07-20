@@ -1,3 +1,9 @@
+## 2.0.3 (2022-07-20)
+
+### Features
+
+* Added clone override method to clone proxies relationships ([fcc99d0](https://github.com/roadiz/entity-generator/commit/fcc99d07d105683deeeab4baafa480bb2ceae36f))
+
 ## 2.0.2 (2022-07-20)
 
 ### Bug Fixes
