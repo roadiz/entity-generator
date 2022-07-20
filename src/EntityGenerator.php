@@ -167,6 +167,7 @@ class EntityGenerator implements EntityGeneratorInterface
         $this->getNodeTypeNameGetter() .
         $this->getNodeTypeReachableGetter() .
         $this->getNodeTypePublishableGetter() .
+        $this->getClassCloneMethod() .
         $this->getClassMethods() . '
 }' . PHP_EOL;
     }
@@ -251,6 +252,34 @@ namespace ' . ltrim($this->options['namespace'], '\\') . ';
         $fieldsArray = array_filter($fieldsArray);
 
         return implode('', $fieldsArray);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassCloneMethod(): string
+    {
+        $cloneStatements = [];
+        /** @var AbstractFieldGenerator $fieldGenerator */
+        foreach ($this->fieldGenerators as $fieldGenerator) {
+            $cloneStatements[] = trim($fieldGenerator->getCloneStatements());
+        }
+        $cloneStatements = array_filter($cloneStatements);
+
+        if (count($cloneStatements) === 0) {
+            return '';
+        }
+
+        $statementSeparator = PHP_EOL . PHP_EOL . AbstractFieldGenerator::TAB . AbstractFieldGenerator::TAB;
+        $cloneStatementsString = implode($statementSeparator, $cloneStatements);
+
+        return '
+    public function __clone()
+    {
+        parent::__clone();
+
+        ' . $cloneStatementsString . '
+    }' . PHP_EOL;
     }
 
     /**

@@ -203,6 +203,14 @@ abstract class AbstractFieldGenerator
     }
 
     /**
+     * @return string
+     */
+    public function getCloneStatements(): string
+    {
+        return '';
+    }
+
+    /**
      * Generate PHP annotation block for Doctrine table indexes.
      *
      * @return string

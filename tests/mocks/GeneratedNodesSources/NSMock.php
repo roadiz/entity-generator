@@ -1021,6 +1021,29 @@ class NSMock extends \mock\Entity\NodesSources
         return true;
     }
 
+    public function __clone()
+    {
+        parent::__clone();
+
+        $eventReferencesProxiedProxyClone = new \Doctrine\Common\Collections\ArrayCollection();
+        foreach ($this->eventReferencesProxiedProxy as $item) {
+            $itemClone = clone $item;
+            $itemClone->setNodeSource($this);
+            $eventReferencesProxiedProxyClone->add($itemClone);
+            $this->objectManager->persist($itemClone);
+        }
+        $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxyClone;
+
+        $fooManyToManyProxiedProxyClone = new \Doctrine\Common\Collections\ArrayCollection();
+        foreach ($this->fooManyToManyProxiedProxy as $item) {
+            $itemClone = clone $item;
+            $itemClone->setNodeSource($this);
+            $fooManyToManyProxiedProxyClone->add($itemClone);
+            $this->objectManager->persist($itemClone);
+        }
+        $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxyClone;
+    }
+
     public function __toString()
     {
         return '[NSMock] ' . parent::__toString();

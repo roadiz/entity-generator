@@ -211,9 +211,26 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
      */
     protected function getProxyClassname(): string
     {
-
         return (new UnicodeString($this->configuration['proxy']['classname']))->startsWith('\\') ?
             $this->configuration['proxy']['classname'] :
             '\\' . $this->configuration['proxy']['classname'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getCloneStatements(): string
+    {
+        return '
+
+        $' . $this->getProxiedVarName() . 'Clone = new \Doctrine\Common\Collections\ArrayCollection();
+        foreach ($this->' . $this->getProxiedVarName() . ' as $item) {
+            $itemClone = clone $item;
+            $itemClone->setNodeSource($this);
+            $' . $this->getProxiedVarName() . 'Clone->add($itemClone);
+            $this->objectManager->persist($itemClone);
+        }
+        $this->' . $this->getProxiedVarName() . ' = $' . $this->getProxiedVarName() . 'Clone;
+        ';
     }
 }
