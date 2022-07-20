@@ -500,6 +500,7 @@ class NSMock extends \mock\Entity\NodesSources
                 }
                 $proxyEntity->setCity($singleEventReferencesProxied);
                 $this->eventReferencesProxiedProxy->add($proxyEntity);
+                $this->objectManager->persist($proxyEntity);
             }
         }
 
@@ -968,6 +969,7 @@ class NSMock extends \mock\Entity\NodesSources
                 }
                 $proxyEntity->setCity($singleFooManyToManyProxied);
                 $this->fooManyToManyProxiedProxy->add($proxyEntity);
+                $this->objectManager->persist($proxyEntity);
             }
         }
 

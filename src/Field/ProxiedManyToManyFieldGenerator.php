@@ -147,6 +147,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
                 }
                 $proxyEntity->' . $this->getProxyRelationSetterName() . '($single' . ucwords($this->field->getVarName()) . ');
                 $this->' . $this->getProxiedVarName() . '->add($proxyEntity);
+                $this->objectManager->persist($proxyEntity);
             }
         }
 
