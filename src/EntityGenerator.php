@@ -7,6 +7,7 @@ namespace RZ\Roadiz\EntityGenerator;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use RZ\Roadiz\CoreBundle\Entity\UserLogEntry;
 use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
 use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use RZ\Roadiz\EntityGenerator\Field\AbstractFieldGenerator;
@@ -212,6 +213,9 @@ namespace ' . ltrim($this->options['namespace'], '\\') . ';
     protected function getClassAttributes(): string
     {
         $attributeGenerators = [
+            new AttributeGenerator('Gedmo\Loggable', [
+                'logEntryClass' => '\RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class',
+            ]),
             new AttributeGenerator('ORM\Entity', [
                 'repositoryClass' => $this->options['repository_class'] . '::class',
             ]),

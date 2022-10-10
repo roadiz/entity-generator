@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Generated custom node-source type by Roadiz.
  */
 #[
+    Gedmo\Loggable(logEntryClass: \RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class),
     ORM\Entity(repositoryClass: \mock\Entity\Repository\NodesSourcesRepository::class),
     ORM\Table(name: "ns_mock"),
     ORM\Index(columns: ["foo_datetime"]),

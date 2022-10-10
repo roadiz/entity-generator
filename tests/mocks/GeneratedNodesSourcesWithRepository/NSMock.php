@@ -21,6 +21,7 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
  * Generated custom node-source type by Roadiz.
  */
 #[
+    Gedmo\Loggable(logEntryClass: \RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class),
     ORM\Entity(repositoryClass: \tests\mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository::class),
     ORM\Table(name: "ns_mock"),
     ORM\Index(columns: ["foo_datetime"]),
