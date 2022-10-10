@@ -59,7 +59,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
          *      inverseJoinColumns={@JoinColumn(name="group_id", referencedColumnName="id")}
          */
         $ormParams = [
-            'targetEntity' => $this->getProxyClassname() . '::class',
+            'targetEntity' => '\\' . trim($this->getProxyClassname(), '\\') . '::class',
             'mappedBy' => AttributeGenerator::wrapString($this->configuration['proxy']['self']),
             'orphanRemoval' => 'true',
             'cascade' => '["persist", "remove"]'

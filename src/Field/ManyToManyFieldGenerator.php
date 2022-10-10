@@ -42,7 +42,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         ];
 
         $attributes[] = new AttributeGenerator('ORM\ManyToMany', [
-            'targetEntity' => $this->configuration['classname'] . '::class'
+            'targetEntity' => '\\' . trim($this->configuration['classname'], '\\') . '::class'
         ]);
         $attributes[] = new AttributeGenerator('ORM\JoinTable', [
             'name' => AttributeGenerator::wrapString($entityA . '_' . $entityB)

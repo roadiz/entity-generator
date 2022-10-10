@@ -25,7 +25,7 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
             'onDelete' => AttributeGenerator::wrapString('SET NULL'),
         ];
         $attributes[] = new AttributeGenerator('ORM\ManyToOne', [
-            'targetEntity' => $this->configuration['classname'] . '::class'
+            'targetEntity' => '\\' . trim($this->configuration['classname'], '\\') . '::class'
         ]);
         $attributes[] = new AttributeGenerator('ORM\JoinColumn', $ormParams);
 
