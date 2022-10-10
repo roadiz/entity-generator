@@ -4,25 +4,32 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
+
 class YamlFieldGenerator extends NonVirtualFieldGenerator
 {
-    protected function getSerializationAnnotations(): array
+    protected function getSerializationAttributes(): array
     {
-        $annotations = parent::getSerializationAnnotations();
+        $annotations = parent::getSerializationAttributes();
         if (!$this->excludeFromSerialization()) {
-            $annotations[] = '@Serializer\VirtualProperty';
-            $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-            $annotations[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
-            $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
+            $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+            $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+                AttributeGenerator::wrapString($this->field->getVarName())
+            ]);
+            $annotations[] = new AttributeGenerator('SymfonySerializer\SerializedName', [
+                'serializedName' => AttributeGenerator::wrapString($this->field->getVarName())
+            ]);
+            $annotations[] = new AttributeGenerator('SymfonySerializer\Groups', [
+                $this->getSerializationGroups()
+            ]);
             if ($this->getSerializationMaxDepth() > 0) {
-                $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+                $annotations[] = new AttributeGenerator('SymfonySerializer\MaxDepth', [
+                    $this->getSerializationMaxDepth()
+                ]);
             }
         }
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+        return $annotations;
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -32,22 +39,22 @@ class YamlFieldGenerator extends NonVirtualFieldGenerator
         return $groups;
     }
 
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
+    }
+
     /**
      * @return string
      */
     public function getFieldAlternativeGetter(): string
     {
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
         $assignation = '$this->' . $this->field->getVarName();
         return '
     /**
-     * @return object|array|null' . $serializer . '
+     * @return object|array|null
      */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
     public function ' . $this->field->getGetterName() . 'AsObject()
     {
         if (null !== ' . $assignation . ') {

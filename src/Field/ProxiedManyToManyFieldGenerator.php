@@ -4,27 +4,33 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use Symfony\Component\String\UnicodeString;
 
 class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    protected function getSerializationAnnotations(): array
+    protected function getSerializationAttributes(): array
     {
-        $annotations = parent::getSerializationAnnotations();
+        $annotations = parent::getSerializationAttributes();
         if (!$this->excludeFromSerialization()) {
-            $annotations[] = '@Serializer\VirtualProperty';
-            $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-            $annotations[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
-            $annotations[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
+            $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+            $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+                AttributeGenerator::wrapString($this->field->getVarName())
+            ]);
+            $annotations[] = new AttributeGenerator('SymfonySerializer\SerializedName', [
+                'serializedName' => AttributeGenerator::wrapString($this->field->getVarName())
+            ]);
+            $annotations[] = new AttributeGenerator('SymfonySerializer\Groups', [
+                $this->getSerializationGroups()
+            ]);
             if ($this->getSerializationMaxDepth() > 0) {
-                $annotations[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+                $annotations[] = new AttributeGenerator('SymfonySerializer\MaxDepth', [
+                    $this->getSerializationMaxDepth()
+                ]);
             }
         }
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+        return $annotations;
     }
 
     /**
@@ -38,11 +44,13 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return '    private $' . $this->getProxiedVarName() . ';' . PHP_EOL;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
+    protected function getFieldAttributes(bool $exclude = false): array
     {
+        $attributes = [];
+
+        $attributes[] = new AttributeGenerator('Serializer\Exclude');
+        $attributes[] = new AttributeGenerator('SymfonySerializer\Exclude');
+
         /*
          * Many Users have Many Groups.
          * @ManyToMany(targetEntity="Group")
@@ -50,31 +58,42 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
          *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
          *      inverseJoinColumns={@JoinColumn(name="group_id", referencedColumnName="id")}
          */
-        $orderByClause = '';
+        $ormParams = [
+            'targetEntity' => $this->getProxyClassname() . '::class',
+            'mappedBy' => AttributeGenerator::wrapString($this->configuration['proxy']['self']),
+            'orphanRemoval' => 'true',
+            'cascade' => '["persist", "remove"]'
+        ];
+
+        $attributes[] = new AttributeGenerator('ORM\OneToMany', $ormParams);
+
         if (isset($this->configuration['proxy']['orderBy']) && count($this->configuration['proxy']['orderBy']) > 0) {
             // use default order for Collections
             $orderBy = [];
             foreach ($this->configuration['proxy']['orderBy'] as $order) {
-                $orderBy[$order['field']] = $order['direction'];
+                $orderBy[] = AttributeGenerator::wrapString($order['field']) .
+                    ' => ' .
+                    AttributeGenerator::wrapString($order['direction']);
             }
-            $orderByClause = '@ORM\OrderBy(value=' . json_encode($orderBy) . ')';
+            $attributes[] = new AttributeGenerator('ORM\OrderBy', [
+                0 => '[' . implode(', ', $orderBy) . ']'
+            ]);
         }
-        $ormParams = [
-            'targetEntity' => '"' . $this->getProxyClassname() . '"',
-            'mappedBy' => '"' . $this->configuration['proxy']['self'] . '"',
-            'orphanRemoval' => 'true',
-            'cascade' => '{"persist", "remove"}'
-        ];
 
+        return $attributes;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldAnnotation(): string
+    {
         return '
     /**
      * ' . $this->field->getLabel() . '
      *
-     * @Serializer\Exclude()
-     * @SymfonySerializer\Ignore()
      * @var \Doctrine\Common\Collections\ArrayCollection<' . $this->getProxyClassname() . '>
-     * @ORM\OneToMany(' . static::flattenORMParameters($ormParams) . ')
-     * ' . $orderByClause . '
      */' . PHP_EOL;
     }
 
@@ -83,13 +102,6 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
      */
     public function getFieldGetter(): string
     {
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
         return '
     /**
      * @return \Doctrine\Common\Collections\ArrayCollection
@@ -99,9 +111,10 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this->' . $this->getProxiedVarName() . ';
     }
 
-    /**' . $serializer . '
+    /**
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
     public function ' . $this->field->getGetterName() . '()
     {
         return $this->' . $this->getProxiedVarName() . '->map(function (' . $this->getProxyClassname() . ' $proxyEntity) {

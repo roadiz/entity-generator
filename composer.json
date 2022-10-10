@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.0",
         "ext-json": "*",
         "roadiz/nodetype-contracts": "~1.1.0",
         "symfony/string": "^5.0.7",

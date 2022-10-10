@@ -7,6 +7,8 @@ namespace RZ\Roadiz\EntityGenerator;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use RZ\Roadiz\EntityGenerator\Field\AbstractFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\CollectionFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\CustomFormsFieldGenerator;
@@ -153,6 +155,7 @@ class EntityGenerator implements EntityGeneratorInterface
     {
         return $this->getClassHeader() .
             $this->getClassAnnotations() .
+            $this->getClassAttributes() .
             $this->getClassBody();
     }
 
@@ -206,36 +209,42 @@ namespace ' . ltrim($this->options['namespace'], '\\') . ';
 ' . implode(PHP_EOL, $useStatements) . PHP_EOL;
     }
 
-    /**
-     * @return string
-     */
-    protected function getClassAnnotations(): string
+    protected function getClassAttributes(): string
     {
+        $attributeGenerators = [
+            new AttributeGenerator('ORM\Entity', [
+                'repositoryClass' => $this->options['repository_class'] . '::class',
+            ]),
+            new AttributeGenerator('ORM\Table', [
+                'name' => AttributeGenerator::wrapString($this->nodeType->getSourceEntityTableName())
+            ])
+        ];
+
         $indexes = [];
         /** @var AbstractFieldGenerator $fieldGenerator */
         foreach ($this->fieldGenerators as $fieldGenerator) {
             $indexes[] = $fieldGenerator->getFieldIndex();
         }
-        $indexes = array_filter($indexes);
-
-        $classAnnotations = [
-            '@ORM\Entity(repositoryClass="' . ltrim($this->options['repository_class'], '\\') . '")',
-            '@ORM\Table(name="' . $this->nodeType->getSourceEntityTableName() . '", indexes={' . implode(', ', $indexes) . '})',
-        ];
+        $attributeGenerators = [...$attributeGenerators, ...array_filter($indexes)];
 
         if ($this->options['use_api_platform_filters'] === true) {
-            $classAnnotations[] = '@ApiFilter(PropertyFilter::class)';
+            $attributeGenerators[] = new AttributeGenerator('ApiFilter', [
+                'PropertyFilter::class'
+            ]);
         }
 
-        $classAnnotations = array_map(function (string $annotation) {
-            return ' * ' . $annotation;
-        }, $classAnnotations);
+        return (new AttributeListGenerator($attributeGenerators))->generate() . PHP_EOL;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassAnnotations(): string
+    {
         return '
 /**
  * DO NOT EDIT
  * Generated custom node-source type by Roadiz.
- *
-' . implode(PHP_EOL, $classAnnotations) . '
  */' . PHP_EOL;
     }
 
@@ -313,14 +322,13 @@ namespace ' . ltrim($this->options['namespace'], '\\') . ';
     protected function getNodeTypeNameGetter(): string
     {
             return '
-    /**
-     * @return string
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"nodes_sources", "nodes_sources_default"})
-     * @Serializer\SerializedName("@type")
-     * @SymfonySerializer\Groups({"nodes_sources", "nodes_sources_default"})
-     * @SymfonySerializer\SerializedName(serializedName="@type")
-     */
+    #[
+        Serializer\VirtualProperty,
+        Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
+        Serializer\SerializedName("@type"),
+        SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
+        SymfonySerializer\SerializedName(serializedName: "@type")
+    ]
     public function getNodeTypeName(): string
     {
         return \'' . $this->nodeType->getName() . '\';

@@ -4,20 +4,24 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+
 class NonVirtualFieldGenerator extends AbstractFieldGenerator
 {
     /**
      * Generate PHP annotation block for Doctrine table indexes.
      *
-     * @return string
+     * @return AttributeGenerator|null
      */
-    public function getFieldIndex(): string
+    public function getFieldIndex(): ?AttributeGenerator
     {
         if ($this->field->isIndexed()) {
-            return '@ORM\Index(columns={"' . $this->field->getName() . '"})';
+            return new AttributeGenerator('ORM\Index', [
+                'columns' => '[' . AttributeGenerator::wrapString($this->field->getName()) . ']'
+            ]);
         }
 
-        return '';
+        return null;
     }
 
     /**
@@ -52,15 +56,19 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
+    protected function isExcludingFieldFromJmsSerialization(): bool
     {
+        return false;
+    }
+
+    protected function getFieldAttributes(bool $exclude = false): array
+    {
+        $attributes = parent::getFieldAttributes($exclude);
+
         $ormParams = [
-            'type' => '"' . $this->getDoctrineType() . '"',
+            'type' => AttributeGenerator::wrapString($this->getDoctrineType()),
             'nullable' => 'true',
-            'name' => '"' . $this->field->getName() . '"',
+            'name' => AttributeGenerator::wrapString($this->field->getName()),
         ];
 
         $fieldLength = $this->getFieldLength();
@@ -73,9 +81,28 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             $ormParams['scale'] = 3;
         } elseif ($this->field->isBool()) {
             $ormParams['nullable'] = 'false';
-            $ormParams['options'] = '{"default" = false}';
+            $ormParams['options'] = '["default" => false]';
         }
 
+        $attributes[] = new AttributeGenerator('Gedmo\Versioned');
+        $attributes[] = new AttributeGenerator('ORM\Column', $ormParams);
+
+        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAttributes())) {
+            return [
+                ...$attributes,
+                ...$this->getSerializationAttributes()
+            ];
+        }
+
+        return $attributes;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldAnnotation(): string
+    {
         $autodoc = '';
         if (!empty($this->getFieldAutodoc())) {
             $autodoc = PHP_EOL .
@@ -83,18 +110,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
         }
 
-        $serializer = '';
-        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
         return '
     /**' . $autodoc . '
-     *
-     * @Gedmo\Versioned
-     * @ORM\Column(' . static::flattenORMParameters($ormParams) . ')' . $serializer . '
      */' . PHP_EOL;
     }
 
