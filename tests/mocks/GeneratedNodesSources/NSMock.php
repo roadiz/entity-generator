@@ -123,6 +123,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
         ApiFilter(OrmFilter\SearchFilter::class, strategy: "partial"),
+        ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class),
         Gedmo\Versioned,
         ORM\Column(
             name: "fooIndexed",
