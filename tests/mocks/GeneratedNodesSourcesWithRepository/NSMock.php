@@ -317,6 +317,9 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\SerializedName(serializedName: "fooDecimalExcluded"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(2),
+        ApiFilter(OrmFilter\OrderFilter::class),
+        ApiFilter(OrmFilter\NumericFilter::class),
+        ApiFilter(OrmFilter\RangeFilter::class),
         Gedmo\Versioned,
         ORM\Column(
             name: "foo_decimal_excluded",
