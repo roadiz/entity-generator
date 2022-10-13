@@ -65,10 +65,25 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     {
         $attributes = parent::getFieldAttributes($exclude);
 
+        /*
+         * ?string $name = null,
+         * ?string $type = null,
+         * ?int $length = null,
+         * ?int $precision = null,
+         * ?int $scale = null,
+         * bool $unique = false,
+         * bool $nullable = false,
+         * bool $insertable = true,
+         * bool $updatable = true,
+         * ?string $enumType = null,
+         * array $options = [],
+         * ?string $columnDefinition = null,
+         * ?string $generated = null
+         */
         $ormParams = [
+            'name' => AttributeGenerator::wrapString($this->field->getName()),
             'type' => AttributeGenerator::wrapString($this->getDoctrineType()),
             'nullable' => 'true',
-            'name' => AttributeGenerator::wrapString($this->field->getName()),
         ];
 
         $fieldLength = $this->getFieldLength();

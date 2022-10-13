@@ -12,6 +12,9 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter as OrmFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 
 /**
  * DO NOT EDIT
@@ -24,7 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
     ORM\Index(columns: ["foo_datetime"]),
     ORM\Index(columns: ["fooIndexed"]),
     ORM\Index(columns: ["boolIndexed"]),
-    ORM\Index(columns: ["foo_decimal_excluded"])
+    ORM\Index(columns: ["foo_decimal_excluded"]),
+    ApiFilter(PropertyFilter::class)
 ]
 class NSMock extends \mock\Entity\NodesSources
 {
@@ -35,8 +39,10 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\SerializedName(serializedName: "fooDatetime"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "foo_datetime"]),
         SymfonySerializer\MaxDepth(2),
+        ApiFilter(OrmFilter\OrderFilter::class),
+        ApiFilter(OrmFilter\DateFilter::class),
         Gedmo\Versioned,
-        ORM\Column(type: "datetime", nullable: true, name: "foo_datetime"),
+        ORM\Column(name: "foo_datetime", type: "datetime", nullable: true),
         Serializer\Groups(["nodes_sources", "nodes_sources_default", "foo_datetime"]),
         Serializer\MaxDepth(2),
         Serializer\Type("DateTime")
@@ -74,9 +80,9 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
         ORM\Column(
+            name: "foo",
             type: "string",
             nullable: true,
-            name: "foo",
             length: 250
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -116,11 +122,12 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\SerializedName(serializedName: "fooIndexed"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "partial"),
         Gedmo\Versioned,
         ORM\Column(
+            name: "fooIndexed",
             type: "string",
             nullable: true,
-            name: "fooIndexed",
             length: 250
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -160,11 +167,13 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\SerializedName(serializedName: "boolIndexed"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
+        ApiFilter(OrmFilter\OrderFilter::class),
+        ApiFilter(OrmFilter\BooleanFilter::class),
         Gedmo\Versioned,
         ORM\Column(
+            name: "boolIndexed",
             type: "boolean",
             nullable: false,
-            name: "boolIndexed",
             options: ["default" => false]
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -219,7 +228,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
-        ORM\Column(type: "text", nullable: true, name: "foo_markdown"),
+        ORM\Column(name: "foo_markdown", type: "text", nullable: true),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(1),
         Serializer\Type("string")
@@ -271,7 +280,7 @@ class NSMock extends \mock\Entity\NodesSources
      */
     #[
         Gedmo\Versioned,
-        ORM\Column(type: "text", nullable: true, name: "foo_markdown_excluded"),
+        ORM\Column(name: "foo_markdown_excluded", type: "text", nullable: true),
         Serializer\Exclude,
         SymfonySerializer\Ignore
     ]
@@ -310,9 +319,9 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\MaxDepth(2),
         Gedmo\Versioned,
         ORM\Column(
+            name: "foo_decimal_excluded",
             type: "decimal",
             nullable: true,
-            name: "foo_decimal_excluded",
             precision: 18,
             scale: 3
         ),
@@ -371,6 +380,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToOne(targetEntity: \App\Entity\Base\Event::class),
         ORM\JoinColumn(name: "single_event_reference_id", referencedColumnName: "id", onDelete: "SET NULL"),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
@@ -426,6 +436,7 @@ class NSMock extends \mock\Entity\NodesSources
         ORM\JoinColumn(name: "node_type_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\InverseJoinColumn(name: "event_references_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\OrderBy(["sortingLastDateTime" => "DESC"]),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
@@ -566,6 +577,7 @@ class NSMock extends \mock\Entity\NodesSources
         ORM\JoinColumn(name: "node_type_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\InverseJoinColumn(name: "event_references_excluded_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\OrderBy(["sortingLastDateTime" => "DESC"]),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         Serializer\Exclude,
         SymfonySerializer\Ignore
     ]
@@ -873,6 +885,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToOne(targetEntity: \MyCustomEntity::class),
         ORM\JoinColumn(name: "foo_many_to_one_id", referencedColumnName: "id", onDelete: "SET NULL"),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
@@ -916,6 +929,7 @@ class NSMock extends \mock\Entity\NodesSources
         ORM\JoinColumn(name: "node_type_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\InverseJoinColumn(name: "foo_many_to_many_id", referencedColumnName: "id", onDelete: "CASCADE"),
         ORM\OrderBy(["name" => "asc"]),
+        ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
