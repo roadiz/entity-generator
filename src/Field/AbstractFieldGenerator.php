@@ -182,12 +182,18 @@ abstract class AbstractFieldGenerator
                         0 => 'OrmFilter\SearchFilter::class',
                         'strategy' => AttributeGenerator::wrapString('partial')
                     ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
+                    ]);
                     break;
                 case $this->field->isMultiple():
                 case $this->field->isEnum():
                     $attributes[] = new AttributeGenerator('ApiFilter', [
                         0 => 'OrmFilter\SearchFilter::class',
                         'strategy' => AttributeGenerator::wrapString('exact')
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
                     ]);
                     break;
                 case $this->field->isBool():
