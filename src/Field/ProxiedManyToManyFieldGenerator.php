@@ -141,10 +141,10 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
     /**
-     * @var Collection|null $' . $this->field->getVarName() . '
+     * @var Collection|array|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(?Collection $' . $this->field->getVarName() . ' = null)
+    public function ' . $this->field->getSetterName() . '(Collection|array|null $' . $this->field->getVarName() . ' = null)
     {
         foreach ($this->' . $this->getProxiedGetterName() . '() as $item) {
             $item->' . $this->getProxySelfSetterName() . '(null);

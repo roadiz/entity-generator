@@ -524,10 +524,10 @@ class NSMock extends \mock\Entity\NodesSources
         return $this;
     }
     /**
-     * @var Collection|null $eventReferencesProxied
+     * @var Collection|array|null $eventReferencesProxied
      * @return $this
      */
-    public function setEventReferencesProxied(?Collection $eventReferencesProxied = null)
+    public function setEventReferencesProxied(Collection|array|null $eventReferencesProxied = null)
     {
         foreach ($this->getEventReferencesProxiedProxy() as $item) {
             $item->setNodeSource(null);
@@ -1009,10 +1009,10 @@ class NSMock extends \mock\Entity\NodesSources
         return $this;
     }
     /**
-     * @var Collection|null $fooManyToManyProxied
+     * @var Collection|array|null $fooManyToManyProxied
      * @return $this
      */
-    public function setFooManyToManyProxied(?Collection $fooManyToManyProxied = null)
+    public function setFooManyToManyProxied(Collection|array|null $fooManyToManyProxied = null)
     {
         foreach ($this->getFooManyToManyProxiedProxy() as $item) {
             $item->setNodeSource(null);
