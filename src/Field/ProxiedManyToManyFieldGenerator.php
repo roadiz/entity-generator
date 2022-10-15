@@ -104,7 +104,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection<' . $this->getProxyClassname() . '>
      */
     public function ' . $this->getProxiedGetterName() . '()
     {
@@ -130,7 +130,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $' . $this->getProxiedVarName() . '
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $' . $this->getProxiedVarName() . '
      * @Serializer\VirtualProperty()
      * @return $this
      */

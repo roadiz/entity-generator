@@ -489,7 +489,7 @@ class NSMock extends \mock\Entity\NodesSources
     private $eventReferencesProxiedProxy;
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection<\App\Entity\PositionedCity>
      */
     public function getEventReferencesProxiedProxy()
     {
@@ -516,7 +516,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $eventReferencesProxiedProxy
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $eventReferencesProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
@@ -982,7 +982,7 @@ class NSMock extends \mock\Entity\NodesSources
     private $fooManyToManyProxiedProxy;
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection<\Themes\MyTheme\Entities\PositionedCity>
      */
     public function getFooManyToManyProxiedProxy()
     {
@@ -1009,7 +1009,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection $fooManyToManyProxiedProxy
+     * @var \Doctrine\Common\Collections\ArrayCollection|null $fooManyToManyProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
