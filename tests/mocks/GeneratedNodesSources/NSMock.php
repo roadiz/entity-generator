@@ -462,7 +462,7 @@ class NSMock extends \mock\Entity\NodesSources
      */
     #[
         Serializer\Exclude,
-        SymfonySerializer\Exclude,
+        SymfonySerializer\Ignore,
         ORM\OneToMany(
             targetEntity: \App\Entity\PositionedCity::class,
             mappedBy: "nodeSource",
@@ -952,7 +952,7 @@ class NSMock extends \mock\Entity\NodesSources
      */
     #[
         Serializer\Exclude,
-        SymfonySerializer\Exclude,
+        SymfonySerializer\Ignore,
         ORM\OneToMany(
             targetEntity: \Themes\MyTheme\Entities\PositionedCity::class,
             mappedBy: "nodeSource",

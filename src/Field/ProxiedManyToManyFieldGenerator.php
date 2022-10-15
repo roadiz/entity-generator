@@ -49,7 +49,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         $attributes = [];
 
         $attributes[] = new AttributeGenerator('Serializer\Exclude');
-        $attributes[] = new AttributeGenerator('SymfonySerializer\Exclude');
+        $attributes[] = new AttributeGenerator('SymfonySerializer\Ignore');
 
         /*
          * Many Users have Many Groups.
