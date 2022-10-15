@@ -138,7 +138,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             case $this->field->isMultiple():
                 return '?array';
             case $this->field->isInteger():
-                return '?int';
+            case $this->field->isDecimal():
+                return 'int|float|null';
             case $this->field->isColor():
             case $this->field->isEmail():
             case $this->field->isString():
@@ -245,7 +246,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(' . $type . ' $' . $this->field->getVarName() . ')
     {
         ' . $assignation . '
 

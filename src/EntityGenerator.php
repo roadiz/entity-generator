@@ -182,6 +182,7 @@ class EntityGenerator implements EntityGeneratorInterface
     protected function getClassHeader(): string
     {
         $useStatements = [
+            'use Doctrine\Common\Collections\Collection;',
             'use JMS\Serializer\Annotation as Serializer;',
             'use Symfony\Component\Serializer\Annotation as SymfonySerializer;',
             'use Gedmo\Mapping\Annotation as Gedmo;',

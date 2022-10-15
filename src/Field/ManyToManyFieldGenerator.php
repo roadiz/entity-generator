@@ -83,13 +83,13 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return '
     /**
      *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . '
-     * @var \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '>
+     * @var Collection<' . $this->getFullyQualifiedClassName() . '>
      */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
     {
-        return '\Doctrine\Common\Collections\Collection';
+        return 'Collection';
     }
 
     /**
@@ -99,9 +99,9 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '>
+     * @return Collection<' . $this->getFullyQualifiedClassName() . '>
      */
-    public function ' . $this->field->getGetterName() . '(): \Doctrine\Common\Collections\Collection
+    public function ' . $this->field->getGetterName() . '(): Collection
     {
         return $this->' . $this->field->getVarName() . ';
     }' . PHP_EOL;
@@ -114,16 +114,12 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '> $' . $this->field->getVarName() . '
+     * @var Collection<' . $this->getFullyQualifiedClassName() . '> $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(Collection $' . $this->field->getVarName() . ')
     {
-        if ($' . $this->field->getVarName() . ' instanceof \Doctrine\Common\Collections\Collection) {
-            $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
-        } else {
-            $this->' . $this->field->getVarName() . ' = new \Doctrine\Common\Collections\ArrayCollection($' . $this->field->getVarName() . ');
-        }
+        $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
 
         return $this;
     }' . PHP_EOL;

@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 namespace tests\mocks\GeneratedNodesSourcesWithRepository;
 
+use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -62,7 +63,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooDatetime($fooDatetime)
+    public function setFooDatetime(?\DateTime $fooDatetime)
     {
         $this->fooDatetime = $fooDatetime;
 
@@ -104,7 +105,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFoo($foo)
+    public function setFoo(?string $foo)
     {
         $this->foo = null !== $foo ?
             (string) $foo :
@@ -150,7 +151,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooIndexed($fooIndexed)
+    public function setFooIndexed(?string $fooIndexed)
     {
         $this->fooIndexed = null !== $fooIndexed ?
             (string) $fooIndexed :
@@ -196,7 +197,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setBoolIndexed($boolIndexed)
+    public function setBoolIndexed(bool $boolIndexed)
     {
         $this->boolIndexed = $boolIndexed;
 
@@ -249,7 +250,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooMarkdown($fooMarkdown)
+    public function setFooMarkdown(?string $fooMarkdown)
     {
         $this->fooMarkdown = null !== $fooMarkdown ?
             (string) $fooMarkdown :
@@ -300,7 +301,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooMarkdownExcluded($fooMarkdownExcluded)
+    public function setFooMarkdownExcluded(?string $fooMarkdownExcluded)
     {
         $this->fooMarkdownExcluded = null !== $fooMarkdownExcluded ?
             (string) $fooMarkdownExcluded :
@@ -334,22 +335,22 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude(if: "object.foo == 'test'"),
         Serializer\Type("double")
     ]
-    private $fooDecimalExcluded = null;
+    private int|float|null $fooDecimalExcluded = null;
 
     /**
-     * @return mixed
+     * @return int|float|null
      */
-    public function getFooDecimalExcluded()
+    public function getFooDecimalExcluded(): int|float|null
     {
         return $this->fooDecimalExcluded;
     }
 
     /**
-     * @param mixed $fooDecimalExcluded
+     * @param int|float|null $fooDecimalExcluded
      *
      * @return $this
      */
-    public function setFooDecimalExcluded($fooDecimalExcluded)
+    public function setFooDecimalExcluded(int|float|null $fooDecimalExcluded)
     {
         $this->fooDecimalExcluded = $fooDecimalExcluded;
 
@@ -429,7 +430,7 @@ class NSMock extends \mock\Entity\NodesSources
      *     orderBy:
      *         - field: sortingLastDateTime
      *           direction: DESC
-     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @var Collection<\App\Entity\Base\Event>
      */
     #[
         SymfonySerializer\SerializedName(serializedName: "eventReferences"),
@@ -444,27 +445,23 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
-    private \Doctrine\Common\Collections\Collection $eventReferences;
+    private Collection $eventReferences;
 
     /**
-     * @return \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @return Collection<\App\Entity\Base\Event>
      */
-    public function getEventReferences(): \Doctrine\Common\Collections\Collection
+    public function getEventReferences(): Collection
     {
         return $this->eventReferences;
     }
 
     /**
-     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event> $eventReferences
+     * @var Collection<\App\Entity\Base\Event> $eventReferences
      * @return $this
      */
-    public function setEventReferences($eventReferences)
+    public function setEventReferences(Collection $eventReferences)
     {
-        if ($eventReferences instanceof \Doctrine\Common\Collections\Collection) {
-            $this->eventReferences = $eventReferences;
-        } else {
-            $this->eventReferences = new \Doctrine\Common\Collections\ArrayCollection($eventReferences);
-        }
+        $this->eventReferences = $eventReferences;
 
         return $this;
     }
@@ -473,7 +470,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * Remontée d'événements manuelle
      *
-     * @var \Doctrine\Common\Collections\ArrayCollection<\App\Entity\PositionedCity>
+     * @var Collection<\App\Entity\PositionedCity>
      */
     #[
         Serializer\Exclude,
@@ -486,18 +483,18 @@ class NSMock extends \mock\Entity\NodesSources
         ),
         ORM\OrderBy(["position" => "ASC"])
     ]
-    private $eventReferencesProxiedProxy;
+    private Collection $eventReferencesProxiedProxy;
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection<\App\Entity\PositionedCity>
+     * @return Collection<\App\Entity\PositionedCity>
      */
-    public function getEventReferencesProxiedProxy()
+    public function getEventReferencesProxiedProxy(): Collection
     {
         return $this->eventReferencesProxiedProxy;
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return Collection
      */
     #[
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -508,7 +505,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(2)
     ]
-    public function getEventReferencesProxied()
+    public function getEventReferencesProxied(): Collection
     {
         return $this->eventReferencesProxiedProxy->map(function (\App\Entity\PositionedCity $proxyEntity) {
             return $proxyEntity->getCity();
@@ -516,21 +513,21 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $eventReferencesProxiedProxy
+     * @var Collection $eventReferencesProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function setEventReferencesProxiedProxy($eventReferencesProxiedProxy = null)
+    public function setEventReferencesProxiedProxy(Collection $eventReferencesProxiedProxy)
     {
         $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxy;
 
         return $this;
     }
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $eventReferencesProxied
+     * @var Collection|null $eventReferencesProxied
      * @return $this
      */
-    public function setEventReferencesProxied($eventReferencesProxied = null)
+    public function setEventReferencesProxied(?Collection $eventReferencesProxied = null)
     {
         foreach ($this->getEventReferencesProxiedProxy() as $item) {
             $item->setNodeSource(null);
@@ -573,7 +570,7 @@ class NSMock extends \mock\Entity\NodesSources
      *     orderBy:
      *         - field: sortingLastDateTime
      *           direction: DESC
-     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @var Collection<\App\Entity\Base\Event>
      */
     #[
         ORM\ManyToMany(targetEntity: \App\Entity\Base\Event::class),
@@ -585,27 +582,23 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude,
         SymfonySerializer\Ignore
     ]
-    private \Doctrine\Common\Collections\Collection $eventReferencesExcluded;
+    private Collection $eventReferencesExcluded;
 
     /**
-     * @return \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event>
+     * @return Collection<\App\Entity\Base\Event>
      */
-    public function getEventReferencesExcluded(): \Doctrine\Common\Collections\Collection
+    public function getEventReferencesExcluded(): Collection
     {
         return $this->eventReferencesExcluded;
     }
 
     /**
-     * @var \Doctrine\Common\Collections\Collection<\App\Entity\Base\Event> $eventReferencesExcluded
+     * @var Collection<\App\Entity\Base\Event> $eventReferencesExcluded
      * @return $this
      */
-    public function setEventReferencesExcluded($eventReferencesExcluded)
+    public function setEventReferencesExcluded(Collection $eventReferencesExcluded)
     {
-        if ($eventReferencesExcluded instanceof \Doctrine\Common\Collections\Collection) {
-            $this->eventReferencesExcluded = $eventReferencesExcluded;
-        } else {
-            $this->eventReferencesExcluded = new \Doctrine\Common\Collections\ArrayCollection($eventReferencesExcluded);
-        }
+        $this->eventReferencesExcluded = $eventReferencesExcluded;
 
         return $this;
     }
@@ -922,7 +915,7 @@ class NSMock extends \mock\Entity\NodesSources
      *     orderBy:
      *         - field: name
      *           direction: asc
-     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity>
+     * @var Collection<\MyCustomEntity>
      */
     #[
         SymfonySerializer\SerializedName(serializedName: "fooManyToMany"),
@@ -937,27 +930,23 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(2)
     ]
-    private \Doctrine\Common\Collections\Collection $fooManyToMany;
+    private Collection $fooManyToMany;
 
     /**
-     * @return \Doctrine\Common\Collections\Collection<\MyCustomEntity>
+     * @return Collection<\MyCustomEntity>
      */
-    public function getFooManyToMany(): \Doctrine\Common\Collections\Collection
+    public function getFooManyToMany(): Collection
     {
         return $this->fooManyToMany;
     }
 
     /**
-     * @var \Doctrine\Common\Collections\Collection<\MyCustomEntity> $fooManyToMany
+     * @var Collection<\MyCustomEntity> $fooManyToMany
      * @return $this
      */
-    public function setFooManyToMany($fooManyToMany)
+    public function setFooManyToMany(Collection $fooManyToMany)
     {
-        if ($fooManyToMany instanceof \Doctrine\Common\Collections\Collection) {
-            $this->fooManyToMany = $fooManyToMany;
-        } else {
-            $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection($fooManyToMany);
-        }
+        $this->fooManyToMany = $fooManyToMany;
 
         return $this;
     }
@@ -966,7 +955,7 @@ class NSMock extends \mock\Entity\NodesSources
     /**
      * For many_to_many proxied field
      *
-     * @var \Doctrine\Common\Collections\ArrayCollection<\Themes\MyTheme\Entities\PositionedCity>
+     * @var Collection<\Themes\MyTheme\Entities\PositionedCity>
      */
     #[
         Serializer\Exclude,
@@ -979,18 +968,18 @@ class NSMock extends \mock\Entity\NodesSources
         ),
         ORM\OrderBy(["position" => "ASC"])
     ]
-    private $fooManyToManyProxiedProxy;
+    private Collection $fooManyToManyProxiedProxy;
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection<\Themes\MyTheme\Entities\PositionedCity>
+     * @return Collection<\Themes\MyTheme\Entities\PositionedCity>
      */
-    public function getFooManyToManyProxiedProxy()
+    public function getFooManyToManyProxiedProxy(): Collection
     {
         return $this->fooManyToManyProxiedProxy;
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return Collection
      */
     #[
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -1001,7 +990,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1)
     ]
-    public function getFooManyToManyProxied()
+    public function getFooManyToManyProxied(): Collection
     {
         return $this->fooManyToManyProxiedProxy->map(function (\Themes\MyTheme\Entities\PositionedCity $proxyEntity) {
             return $proxyEntity->getCity();
@@ -1009,21 +998,21 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $fooManyToManyProxiedProxy
+     * @var Collection $fooManyToManyProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function setFooManyToManyProxiedProxy($fooManyToManyProxiedProxy = null)
+    public function setFooManyToManyProxiedProxy(Collection $fooManyToManyProxiedProxy)
     {
         $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxy;
 
         return $this;
     }
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $fooManyToManyProxied
+     * @var Collection|null $fooManyToManyProxied
      * @return $this
      */
-    public function setFooManyToManyProxied($fooManyToManyProxied = null)
+    public function setFooManyToManyProxied(?Collection $fooManyToManyProxied = null)
     {
         foreach ($this->getFooManyToManyProxiedProxy() as $item) {
             $item->setNodeSource(null);

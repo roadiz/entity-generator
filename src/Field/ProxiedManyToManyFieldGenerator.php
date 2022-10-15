@@ -41,7 +41,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         /*
          * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
          */
-        return '    private $' . $this->getProxiedVarName() . ';' . PHP_EOL;
+        return '    private Collection $' . $this->getProxiedVarName() . ';' . PHP_EOL;
     }
 
     protected function getFieldAttributes(bool $exclude = false): array
@@ -93,7 +93,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     /**
      * ' . $this->field->getLabel() . '
      *
-     * @var \Doctrine\Common\Collections\ArrayCollection<' . $this->getProxyClassname() . '>
+     * @var Collection<' . $this->getProxyClassname() . '>
      */' . PHP_EOL;
     }
 
@@ -104,18 +104,18 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection<' . $this->getProxyClassname() . '>
+     * @return Collection<' . $this->getProxyClassname() . '>
      */
-    public function ' . $this->getProxiedGetterName() . '()
+    public function ' . $this->getProxiedGetterName() . '(): Collection
     {
         return $this->' . $this->getProxiedVarName() . ';
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return Collection
      */
 ' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
-    public function ' . $this->field->getGetterName() . '()
+    public function ' . $this->field->getGetterName() . '(): Collection
     {
         return $this->' . $this->getProxiedVarName() . '->map(function (' . $this->getProxyClassname() . ' $proxyEntity) {
             return $proxyEntity->' . $this->getProxyRelationGetterName() . '();
@@ -130,21 +130,21 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $' . $this->getProxiedVarName() . '
+     * @var Collection $' . $this->getProxiedVarName() . '
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function ' . $this->getProxiedSetterName() . '($' . $this->getProxiedVarName() . ' = null)
+    public function ' . $this->getProxiedSetterName() . '(Collection $' . $this->getProxiedVarName() . ')
     {
         $this->' . $this->getProxiedVarName() . ' = $' . $this->getProxiedVarName() . ';
 
         return $this;
     }
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection|null $' . $this->field->getVarName() . '
+     * @var Collection|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ' = null)
+    public function ' . $this->field->getSetterName() . '(?Collection $' . $this->field->getVarName() . ' = null)
     {
         foreach ($this->' . $this->getProxiedGetterName() . '() as $item) {
             $item->' . $this->getProxySelfSetterName() . '(null);
