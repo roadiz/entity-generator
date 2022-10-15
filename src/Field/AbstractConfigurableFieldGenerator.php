@@ -24,4 +24,14 @@ abstract class AbstractConfigurableFieldGenerator extends AbstractFieldGenerator
         }
         $this->configuration = $conf;
     }
+
+    /**
+     * Ensure configured classname has a starting backslash.
+     *
+     * @return string
+     */
+    protected function getFullyQualifiedClassName(): string
+    {
+        return '\\' . trim($this->configuration['classname'], '\\');
+    }
 }

@@ -42,7 +42,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         ];
 
         $attributes[] = new AttributeGenerator('ORM\ManyToMany', [
-            'targetEntity' => '\\' . trim($this->configuration['classname'], '\\') . '::class'
+            'targetEntity' => $this->getFullyQualifiedClassName() . '::class'
         ]);
         $attributes[] = new AttributeGenerator('ORM\JoinTable', [
             'name' => AttributeGenerator::wrapString($entityA . '_' . $entityB)
@@ -83,7 +83,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return '
     /**
      *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . '
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
+     * @var \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '>
      */' . PHP_EOL;
     }
 
@@ -99,7 +99,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
+     * @return \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '>
      */
     public function ' . $this->field->getGetterName() . '(): \Doctrine\Common\Collections\Collection
     {
@@ -114,7 +114,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
+     * @var \Doctrine\Common\Collections\Collection<' . $this->getFullyQualifiedClassName() . '> $' . $this->field->getVarName() . '
      * @return $this
      */
     public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')

@@ -23,7 +23,7 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
             'onDelete' => AttributeGenerator::wrapString('SET NULL'),
         ];
         $attributes[] = new AttributeGenerator('ORM\ManyToOne', [
-            'targetEntity' => '\\' . trim($this->configuration['classname'], '\\') . '::class'
+            'targetEntity' => $this->getFullyQualifiedClassName() . '::class'
         ]);
         $attributes[] = new AttributeGenerator('ORM\JoinColumn', $ormParams);
 
@@ -53,13 +53,13 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
         return '
     /**
      *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . '
-     * @var ' . $this->configuration['classname'] . '|null
+     * @var ' . $this->getFullyQualifiedClassName() . '|null
      */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
     {
-        return '?' . $this->configuration['classname'];
+        return '?' . $this->getFullyQualifiedClassName();
     }
 
     protected function getFieldDefaultValueDeclaration(): string
@@ -74,9 +74,9 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return ' . $this->configuration['classname'] . '|null
+     * @return ' . $this->getFullyQualifiedClassName() . '|null
      */
-    public function ' . $this->field->getGetterName() . '(): ?' . $this->configuration['classname'] . '
+    public function ' . $this->field->getGetterName() . '(): ?' . $this->getFullyQualifiedClassName() . '
     {
         return $this->' . $this->field->getVarName() . ';
     }' . PHP_EOL;
@@ -89,10 +89,10 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var ' . $this->configuration['classname'] . '|null $' . $this->field->getVarName() . '
+     * @var ' . $this->getFullyQualifiedClassName() . '|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(?' . $this->configuration['classname'] . ' $' . $this->field->getVarName() . ' = null)
+    public function ' . $this->field->getSetterName() . '(?' . $this->getFullyQualifiedClassName() . ' $' . $this->field->getVarName() . ' = null)
     {
         $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
 
