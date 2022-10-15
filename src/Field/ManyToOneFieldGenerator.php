@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace RZ\Roadiz\EntityGenerator\Field;
 
 use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
-use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
-use Symfony\Component\String\UnicodeString;
 
 class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
 {

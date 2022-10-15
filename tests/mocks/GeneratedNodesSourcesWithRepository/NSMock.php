@@ -42,7 +42,7 @@ class NSMock extends \mock\Entity\NodesSources
         ApiFilter(OrmFilter\OrderFilter::class),
         ApiFilter(OrmFilter\DateFilter::class),
         Gedmo\Versioned,
-        ORM\Column(type: "datetime", nullable: true, name: "foo_datetime"),
+        ORM\Column(name: "foo_datetime", type: "datetime", nullable: true),
         Serializer\Groups(["nodes_sources", "nodes_sources_default", "foo_datetime"]),
         Serializer\MaxDepth(2),
         Serializer\Type("DateTime")
@@ -80,9 +80,9 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
         ORM\Column(
+            name: "foo",
             type: "string",
             nullable: true,
-            name: "foo",
             length: 250
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -123,11 +123,12 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
         ApiFilter(OrmFilter\SearchFilter::class, strategy: "partial"),
+        ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class),
         Gedmo\Versioned,
         ORM\Column(
+            name: "fooIndexed",
             type: "string",
             nullable: true,
-            name: "fooIndexed",
             length: 250
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -171,9 +172,9 @@ class NSMock extends \mock\Entity\NodesSources
         ApiFilter(OrmFilter\BooleanFilter::class),
         Gedmo\Versioned,
         ORM\Column(
+            name: "boolIndexed",
             type: "boolean",
             nullable: false,
-            name: "boolIndexed",
             options: ["default" => false]
         ),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
@@ -228,7 +229,7 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
-        ORM\Column(type: "text", nullable: true, name: "foo_markdown"),
+        ORM\Column(name: "foo_markdown", type: "text", nullable: true),
         Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
         Serializer\MaxDepth(1),
         Serializer\Type("string")
@@ -280,7 +281,7 @@ class NSMock extends \mock\Entity\NodesSources
      */
     #[
         Gedmo\Versioned,
-        ORM\Column(type: "text", nullable: true, name: "foo_markdown_excluded"),
+        ORM\Column(name: "foo_markdown_excluded", type: "text", nullable: true),
         Serializer\Exclude,
         SymfonySerializer\Ignore
     ]
@@ -317,11 +318,14 @@ class NSMock extends \mock\Entity\NodesSources
         SymfonySerializer\SerializedName(serializedName: "fooDecimalExcluded"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
         SymfonySerializer\MaxDepth(2),
+        ApiFilter(OrmFilter\OrderFilter::class),
+        ApiFilter(OrmFilter\NumericFilter::class),
+        ApiFilter(OrmFilter\RangeFilter::class),
         Gedmo\Versioned,
         ORM\Column(
+            name: "foo_decimal_excluded",
             type: "decimal",
             nullable: true,
-            name: "foo_decimal_excluded",
             precision: 18,
             scale: 3
         ),

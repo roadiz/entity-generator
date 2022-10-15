@@ -182,6 +182,19 @@ abstract class AbstractFieldGenerator
                         0 => 'OrmFilter\SearchFilter::class',
                         'strategy' => AttributeGenerator::wrapString('partial')
                     ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
+                    ]);
+                    break;
+                case $this->field->isMultiple():
+                case $this->field->isEnum():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => 'OrmFilter\SearchFilter::class',
+                        'strategy' => AttributeGenerator::wrapString('exact')
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
+                    ]);
                     break;
                 case $this->field->isBool():
                     $attributes[] = new AttributeGenerator('ApiFilter', [
@@ -189,6 +202,24 @@ abstract class AbstractFieldGenerator
                     ]);
                     $attributes[] = new AttributeGenerator('ApiFilter', [
                         'OrmFilter\BooleanFilter::class',
+                    ]);
+                    break;
+                case $this->field->isManyToOne():
+                case $this->field->isManyToMany():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\ExistsFilter::class',
+                    ]);
+                    break;
+                case $this->field->isInteger():
+                case $this->field->isDecimal():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\OrderFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\NumericFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\RangeFilter::class',
                     ]);
                     break;
                 case $this->field->isDate():
