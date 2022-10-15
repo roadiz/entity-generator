@@ -456,12 +456,16 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\App\Entity\Base\Event> $eventReferences
+     * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferences
      * @return $this
      */
-    public function setEventReferences(Collection $eventReferences)
+    public function setEventReferences(Collection|array $eventReferences)
     {
-        $this->eventReferences = $eventReferences;
+        if ($eventReferences instanceof \Doctrine\Common\Collections\Collection) {
+            $this->eventReferences = $eventReferences;
+        } else {
+            $this->eventReferences = new \Doctrine\Common\Collections\ArrayCollection($eventReferences);
+        }
 
         return $this;
     }
@@ -593,12 +597,16 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\App\Entity\Base\Event> $eventReferencesExcluded
+     * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferencesExcluded
      * @return $this
      */
-    public function setEventReferencesExcluded(Collection $eventReferencesExcluded)
+    public function setEventReferencesExcluded(Collection|array $eventReferencesExcluded)
     {
-        $this->eventReferencesExcluded = $eventReferencesExcluded;
+        if ($eventReferencesExcluded instanceof \Doctrine\Common\Collections\Collection) {
+            $this->eventReferencesExcluded = $eventReferencesExcluded;
+        } else {
+            $this->eventReferencesExcluded = new \Doctrine\Common\Collections\ArrayCollection($eventReferencesExcluded);
+        }
 
         return $this;
     }
@@ -941,12 +949,16 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\MyCustomEntity> $fooManyToMany
+     * @var Collection<\MyCustomEntity>|\MyCustomEntity[] $fooManyToMany
      * @return $this
      */
-    public function setFooManyToMany(Collection $fooManyToMany)
+    public function setFooManyToMany(Collection|array $fooManyToMany)
     {
-        $this->fooManyToMany = $fooManyToMany;
+        if ($fooManyToMany instanceof \Doctrine\Common\Collections\Collection) {
+            $this->fooManyToMany = $fooManyToMany;
+        } else {
+            $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection($fooManyToMany);
+        }
 
         return $this;
     }
