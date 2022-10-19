@@ -228,8 +228,10 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         $type = $this->getFieldTypeDeclaration();
         if (empty($type)) {
             $docType = 'mixed';
+            $typeHint = '';
         } else {
             $docType = $this->toPhpDocType($type);
+            $typeHint = $type . ' ';
         }
 
         if ($nullable && !empty($casting)) {
@@ -246,7 +248,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(' . $type . ' $' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(' . $typeHint . '$' . $this->field->getVarName() . '): static
     {
         ' . $assignation . '
 

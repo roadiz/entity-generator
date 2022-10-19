@@ -63,7 +63,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooDatetime(?\DateTime $fooDatetime)
+    public function setFooDatetime(?\DateTime $fooDatetime): static
     {
         $this->fooDatetime = $fooDatetime;
 
@@ -105,7 +105,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFoo(?string $foo)
+    public function setFoo(?string $foo): static
     {
         $this->foo = null !== $foo ?
             (string) $foo :
@@ -151,7 +151,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooIndexed(?string $fooIndexed)
+    public function setFooIndexed(?string $fooIndexed): static
     {
         $this->fooIndexed = null !== $fooIndexed ?
             (string) $fooIndexed :
@@ -197,7 +197,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setBoolIndexed(bool $boolIndexed)
+    public function setBoolIndexed(bool $boolIndexed): static
     {
         $this->boolIndexed = $boolIndexed;
 
@@ -250,7 +250,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooMarkdown(?string $fooMarkdown)
+    public function setFooMarkdown(?string $fooMarkdown): static
     {
         $this->fooMarkdown = null !== $fooMarkdown ?
             (string) $fooMarkdown :
@@ -301,7 +301,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooMarkdownExcluded(?string $fooMarkdownExcluded)
+    public function setFooMarkdownExcluded(?string $fooMarkdownExcluded): static
     {
         $this->fooMarkdownExcluded = null !== $fooMarkdownExcluded ?
             (string) $fooMarkdownExcluded :
@@ -350,7 +350,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooDecimalExcluded(int|float|null $fooDecimalExcluded)
+    public function setFooDecimalExcluded(int|float|null $fooDecimalExcluded): static
     {
         $this->fooDecimalExcluded = $fooDecimalExcluded;
 
@@ -403,7 +403,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var \App\Entity\Base\Event|null $singleEventReference
      * @return $this
      */
-    public function setSingleEventReference(?\App\Entity\Base\Event $singleEventReference = null)
+    public function setSingleEventReference(?\App\Entity\Base\Event $singleEventReference = null): static
     {
         $this->singleEventReference = $singleEventReference;
 
@@ -459,7 +459,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferences
      * @return $this
      */
-    public function setEventReferences(Collection|array $eventReferences)
+    public function setEventReferences(Collection|array $eventReferences): static
     {
         if ($eventReferences instanceof \Doctrine\Common\Collections\Collection) {
             $this->eventReferences = $eventReferences;
@@ -521,7 +521,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function setEventReferencesProxiedProxy(Collection $eventReferencesProxiedProxy)
+    public function setEventReferencesProxiedProxy(Collection $eventReferencesProxiedProxy): static
     {
         $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxy;
 
@@ -531,7 +531,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var Collection|array|null $eventReferencesProxied
      * @return $this
      */
-    public function setEventReferencesProxied(Collection|array|null $eventReferencesProxied = null)
+    public function setEventReferencesProxied(Collection|array|null $eventReferencesProxied = null): static
     {
         foreach ($this->getEventReferencesProxiedProxy() as $item) {
             $item->setNodeSource(null);
@@ -600,7 +600,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferencesExcluded
      * @return $this
      */
-    public function setEventReferencesExcluded(Collection|array $eventReferencesExcluded)
+    public function setEventReferencesExcluded(Collection|array $eventReferencesExcluded): static
     {
         if ($eventReferencesExcluded instanceof \Doctrine\Common\Collections\Collection) {
             $this->eventReferencesExcluded = $eventReferencesExcluded;
@@ -662,7 +662,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function addBar(\mock\Entity\Document $document)
+    public function addBar(\mock\Entity\Document $document): static
     {
         if (
             null !== $this->objectManager &&
@@ -735,7 +735,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function addTheForms(\mock\Entity\CustomForm $customForm)
+    public function addTheForms(\mock\Entity\CustomForm $customForm): static
     {
         if (
             null !== $this->objectManager &&
@@ -810,7 +810,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooBarSources(?array $fooBarSources)
+    public function setFooBarSources(?array $fooBarSources): static
     {
         $this->fooBarSources = $fooBarSources;
 
@@ -870,7 +870,7 @@ class NSMock extends \mock\Entity\NodesSources
      *
      * @return $this
      */
-    public function setFooBarTypedSources(?array $fooBarTypedSources)
+    public function setFooBarTypedSources(?array $fooBarTypedSources): static
     {
         $this->fooBarTypedSources = $fooBarTypedSources;
 
@@ -908,7 +908,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var \MyCustomEntity|null $fooManyToOne
      * @return $this
      */
-    public function setFooManyToOne(?\MyCustomEntity $fooManyToOne = null)
+    public function setFooManyToOne(?\MyCustomEntity $fooManyToOne = null): static
     {
         $this->fooManyToOne = $fooManyToOne;
 
@@ -952,7 +952,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var Collection<\MyCustomEntity>|\MyCustomEntity[] $fooManyToMany
      * @return $this
      */
-    public function setFooManyToMany(Collection|array $fooManyToMany)
+    public function setFooManyToMany(Collection|array $fooManyToMany): static
     {
         if ($fooManyToMany instanceof \Doctrine\Common\Collections\Collection) {
             $this->fooManyToMany = $fooManyToMany;
@@ -1014,7 +1014,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function setFooManyToManyProxiedProxy(Collection $fooManyToManyProxiedProxy)
+    public function setFooManyToManyProxiedProxy(Collection $fooManyToManyProxiedProxy): static
     {
         $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxy;
 
@@ -1024,7 +1024,7 @@ class NSMock extends \mock\Entity\NodesSources
      * @var Collection|array|null $fooManyToManyProxied
      * @return $this
      */
-    public function setFooManyToManyProxied(Collection|array|null $fooManyToManyProxied = null)
+    public function setFooManyToManyProxied(Collection|array|null $fooManyToManyProxied = null): static
     {
         foreach ($this->getFooManyToManyProxiedProxy() as $item) {
             $item->setNodeSource(null);

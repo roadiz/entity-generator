@@ -161,7 +161,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . ')
+    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . '): static
     {
         $this->' . $this->getFieldSourcesName() . ' = $' . $this->getFieldSourcesName() . ';
 

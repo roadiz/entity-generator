@@ -134,7 +134,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
      * @Serializer\VirtualProperty()
      * @return $this
      */
-    public function ' . $this->getProxiedSetterName() . '(Collection $' . $this->getProxiedVarName() . ')
+    public function ' . $this->getProxiedSetterName() . '(Collection $' . $this->getProxiedVarName() . '): static
     {
         $this->' . $this->getProxiedVarName() . ' = $' . $this->getProxiedVarName() . ';
 
@@ -144,7 +144,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
      * @var Collection|array|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(Collection|array|null $' . $this->field->getVarName() . ' = null)
+    public function ' . $this->field->getSetterName() . '(Collection|array|null $' . $this->field->getVarName() . ' = null): static
     {
         foreach ($this->' . $this->getProxiedGetterName() . '() as $item) {
             $item->' . $this->getProxySelfSetterName() . '(null);

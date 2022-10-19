@@ -117,7 +117,7 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
      * @var Collection<' . $this->getFullyQualifiedClassName() . '>|' . $this->getFullyQualifiedClassName() . '[] $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(Collection|array $' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(Collection|array $' . $this->field->getVarName() . '): static
     {
         if ($' . $this->field->getVarName() . ' instanceof \Doctrine\Common\Collections\Collection) {
             $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';

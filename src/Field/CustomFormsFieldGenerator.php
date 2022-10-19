@@ -82,7 +82,7 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['custom_form_class'] . ' $customForm)
+    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['custom_form_class'] . ' $customForm): static
     {
         if (
             null !== $this->objectManager &&

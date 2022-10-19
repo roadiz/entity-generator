@@ -90,7 +90,7 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document)
+    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document): static
     {
         if (
             null !== $this->objectManager &&
