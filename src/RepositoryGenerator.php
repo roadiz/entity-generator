@@ -66,6 +66,7 @@ class RepositoryGenerator implements RepositoryGeneratorInterface
      */
     protected function getClassHeader(): string
     {
+        $fqcn = $this->options['entity_namespace'] . '\\' . $this->nodeType->getSourceEntityClassName();
         /*
          * BE CAREFUL, USE statements are required for field generators which
          * are using ::class syntax!
@@ -84,7 +85,16 @@ use Doctrine\Persistence\ManagerRegistry;
 use RZ\Roadiz\CoreBundle\Preview\PreviewResolverInterface;
 use RZ\Roadiz\CoreBundle\SearchEngine\NodeSourceSearchHandlerInterface;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;' . PHP_EOL;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+/**
+ * @extends ' . $this->options['parent_class'] . '<' . $fqcn . '>
+ *
+ * @method ' . $fqcn . '|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ' . $fqcn . '|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ' . $fqcn . '[]    findAll()
+ * @method ' . $fqcn . '[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */';
     }
 
     /**
