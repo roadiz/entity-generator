@@ -400,7 +400,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \App\Entity\Base\Event|null $singleEventReference
+     * @param \App\Entity\Base\Event|null $singleEventReference
      * @return $this
      */
     public function setSingleEventReference(?\App\Entity\Base\Event $singleEventReference = null): static
@@ -456,7 +456,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferences
+     * @param Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferences
      * @return $this
      */
     public function setEventReferences(Collection|array $eventReferences): static
@@ -517,7 +517,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection $eventReferencesProxiedProxy
+     * @param Collection $eventReferencesProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
@@ -528,7 +528,7 @@ class NSMock extends \mock\Entity\NodesSources
         return $this;
     }
     /**
-     * @var Collection|array|null $eventReferencesProxied
+     * @param Collection|array|null $eventReferencesProxied
      * @return $this
      */
     public function setEventReferencesProxied(Collection|array|null $eventReferencesProxied = null): static
@@ -597,7 +597,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferencesExcluded
+     * @param Collection<\App\Entity\Base\Event>|\App\Entity\Base\Event[] $eventReferencesExcluded
      * @return $this
      */
     public function setEventReferencesExcluded(Collection|array $eventReferencesExcluded): static
@@ -905,7 +905,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var \MyCustomEntity|null $fooManyToOne
+     * @param \MyCustomEntity|null $fooManyToOne
      * @return $this
      */
     public function setFooManyToOne(?\MyCustomEntity $fooManyToOne = null): static
@@ -949,7 +949,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection<\MyCustomEntity>|\MyCustomEntity[] $fooManyToMany
+     * @param Collection<\MyCustomEntity>|\MyCustomEntity[] $fooManyToMany
      * @return $this
      */
     public function setFooManyToMany(Collection|array $fooManyToMany): static
@@ -1010,7 +1010,7 @@ class NSMock extends \mock\Entity\NodesSources
     }
 
     /**
-     * @var Collection $fooManyToManyProxiedProxy
+     * @param Collection $fooManyToManyProxiedProxy
      * @Serializer\VirtualProperty()
      * @return $this
      */
@@ -1021,7 +1021,7 @@ class NSMock extends \mock\Entity\NodesSources
         return $this;
     }
     /**
-     * @var Collection|array|null $fooManyToManyProxied
+     * @param Collection|array|null $fooManyToManyProxied
      * @return $this
      */
     public function setFooManyToManyProxied(Collection|array|null $fooManyToManyProxied = null): static

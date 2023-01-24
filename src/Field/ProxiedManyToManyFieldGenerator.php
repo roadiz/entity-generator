@@ -130,7 +130,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var Collection $' . $this->getProxiedVarName() . '
+     * @param Collection $' . $this->getProxiedVarName() . '
      * @Serializer\VirtualProperty()
      * @return $this
      */
@@ -141,7 +141,7 @@ class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
     /**
-     * @var Collection|array|null $' . $this->field->getVarName() . '
+     * @param Collection|array|null $' . $this->field->getVarName() . '
      * @return $this
      */
     public function ' . $this->field->getSetterName() . '(Collection|array|null $' . $this->field->getVarName() . ' = null): static

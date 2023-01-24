@@ -89,7 +89,7 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var ' . $this->getFullyQualifiedClassName() . '|null $' . $this->field->getVarName() . '
+     * @param ' . $this->getFullyQualifiedClassName() . '|null $' . $this->field->getVarName() . '
      * @return $this
      */
     public function ' . $this->field->getSetterName() . '(?' . $this->getFullyQualifiedClassName() . ' $' . $this->field->getVarName() . ' = null): static
