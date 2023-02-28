@@ -1114,7 +1114,7 @@ class NSMock extends \mock\Entity\NodesSources
         $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxyClone;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return '[NSMock] ' . parent::__toString();
     }

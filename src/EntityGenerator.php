@@ -380,7 +380,7 @@ namespace ' . ltrim($this->options['namespace'], '\\') . ';
     protected function getClassMethods(): string
     {
         return '
-    public function __toString()
+    public function __toString(): string
     {
         return \'[' . $this->nodeType->getSourceEntityClassName() . '] \' . parent::__toString();
     }';
