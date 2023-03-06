@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
+
 class CustomFormsFieldGenerator extends AbstractFieldGenerator
 {
-    protected function getSerializationAnnotations(): array
+    protected function getSerializationAttributes(): array
     {
-        $annotations = parent::getSerializationAnnotations();
-        $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+        $attributes = parent::getSerializationAttributes();
+        $attributes[] = new AttributeGenerator('Serializer\VirtualProperty');
+        $attributes[] = new AttributeGenerator('Serializer\SerializedName', [
+            AttributeGenerator::wrapString($this->field->getVarName())
+        ]);
+
+        return $attributes;
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -40,16 +42,11 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
         return '
     /**
-     * @return ' . $this->options['custom_form_class'] . '[] CustomForm array' . $serializer . '
+     * @return ' . $this->options['custom_form_class'] . '[] CustomForm array
      */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
     public function ' . $this->field->getGetterName() . '(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
@@ -85,7 +82,7 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['custom_form_class'] . ' $customForm)
+    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['custom_form_class'] . ' $customForm): static
     {
         if (
             null !== $this->objectManager &&

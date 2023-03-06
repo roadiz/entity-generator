@@ -4,20 +4,24 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+
 class NonVirtualFieldGenerator extends AbstractFieldGenerator
 {
     /**
      * Generate PHP annotation block for Doctrine table indexes.
      *
-     * @return string
+     * @return AttributeGenerator|null
      */
-    public function getFieldIndex(): string
+    public function getFieldIndex(): ?AttributeGenerator
     {
         if ($this->field->isIndexed()) {
-            return '@ORM\Index(columns={"' . $this->field->getName() . '"})';
+            return new AttributeGenerator('ORM\Index', [
+                'columns' => '[' . AttributeGenerator::wrapString($this->field->getName()) . ']'
+            ]);
         }
 
-        return '';
+        return null;
     }
 
     /**
@@ -52,15 +56,34 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
+    protected function isExcludingFieldFromJmsSerialization(): bool
     {
+        return false;
+    }
+
+    protected function getFieldAttributes(bool $exclude = false): array
+    {
+        $attributes = parent::getFieldAttributes($exclude);
+
+        /*
+         * ?string $name = null,
+         * ?string $type = null,
+         * ?int $length = null,
+         * ?int $precision = null,
+         * ?int $scale = null,
+         * bool $unique = false,
+         * bool $nullable = false,
+         * bool $insertable = true,
+         * bool $updatable = true,
+         * ?string $enumType = null,
+         * array $options = [],
+         * ?string $columnDefinition = null,
+         * ?string $generated = null
+         */
         $ormParams = [
-            'type' => '"' . $this->getDoctrineType() . '"',
+            'name' => AttributeGenerator::wrapString($this->field->getName()),
+            'type' => AttributeGenerator::wrapString($this->getDoctrineType()),
             'nullable' => 'true',
-            'name' => '"' . $this->field->getName() . '"',
         ];
 
         $fieldLength = $this->getFieldLength();
@@ -73,9 +96,28 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             $ormParams['scale'] = 3;
         } elseif ($this->field->isBool()) {
             $ormParams['nullable'] = 'false';
-            $ormParams['options'] = '{"default" = false}';
+            $ormParams['options'] = '["default" => false]';
         }
 
+        $attributes[] = new AttributeGenerator('Gedmo\Versioned');
+        $attributes[] = new AttributeGenerator('ORM\Column', $ormParams);
+
+        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAttributes())) {
+            return [
+                ...$attributes,
+                ...$this->getSerializationAttributes()
+            ];
+        }
+
+        return $attributes;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldAnnotation(): string
+    {
         $autodoc = '';
         if (!empty($this->getFieldAutodoc())) {
             $autodoc = PHP_EOL .
@@ -83,18 +125,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
                 implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
         }
 
-        $serializer = '';
-        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
         return '
     /**' . $autodoc . '
-     *
-     * @Gedmo\Versioned
-     * @ORM\Column(' . static::flattenORMParameters($ormParams) . ')' . $serializer . '
      */' . PHP_EOL;
     }
 
@@ -106,7 +138,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             case $this->field->isMultiple():
                 return '?array';
             case $this->field->isInteger():
-                return '?int';
+            case $this->field->isDecimal():
+                return 'int|float|null';
             case $this->field->isColor():
             case $this->field->isEmail():
             case $this->field->isString():
@@ -195,8 +228,10 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         $type = $this->getFieldTypeDeclaration();
         if (empty($type)) {
             $docType = 'mixed';
+            $typeHint = '';
         } else {
             $docType = $this->toPhpDocType($type);
+            $typeHint = $type . ' ';
         }
 
         if ($nullable && !empty($casting)) {
@@ -213,7 +248,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(' . $typeHint . '$' . $this->field->getVarName() . '): static
     {
         ' . $assignation . '
 

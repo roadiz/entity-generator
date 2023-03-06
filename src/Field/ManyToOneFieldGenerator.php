@@ -4,50 +4,62 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+
 class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
+    protected function getFieldAttributes(bool $exclude = false): array
     {
+        $attributes = parent::getFieldAttributes($exclude);
+
         /*
          * Many Users have One Address.
          * @ORM\ManyToOne(targetEntity="Address")
          * @ORM\JoinColumn(name="address_id", referencedColumnName="id", onDelete="SET NULL")
          */
         $ormParams = [
-            'name' => '"' . $this->field->getName() . '_id"',
-            'referencedColumnName' => '"id"',
-            'onDelete' => '"SET NULL"',
+            'name' => AttributeGenerator::wrapString($this->field->getName() . '_id'),
+            'referencedColumnName' => AttributeGenerator::wrapString('id'),
+            'onDelete' => AttributeGenerator::wrapString('SET NULL'),
         ];
+        $attributes[] = new AttributeGenerator('ORM\ManyToOne', [
+            'targetEntity' => $this->getFullyQualifiedClassName() . '::class'
+        ]);
+        $attributes[] = new AttributeGenerator('ORM\JoinColumn', $ormParams);
 
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
-        $apiFilter = '';
         if ($this->options['use_api_platform_filters'] === true) {
-            $apiFilter = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                ' @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")';
+            $attributes[] = new AttributeGenerator('ApiFilter', [
+                0 => 'OrmFilter\SearchFilter::class',
+                'strategy' => AttributeGenerator::wrapString('exact')
+            ]);
         }
 
+        return [
+            ...$attributes,
+            ...$this->getSerializationAttributes()
+        ];
+    }
+
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldAnnotation(): string
+    {
         return '
     /**
-     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . $apiFilter . '
-     * @var ' . $this->configuration['classname'] . '|null
-     * @ORM\ManyToOne(targetEntity="' . $this->configuration['classname'] . '")
-     * @ORM\JoinColumn(' . static::flattenORMParameters($ormParams) . ')
+     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . '
+     * @var ' . $this->getFullyQualifiedClassName() . '|null
      */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
     {
-        return '?' . $this->configuration['classname'];
+        return '?' . $this->getFullyQualifiedClassName();
     }
 
     protected function getFieldDefaultValueDeclaration(): string
@@ -62,9 +74,9 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return ' . $this->configuration['classname'] . '|null
+     * @return ' . $this->getFullyQualifiedClassName() . '|null
      */
-    public function ' . $this->field->getGetterName() . '(): ?' . $this->configuration['classname'] . '
+    public function ' . $this->field->getGetterName() . '(): ?' . $this->getFullyQualifiedClassName() . '
     {
         return $this->' . $this->field->getVarName() . ';
     }' . PHP_EOL;
@@ -77,10 +89,10 @@ class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var ' . $this->configuration['classname'] . '|null $' . $this->field->getVarName() . '
+     * @param ' . $this->getFullyQualifiedClassName() . '|null $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '(?' . $this->configuration['classname'] . ' $' . $this->field->getVarName() . ' = null)
+    public function ' . $this->field->getSetterName() . '(?' . $this->getFullyQualifiedClassName() . ' $' . $this->field->getVarName() . ' = null): static
     {
         $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
 

@@ -28,7 +28,8 @@ class EntityGenerator extends atoum
 //            'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
 //            'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
 //            'namespace' => '\tests\mocks\GeneratedNodesSources',
-//            'use_native_json' => true
+//            'use_native_json' => true,
+//            'use_api_platform_filters' => true,
 //        ]);
 //        file_put_contents(
 //            dirname(__DIR__) . '/mocks/GeneratedNodesSources/NSMock.php',
@@ -47,7 +48,8 @@ class EntityGenerator extends atoum
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => '\tests\mocks\GeneratedNodesSources',
-                'use_native_json' => true
+                'use_native_json' => true,
+                'use_api_platform_filters' => true,
             ]))
             ->then
             ->string($this->testedInstance->getClassContent())
@@ -69,7 +71,8 @@ class EntityGenerator extends atoum
                 'custom_form_proxy_class' => 'mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => 'mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => 'tests\mocks\GeneratedNodesSources',
-                'use_native_json' => true
+                'use_native_json' => true,
+                'use_api_platform_filters' => true,
             ]))
             ->then
             ->string($this->testedInstance->getClassContent())

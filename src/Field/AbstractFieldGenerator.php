@@ -6,6 +6,8 @@ namespace RZ\Roadiz\EntityGenerator\Field;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\SerializableInterface;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use Symfony\Component\String\UnicodeString;
 
 abstract class AbstractFieldGenerator
@@ -50,6 +52,10 @@ abstract class AbstractFieldGenerator
     public function getField(): string
     {
         return $this->getFieldAnnotation() .
+            (new AttributeListGenerator(
+                $this->getFieldAttributes($this->isExcludingFieldFromJmsSerialization())
+            )
+            )->generate(4) . PHP_EOL .
             $this->getFieldDeclaration() .
             $this->getFieldGetter() .
             $this->getFieldAlternativeGetter() .
@@ -59,7 +65,7 @@ abstract class AbstractFieldGenerator
     /**
      * @return array<string>
      */
-    protected function getFieldAutodoc(bool $exclude = false): array
+    protected function getFieldAutodoc(): array
     {
         $docs = [
             $this->field->getLabel() . '.',
@@ -77,45 +83,9 @@ abstract class AbstractFieldGenerator
         if (!empty($this->field->getGroupName())) {
             $docs[] = 'Group: ' . $this->field->getGroupName() . '.';
         }
-        if ($exclude) {
-            $docs[] = '@Serializer\Exclude';
-        }
-        /*
-         * Symfony serializer is using getter / setter by default
-         */
-        $docs[] = '';
-        $docs[] = 'Symfony serializer annotations must be set on property';
-        if (!$this->excludeFromSerialization()) {
-            $docs[] = '@SymfonySerializer\SerializedName(serializedName="' . $this->field->getVarName() . '")';
-            $docs[] = '@SymfonySerializer\Groups(' . $this->getSerializationGroups() . ')';
-            if ($this->getSerializationMaxDepth() > 0) {
-                $docs[] = '@SymfonySerializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
-            }
-        }
 
-        if (
-            $this->field->isIndexed() &&
-            $this->options['use_api_platform_filters'] === true
-        ) {
-            switch (true) {
-                case $this->field->isString():
-                    $docs[] = '@ApiFilter(OrmFilter\SearchFilter::class, strategy="partial")';
-                    break;
-                case $this->field->isBool():
-                    $docs[] = '@ApiFilter(OrmFilter\OrderFilter::class)';
-                    $docs[] = '@ApiFilter(OrmFilter\BooleanFilter::class)';
-                    break;
-                case $this->field->isDate():
-                case $this->field->isDateTime():
-                    $docs[] = '@ApiFilter(OrmFilter\OrderFilter::class)';
-                    $docs[] = '@ApiFilter(OrmFilter\DateFilter::class)';
-                    break;
-            }
-        }
-
-        // Add whitespace before each line for PHPDoc syntax
         return array_map(function ($line) {
-            return !empty($line) ? ' ' . $line : $line;
+            return (!empty(trim($line))) ? (' ' . $line) : ($line);
         }, $docs);
     }
 
@@ -125,7 +95,7 @@ abstract class AbstractFieldGenerator
     protected function getFieldAnnotation(): string
     {
         $autodoc = '';
-        $fieldAutoDoc = $this->getFieldAutodoc(true);
+        $fieldAutoDoc = $this->getFieldAutodoc();
         if (!empty($fieldAutoDoc)) {
             $autodoc = PHP_EOL .
                 static::ANNOTATION_PREFIX .
@@ -176,6 +146,98 @@ abstract class AbstractFieldGenerator
     }
 
     /**
+     * @return array<AttributeGenerator>
+     */
+    protected function getFieldAttributes(bool $exclude = false): array
+    {
+        $attributes = [];
+
+        if ($exclude) {
+            $attributes[] = new AttributeGenerator('Serializer\Exclude');
+        }
+        /*
+         * Symfony serializer is using getter / setter by default
+         */
+        if (!$this->excludeFromSerialization()) {
+            $attributes[] = new AttributeGenerator('SymfonySerializer\SerializedName', [
+                'serializedName' => AttributeGenerator::wrapString($this->field->getVarName())
+            ]);
+            $attributes[] = new AttributeGenerator('SymfonySerializer\Groups', [
+                $this->getSerializationGroups()
+            ]);
+            if ($this->getSerializationMaxDepth() > 0) {
+                $attributes[] = new AttributeGenerator('SymfonySerializer\MaxDepth', [
+                    $this->getSerializationMaxDepth()
+                ]);
+            }
+        }
+
+        if (
+            $this->field->isIndexed() &&
+            $this->options['use_api_platform_filters'] === true
+        ) {
+            switch (true) {
+                case $this->field->isString():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => 'OrmFilter\SearchFilter::class',
+                        'strategy' => AttributeGenerator::wrapString('partial')
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
+                    ]);
+                    break;
+                case $this->field->isMultiple():
+                case $this->field->isEnum():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => 'OrmFilter\SearchFilter::class',
+                        'strategy' => AttributeGenerator::wrapString('exact')
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        0 => '\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class'
+                    ]);
+                    break;
+                case $this->field->isBool():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\OrderFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\BooleanFilter::class',
+                    ]);
+                    break;
+                case $this->field->isManyToOne():
+                case $this->field->isManyToMany():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\ExistsFilter::class',
+                    ]);
+                    break;
+                case $this->field->isInteger():
+                case $this->field->isDecimal():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\OrderFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\NumericFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\RangeFilter::class',
+                    ]);
+                    break;
+                case $this->field->isDate():
+                case $this->field->isDateTime():
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\OrderFilter::class',
+                    ]);
+                    $attributes[] = new AttributeGenerator('ApiFilter', [
+                        'OrmFilter\DateFilter::class',
+                    ]);
+                    break;
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Generate PHP alternative getter method block.
      *
      * @return string
@@ -213,11 +275,11 @@ abstract class AbstractFieldGenerator
     /**
      * Generate PHP annotation block for Doctrine table indexes.
      *
-     * @return string
+     * @return AttributeGenerator|null
      */
-    public function getFieldIndex(): string
+    public function getFieldIndex(): ?AttributeGenerator
     {
-        return '';
+        return null;
     }
 
     /**
@@ -279,40 +341,56 @@ abstract class AbstractFieldGenerator
         } else {
             $groups = $this->getDefaultSerializationGroups();
         }
-        return '{' . implode(', ', array_map(function (string $group) {
+        return '[' . implode(', ', array_map(function (string $group) {
             return '"' . (new UnicodeString($group))
                     ->replaceMatches('/[^A-Za-z0-9]++/', '_')
                     ->trim('_')->toString() . '"';
-        }, $groups)) . '}';
+        }, $groups)) . ']';
     }
 
-    protected function getSerializationAnnotations(): array
+    /**
+     * @return AttributeGenerator[]
+     */
+    protected function getSerializationAttributes(): array
     {
         if ($this->excludeFromSerialization()) {
             return [
-                // Add whitespace before each line for PHPDoc syntax
-                ' @Serializer\Exclude()',
-                ' @SymfonySerializer\Ignore()'
+                new AttributeGenerator('Serializer\Exclude'),
+                new AttributeGenerator('SymfonySerializer\Ignore'),
             ];
         }
-        $annotations = [];
-        $annotations[] = '@Serializer\Groups(' . $this->getSerializationGroups() . ')';
+        $attributes = [];
+        $attributes[] = new AttributeGenerator('Serializer\Groups', [
+            $this->getSerializationGroups()
+        ]);
+
         if ($this->getSerializationMaxDepth() > 0) {
-            $annotations[] = '@Serializer\MaxDepth(' . $this->getSerializationMaxDepth() . ')';
+            $attributes[] = new AttributeGenerator('Serializer\MaxDepth', [
+                $this->getSerializationMaxDepth()
+            ]);
         }
+
         if (null !== $this->getSerializationExclusionExpression()) {
-            $annotations[] = '@Serializer\Exclude(if="' . $this->getSerializationExclusionExpression() . '")';
+            $attributes[] = new AttributeGenerator('Serializer\Exclude', [
+                'if' => AttributeGenerator::wrapString($this->getSerializationExclusionExpression())
+            ]);
         }
 
         switch (true) {
             case $this->field->isBool():
-                $annotations[] = '@Serializer\Type("bool")';
+                $attributes[] = new AttributeGenerator('Serializer\Type', [
+                    AttributeGenerator::wrapString('bool')
+                ]);
                 break;
             case $this->field->isInteger():
-                $annotations[] = '@Serializer\Type("int")';
+                $attributes[] = new AttributeGenerator('Serializer\Type', [
+                    AttributeGenerator::wrapString('int')
+                ]);
                 break;
             case $this->field->isDecimal():
-                $annotations[] = '@Serializer\Type("double")';
+                $attributes[] = new AttributeGenerator('Serializer\Type', [
+                    AttributeGenerator::wrapString('double')
+                ]);
                 break;
             case $this->field->isColor():
             case $this->field->isEmail():
@@ -322,17 +400,23 @@ abstract class AbstractFieldGenerator
             case $this->field->isText():
             case $this->field->isRichText():
             case $this->field->isEnum():
-                $annotations[] = '@Serializer\Type("string")';
+                $attributes[] = new AttributeGenerator('Serializer\Type', [
+                    AttributeGenerator::wrapString('string')
+                ]);
                 break;
             case $this->field->isDateTime():
             case $this->field->isDate():
-                $annotations[] = '@Serializer\Type("DateTime")';
+                $attributes[] = new AttributeGenerator('Serializer\Type', [
+                    AttributeGenerator::wrapString('DateTime')
+                ]);
                 break;
         }
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+
+        return $attributes;
+    }
+
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return true;
     }
 }

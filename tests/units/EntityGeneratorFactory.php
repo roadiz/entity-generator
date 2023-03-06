@@ -28,7 +28,7 @@ class EntityGeneratorFactory extends atoum
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
                 'namespace' => '\tests\mocks\GeneratedNodesSources',
                 'use_native_json' => true,
-                'use_api_platform_filters' => false,
+                'use_api_platform_filters' => true,
             ]))
             ->then
             ->string($this->testedInstance->create($mockNodeType)->getClassContent())

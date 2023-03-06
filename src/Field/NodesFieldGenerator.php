@@ -6,6 +6,8 @@ namespace RZ\Roadiz\EntityGenerator\Field;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use Symfony\Component\String\UnicodeString;
 
 class NodesFieldGenerator extends AbstractFieldGenerator
@@ -35,19 +37,22 @@ class NodesFieldGenerator extends AbstractFieldGenerator
             $this->getFieldSetter() . PHP_EOL;
     }
 
-    protected function getSerializationAnnotations(): array
+    protected function getSerializationAttributes(): array
     {
-        $annotations = parent::getSerializationAnnotations();
-        $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-        $annotations[] = '@Serializer\Type("array<' .
-            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString() .
-            '>")';
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+        $annotations = parent::getSerializationAttributes();
+        $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+        $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+            AttributeGenerator::wrapString($this->field->getVarName())
+        ]);
+        $annotations[] = new AttributeGenerator('Serializer\Type', [
+            AttributeGenerator::wrapString(
+                'array<' .
+                (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString() .
+                '>'
+            )
+        ]);
+
+        return $annotations;
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -99,15 +104,8 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
         $autodoc = '';
-        $fieldAutoDoc = $this->getFieldAutodoc(true);
+        $fieldAutoDoc = $this->getFieldAutodoc();
         if (!empty($fieldAutoDoc)) {
             $autodoc = PHP_EOL .
                 static::ANNOTATION_PREFIX .
@@ -121,11 +119,15 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      *' . $autodoc . '
      * @var ' . $this->getRepositoryClass() . '[]|null
      */
+' .  (new AttributeListGenerator(
+         $this->getFieldAttributes($this->isExcludingFieldFromJmsSerialization())
+     ))->generate(4) . '
     private ?array $' . $this->getFieldSourcesName() . ' = null;
 
     /**
-     * @return ' . $this->getRepositoryClass() . '[] ' . $this->field->getVarName() . ' nodes-sources array' . $serializer . '
+     * @return ' . $this->getRepositoryClass() . '[] ' . $this->field->getVarName() . ' nodes-sources array
      */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
     public function ' . $this->field->getGetterName() . 'Sources(): array
     {
         if (null === $this->' . $this->getFieldSourcesName() . ') {
@@ -159,7 +161,7 @@ class NodesFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . ')
+    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . '): static
     {
         $this->' . $this->getFieldSourcesName() . ' = $' . $this->getFieldSourcesName() . ';
 

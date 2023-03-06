@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
 use Symfony\Component\String\UnicodeString;
 
 class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
+    protected function getFieldAttributes(bool $exclude = false): array
     {
+        $attributes = parent::getFieldAttributes($exclude);
+
         /*
          * Many Users have Many Groups.
          * @ManyToMany(targetEntity="Group")
@@ -31,57 +31,65 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         ;
         $entityB = $this->field->getName();
         $joinColumnParams = [
-            'name' => '"' . $entityA . '_id"',
-            'referencedColumnName' => '"id"',
-            'onDelete' => '"CASCADE"'
+            'name' => AttributeGenerator::wrapString($entityA . '_id'),
+            'referencedColumnName' => AttributeGenerator::wrapString('id'),
+            'onDelete' => AttributeGenerator::wrapString('CASCADE')
         ];
         $inverseJoinColumns = [
-            'name' => '"' . $entityB . '_id"',
-            'referencedColumnName' => '"id"',
-            'onDelete' => '"CASCADE"'
+            'name' => AttributeGenerator::wrapString($entityB . '_id'),
+            'referencedColumnName' => AttributeGenerator::wrapString('id'),
+            'onDelete' => AttributeGenerator::wrapString('CASCADE')
         ];
-        $ormParams = [
-            'name' => '"' . $entityA . '_' . $entityB . '"',
-            'joinColumns' => '{ @ORM\JoinColumn(' . static::flattenORMParameters($joinColumnParams) . ') }',
-            'inverseJoinColumns' => '{ @ORM\JoinColumn(' . static::flattenORMParameters($inverseJoinColumns) . ') }',
-        ];
-        $orderByClause = '';
+
+        $attributes[] = new AttributeGenerator('ORM\ManyToMany', [
+            'targetEntity' => $this->getFullyQualifiedClassName() . '::class'
+        ]);
+        $attributes[] = new AttributeGenerator('ORM\JoinTable', [
+            'name' => AttributeGenerator::wrapString($entityA . '_' . $entityB)
+        ]);
+        $attributes[] = new AttributeGenerator('ORM\JoinColumn', $joinColumnParams);
+        $attributes[] = new AttributeGenerator('ORM\InverseJoinColumn', $inverseJoinColumns);
         if (count($this->configuration['orderBy']) > 0) {
             // use default order for Collections
             $orderBy = [];
             foreach ($this->configuration['orderBy'] as $order) {
-                $orderBy[$order['field']] = $order['direction'];
+                $orderBy[] = AttributeGenerator::wrapString($order['field']) .
+                    ' => ' .
+                    AttributeGenerator::wrapString($order['direction']);
             }
-            $orderByClause = '@ORM\OrderBy(value=' . json_encode($orderBy) . ')';
+            $attributes[] = new AttributeGenerator('ORM\OrderBy', [
+                0 => '[' . implode(', ', $orderBy) . ']'
+            ]);
         }
 
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
-
-        $apiFilter = '';
         if ($this->options['use_api_platform_filters'] === true) {
-            $apiFilter = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                ' @ApiFilter(OrmFilter\SearchFilter::class, strategy="exact")';
+            $attributes[] = new AttributeGenerator('ApiFilter', [
+                0 => 'OrmFilter\SearchFilter::class',
+                'strategy' => AttributeGenerator::wrapString('exact')
+            ]);
         }
 
+        return [
+            ...$attributes,
+            ...$this->getSerializationAttributes()
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldAnnotation(): string
+    {
         return '
     /**
-     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . $serializer . $apiFilter .  '
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
-     * @ORM\ManyToMany(targetEntity="' . $this->configuration['classname'] . '")
-     * ' . $orderByClause . '
-     * @ORM\JoinTable(' . static::flattenORMParameters($ormParams) . ')
+     *' . implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc()) . '
+     * @var Collection<' . $this->getFullyQualifiedClassName() . '>
      */' . PHP_EOL;
     }
 
     protected function getFieldTypeDeclaration(): string
     {
-        return '\Doctrine\Common\Collections\Collection';
+        return 'Collection';
     }
 
     /**
@@ -91,9 +99,9 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @return \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>
+     * @return Collection<' . $this->getFullyQualifiedClassName() . '>
      */
-    public function ' . $this->field->getGetterName() . '(): \Doctrine\Common\Collections\Collection
+    public function ' . $this->field->getGetterName() . '(): Collection
     {
         return $this->' . $this->field->getVarName() . ';
     }' . PHP_EOL;
@@ -106,10 +114,10 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
+     * @param Collection<' . $this->getFullyQualifiedClassName() . '>|' . $this->getFullyQualifiedClassName() . '[] $' . $this->field->getVarName() . '
      * @return $this
      */
-    public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
+    public function ' . $this->field->getSetterName() . '(Collection|array $' . $this->field->getVarName() . '): static
     {
         if ($' . $this->field->getVarName() . ' instanceof \Doctrine\Common\Collections\Collection) {
             $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
@@ -119,6 +127,11 @@ class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 
         return $this;
     }' . PHP_EOL;
+    }
+
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
     }
 
     /**

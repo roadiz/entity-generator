@@ -4,23 +4,28 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use Symfony\Component\String\UnicodeString;
 
 class DocumentsFieldGenerator extends AbstractFieldGenerator
 {
-    protected function getSerializationAnnotations(): array
+    protected function getSerializationAttributes(): array
     {
-        $annotations = parent::getSerializationAnnotations();
-        $annotations[] = '@Serializer\VirtualProperty';
-        $annotations[] = '@Serializer\SerializedName("' . $this->field->getVarName() . '")';
-        $annotations[] = '@Serializer\Type("array<' .
-            (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString() .
-            '>")';
-        // Add whitespace before each line for PHPDoc syntax
-        return array_map(function ($line) {
-            $line = trim($line);
-            return !empty($line) ? ' ' . $line : '';
-        }, $annotations);
+        $annotations = parent::getSerializationAttributes();
+        $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+        $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+            AttributeGenerator::wrapString($this->field->getVarName())
+        ]);
+        $annotations[] = new AttributeGenerator('Serializer\Type', [
+            AttributeGenerator::wrapString(
+                'array<' .
+                (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString() .
+                '>'
+            )
+        ]);
+
+        return $annotations;
     }
 
     protected function getDefaultSerializationGroups(): array
@@ -45,16 +50,11 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
      */
     public function getFieldGetter(): string
     {
-        $serializer = '';
-        if (!empty($this->getSerializationAnnotations())) {
-            $serializer = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getSerializationAnnotations());
-        }
         return '
     /**
-     * @return ' . $this->options['document_class'] . '[] Documents array' . $serializer . '
+     * @return ' . $this->options['document_class'] . '[] Documents array
      */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
     public function ' . $this->field->getGetterName() . '(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
@@ -90,7 +90,7 @@ class DocumentsFieldGenerator extends AbstractFieldGenerator
      *
      * @return $this
      */
-    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document)
+    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document): static
     {
         if (
             null !== $this->objectManager &&
