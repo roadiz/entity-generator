@@ -50,12 +50,16 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
     public function ' . $this->field->getGetterName() . '(): array
     {
         if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->' . $this->field->getVarName() . ' = $this->objectManager
                     ->getRepository(' . $this->options['custom_form_class'] . '::class)
-                    ->findByNodeAndFieldName(
+                    ->findByNodeAndField(
                         $this->getNode(),
-                        \'' . $this->field->getName() . '\'
+                        $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '")
                     );
             } else {
                 $this->' . $this->field->getVarName() . ' = [];
@@ -80,15 +84,22 @@ class CustomFormsFieldGenerator extends AbstractFieldGenerator
      */
     public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['custom_form_class'] . ' $customForm): static
     {
-        if (null !== $this->objectManager) {
-            $nodeCustomForm = new ' . $this->options['custom_form_proxy_class'] . '(
-                $this->getNode(),
-                $customForm
-            );
-            $nodeCustomForm->setFieldName(\'' . $this->field->getName() . '\');
-            $this->objectManager->persist($nodeCustomForm);
-            $this->getNode()->addCustomForm($nodeCustomForm);
-            $this->' . $this->field->getVarName() . ' = null;
+        if (
+            null !== $this->objectManager &&
+            null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()
+        ) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '");
+            if (null !== $field) {
+                $nodeCustomForm = new ' . $this->options['custom_form_proxy_class'] . '(
+                    $this->getNode(),
+                    $customForm,
+                    $field
+                );
+                $this->objectManager->persist($nodeCustomForm);
+                $this->getNode()->addCustomForm($nodeCustomForm);
+                $this->' . $this->field->getVarName() . ' = null;
+            }
         }
         return $this;
     }' . PHP_EOL;
