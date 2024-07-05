@@ -1,14 +1,13 @@
 <?php
-
 declare(strict_types=1);
 
-namespace RZ\Roadiz\EntityGenerator\Test;
+namespace tests\mocks;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\SerializableInterface;
 use Symfony\Component\String\UnicodeString;
 
-final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableInterface
+final class NodeTypeField implements NodeTypeFieldInterface, SerializableInterface
 {
     private ?string $description = null;
     private ?string $label = null;
@@ -42,9 +41,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $description
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setDescription(?string $description): SimpleNodeTypeField
+    public function setDescription(?string $description): NodeTypeField
     {
         $this->description = $description;
         return $this;
@@ -60,9 +59,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $label
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setLabel(?string $label): SimpleNodeTypeField
+    public function setLabel(?string $label): NodeTypeField
     {
         $this->label = $label;
         return $this;
@@ -78,9 +77,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $name
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setName(?string $name): SimpleNodeTypeField
+    public function setName(?string $name): NodeTypeField
     {
         $this->name = $name;
         return $this;
@@ -96,9 +95,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $placeholder
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setPlaceholder(?string $placeholder): SimpleNodeTypeField
+    public function setPlaceholder(?string $placeholder): NodeTypeField
     {
         $this->placeholder = $placeholder;
         return $this;
@@ -114,9 +113,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $defaultValues
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setDefaultValues(?string $defaultValues): SimpleNodeTypeField
+    public function setDefaultValues(?string $defaultValues): NodeTypeField
     {
         $this->defaultValues = $defaultValues;
         return $this;
@@ -132,9 +131,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $groupName
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setGroupName(?string $groupName): SimpleNodeTypeField
+    public function setGroupName(?string $groupName): NodeTypeField
     {
         $this->groupName = $groupName;
         return $this;
@@ -150,9 +149,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param int|null $minLength
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setMinLength(?int $minLength): SimpleNodeTypeField
+    public function setMinLength(?int $minLength): NodeTypeField
     {
         $this->minLength = $minLength;
         return $this;
@@ -168,9 +167,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param int|null $maxLength
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setMaxLength(?int $maxLength): SimpleNodeTypeField
+    public function setMaxLength(?int $maxLength): NodeTypeField
     {
         $this->maxLength = $maxLength;
         return $this;
@@ -186,9 +185,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $visible
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setVisible(bool $visible): SimpleNodeTypeField
+    public function setVisible(bool $visible): NodeTypeField
     {
         $this->visible = $visible;
         return $this;
@@ -204,9 +203,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $universal
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setUniversal(bool $universal): SimpleNodeTypeField
+    public function setUniversal(bool $universal): NodeTypeField
     {
         $this->universal = $universal;
         return $this;
@@ -222,9 +221,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $searchable
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setSearchable(bool $searchable): SimpleNodeTypeField
+    public function setSearchable(bool $searchable): NodeTypeField
     {
         $this->searchable = $searchable;
         return $this;
@@ -240,9 +239,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $virtual
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setVirtual(bool $virtual): SimpleNodeTypeField
+    public function setVirtual(bool $virtual): NodeTypeField
     {
         $this->virtual = $virtual;
         return $this;
@@ -258,9 +257,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $indexed
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setIndexed(bool $indexed): SimpleNodeTypeField
+    public function setIndexed(bool $indexed): NodeTypeField
     {
         $this->indexed = $indexed;
         return $this;
@@ -276,9 +275,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $expanded
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setExpanded(bool $expanded): SimpleNodeTypeField
+    public function setExpanded(bool $expanded): NodeTypeField
     {
         $this->expanded = $expanded;
         return $this;
@@ -294,9 +293,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string $typeName
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setTypeName(string $typeName): SimpleNodeTypeField
+    public function setTypeName(string $typeName): NodeTypeField
     {
         $this->typeName = $typeName;
         return $this;
@@ -312,9 +311,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string $nodeTypeName
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setNodeTypeName(string $nodeTypeName): SimpleNodeTypeField
+    public function setNodeTypeName(string $nodeTypeName): NodeTypeField
     {
         $this->nodeTypeName = $nodeTypeName;
         return $this;
@@ -330,9 +329,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string $doctrineType
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setDoctrineType(string $doctrineType): SimpleNodeTypeField
+    public function setDoctrineType(string $doctrineType): NodeTypeField
     {
         $this->doctrineType = $doctrineType;
         return $this;
@@ -523,9 +522,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param array $serializationGroups
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setSerializationGroups(array $serializationGroups): SimpleNodeTypeField
+    public function setSerializationGroups(array $serializationGroups): NodeTypeField
     {
         $this->serializationGroups = $serializationGroups;
         return $this;
@@ -541,9 +540,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param bool $excludedFromSerialization
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setExcludedFromSerialization(bool $excludedFromSerialization): SimpleNodeTypeField
+    public function setExcludedFromSerialization(bool $excludedFromSerialization): NodeTypeField
     {
         $this->excludedFromSerialization = $excludedFromSerialization;
         return $this;
@@ -559,9 +558,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param string|null $serializationExclusionExpression
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setSerializationExclusionExpression(?string $serializationExclusionExpression): SimpleNodeTypeField
+    public function setSerializationExclusionExpression(?string $serializationExclusionExpression): NodeTypeField
     {
         $this->serializationExclusionExpression = $serializationExclusionExpression;
         return $this;
@@ -577,9 +576,9 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
 
     /**
      * @param int|null $serializationMaxDepth
-     * @return SimpleNodeTypeField
+     * @return NodeTypeField
      */
-    public function setSerializationMaxDepth(?int $serializationMaxDepth): SimpleNodeTypeField
+    public function setSerializationMaxDepth(?int $serializationMaxDepth): NodeTypeField
     {
         $this->serializationMaxDepth = $serializationMaxDepth;
         return $this;
