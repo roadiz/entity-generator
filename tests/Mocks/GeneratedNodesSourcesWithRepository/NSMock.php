@@ -6,7 +6,7 @@ declare(strict_types=1);
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace tests\mocks\GeneratedNodesSourcesWithRepository;
+namespace RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository;
 
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
@@ -22,7 +22,7 @@ use ApiPlatform\Serializer\Filter\PropertyFilter;
  */
 #[
     Gedmo\Loggable(logEntryClass: \RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class),
-    ORM\Entity(repositoryClass: \tests\mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository::class),
+    ORM\Entity(repositoryClass: \RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository::class),
     ORM\Table(name: "ns_mock"),
     ORM\Index(columns: ["foo_datetime"]),
     ORM\Index(columns: ["fooIndexed"]),

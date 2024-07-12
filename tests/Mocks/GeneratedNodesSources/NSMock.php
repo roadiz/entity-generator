@@ -6,7 +6,7 @@ declare(strict_types=1);
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace tests\mocks\GeneratedNodesSources;
+namespace RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources;
 
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;

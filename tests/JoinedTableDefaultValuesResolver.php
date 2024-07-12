@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RZ\Roadiz\EntityGenerator\Test;
+namespace RZ\Roadiz\EntityGenerator\Tests;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\EntityGenerator\Field\DefaultValuesResolverInterface;

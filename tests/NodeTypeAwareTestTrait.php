@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RZ\Roadiz\EntityGenerator\Test;
+namespace RZ\Roadiz\EntityGenerator\Tests;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
