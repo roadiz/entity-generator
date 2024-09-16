@@ -6,23 +6,24 @@ declare(strict_types=1);
  * THIS IS A GENERATED FILE, DO NOT EDIT IT
  * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
  */
-namespace RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository;
+namespace tests\mocks\GeneratedNodesSourcesWithRepository;
 
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation as SymfonySerializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiFilter;
-use ApiPlatform\Doctrine\Orm\Filter as OrmFilter;
-use ApiPlatform\Serializer\Filter\PropertyFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter as OrmFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 
 /**
- * Mock node-source entity.
+ * DO NOT EDIT
+ * Generated custom node-source type by Roadiz.
  */
 #[
     Gedmo\Loggable(logEntryClass: \RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class),
-    ORM\Entity(repositoryClass: \RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository::class),
+    ORM\Entity(repositoryClass: \tests\mocks\GeneratedNodesSourcesWithRepository\Repository\NSMockRepository::class),
     ORM\Table(name: "ns_mock"),
     ORM\Index(columns: ["foo_datetime"]),
     ORM\Index(columns: ["fooIndexed"]),
@@ -39,7 +40,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooDatetime"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "foo_datetime"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Foo DateTime field"),
         SymfonySerializer\MaxDepth(2),
         ApiFilter(OrmFilter\OrderFilter::class),
         ApiFilter(OrmFilter\DateFilter::class),
@@ -79,7 +79,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "foo"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Foo field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
         ORM\Column(
@@ -124,7 +123,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooIndexed"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Foo indexed field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(1),
         ApiFilter(OrmFilter\SearchFilter::class, strategy: "partial"),
         ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class),
@@ -171,7 +169,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "boolIndexed"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Bool indexed field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(1),
         ApiFilter(OrmFilter\OrderFilter::class),
         ApiFilter(OrmFilter\BooleanFilter::class),
@@ -232,7 +229,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooMarkdown"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Foo markdown field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(1),
         Gedmo\Versioned,
         ORM\Column(name: "foo_markdown", type: "text", nullable: true),
@@ -323,7 +319,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooDecimalExcluded"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Foo expression excluded decimal: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(2),
         ApiFilter(OrmFilter\OrderFilter::class),
         ApiFilter(OrmFilter\NumericFilter::class),
@@ -388,7 +383,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "singleEventReference"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Référence à l'événement: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToOne(targetEntity: \App\Entity\Base\Event::class),
         ORM\JoinColumn(name: "single_event_reference_id", referencedColumnName: "id", onDelete: "SET NULL"),
@@ -442,7 +436,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "eventReferences"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Remontée d'événements manuelle: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToMany(targetEntity: \App\Entity\Base\Event::class),
         ORM\JoinTable(name: "node_type_event_references"),
@@ -630,7 +623,6 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude,
         SymfonySerializer\SerializedName(serializedName: "bar"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "nodes_sources_documents"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Bar documents field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(1)
     ]
     private ?array $bar = null;
@@ -648,12 +640,16 @@ class NSMock extends \mock\Entity\NodesSources
     public function getBar(): array
     {
         if (null === $this->bar) {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->bar = $this->objectManager
                     ->getRepository(\mock\Entity\Document::class)
-                    ->findByNodeSourceAndFieldName(
+                    ->findByNodeSourceAndField(
                         $this,
-                        'bar'
+                        $this->getNode()->getNodeType()->getFieldByName("bar")
                     );
             } else {
                 $this->bar = [];
@@ -669,16 +665,23 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addBar(\mock\Entity\Document $document): static
     {
-        if (null !== $this->objectManager) {
-            $nodeSourceDocument = new \mock\Entity\NodesSourcesDocument(
-                $this,
-                $document
-            );
-            $nodeSourceDocument->setFieldName('bar');
-            if (!$this->hasNodesSourcesDocuments($nodeSourceDocument)) {
-                $this->objectManager->persist($nodeSourceDocument);
-                $this->addDocumentsByFields($nodeSourceDocument);
-                $this->bar = null;
+        if (
+            null !== $this->objectManager &&
+            null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()
+        ) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("bar");
+            if (null !== $field) {
+                $nodeSourceDocument = new \mock\Entity\NodesSourcesDocument(
+                    $this,
+                    $document,
+                    $field
+                );
+                if (!$this->hasNodesSourcesDocuments($nodeSourceDocument)) {
+                    $this->objectManager->persist($nodeSourceDocument);
+                    $this->addDocumentsByFields($nodeSourceDocument);
+                    $this->bar = null;
+                }
             }
         }
         return $this;
@@ -694,7 +697,6 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude,
         SymfonySerializer\SerializedName(serializedName: "theForms"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "nodes_sources_custom_forms"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "Custom forms field"),
         SymfonySerializer\MaxDepth(2)
     ]
     private ?array $theForms = null;
@@ -711,12 +713,16 @@ class NSMock extends \mock\Entity\NodesSources
     public function getTheForms(): array
     {
         if (null === $this->theForms) {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->theForms = $this->objectManager
                     ->getRepository(\mock\Entity\CustomForm::class)
-                    ->findByNodeAndFieldName(
+                    ->findByNodeAndField(
                         $this->getNode(),
-                        'the_forms'
+                        $this->getNode()->getNodeType()->getFieldByName("the_forms")
                     );
             } else {
                 $this->theForms = [];
@@ -732,15 +738,22 @@ class NSMock extends \mock\Entity\NodesSources
      */
     public function addTheForms(\mock\Entity\CustomForm $customForm): static
     {
-        if (null !== $this->objectManager) {
-            $nodeCustomForm = new \mock\Entity\NodesSourcesCustomForm(
-                $this->getNode(),
-                $customForm
-            );
-            $nodeCustomForm->setFieldName('the_forms');
-            $this->objectManager->persist($nodeCustomForm);
-            $this->getNode()->addCustomForm($nodeCustomForm);
-            $this->theForms = null;
+        if (
+            null !== $this->objectManager &&
+            null !== $this->getNode() &&
+            null !== $this->getNode()->getNodeType()
+        ) {
+            $field = $this->getNode()->getNodeType()->getFieldByName("the_forms");
+            if (null !== $field) {
+                $nodeCustomForm = new \mock\Entity\NodesSourcesCustomForm(
+                    $this->getNode(),
+                    $customForm,
+                    $field
+                );
+                $this->objectManager->persist($nodeCustomForm);
+                $this->getNode()->addCustomForm($nodeCustomForm);
+                $this->theForms = null;
+            }
         }
         return $this;
     }
@@ -758,7 +771,6 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude,
         SymfonySerializer\SerializedName(serializedName: "fooBar"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "nodes_sources_nodes"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "ForBar nodes field: Maecenas sed diam eget risus varius blandit sit amet non magna"),
         SymfonySerializer\MaxDepth(2)
     ]
     private ?array $fooBarSources = null;
@@ -776,12 +788,16 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarSources(): array
     {
         if (null === $this->fooBarSources) {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->fooBarSources = $this->objectManager
                     ->getRepository(\mock\Entity\NodesSources::class)
-                    ->findByNodesSourcesAndFieldNameAndTranslation(
+                    ->findByNodesSourcesAndFieldAndTranslation(
                         $this,
-                        'foo_bar'
+                        $this->getNode()->getNodeType()->getFieldByName("foo_bar")
                     );
             } else {
                 $this->fooBarSources = [];
@@ -827,12 +843,16 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarHiddenSources(): array
     {
         if (null === $this->fooBarHiddenSources) {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->fooBarHiddenSources = $this->objectManager
                     ->getRepository(\mock\Entity\NodesSources::class)
-                    ->findByNodesSourcesAndFieldNameAndTranslation(
+                    ->findByNodesSourcesAndFieldAndTranslation(
                         $this,
-                        'foo_bar_hidden'
+                        $this->getNode()->getNodeType()->getFieldByName("foo_bar_hidden")
                     );
             } else {
                 $this->fooBarHiddenSources = [];
@@ -866,7 +886,6 @@ class NSMock extends \mock\Entity\NodesSources
         Serializer\Exclude,
         SymfonySerializer\SerializedName(serializedName: "fooBarTyped"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default", "nodes_sources_nodes"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "ForBar nodes typed field"),
         SymfonySerializer\MaxDepth(2)
     ]
     private ?array $fooBarTypedSources = null;
@@ -884,12 +903,16 @@ class NSMock extends \mock\Entity\NodesSources
     public function getFooBarTypedSources(): array
     {
         if (null === $this->fooBarTypedSources) {
-            if (null !== $this->objectManager) {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
                 $this->fooBarTypedSources = $this->objectManager
                     ->getRepository(\tests\mocks\GeneratedNodesSources\NSMockTwo::class)
-                    ->findByNodesSourcesAndFieldNameAndTranslation(
+                    ->findByNodesSourcesAndFieldAndTranslation(
                         $this,
-                        'foo_bar_typed'
+                        $this->getNode()->getNodeType()->getFieldByName("foo_bar_typed")
                     );
             } else {
                 $this->fooBarTypedSources = [];
@@ -918,7 +941,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "layout"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "ForBar layout enum", schema: ["type" => "string", "enum" => ["light","dark","transparent"], "example" => "light"]),
         SymfonySerializer\MaxDepth(2),
         ApiFilter(OrmFilter\SearchFilter::class, strategy: "exact"),
         ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class),
@@ -967,7 +989,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooManyToOne"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "For many_to_one field"),
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToOne(targetEntity: \MyCustomEntity::class),
         ORM\JoinColumn(name: "foo_many_to_one_id", referencedColumnName: "id", onDelete: "SET NULL"),
@@ -1009,7 +1030,6 @@ class NSMock extends \mock\Entity\NodesSources
     #[
         SymfonySerializer\SerializedName(serializedName: "fooManyToMany"),
         SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
-        \ApiPlatform\Metadata\ApiProperty(description: "For many_to_many field"),
         SymfonySerializer\MaxDepth(2),
         ORM\ManyToMany(targetEntity: \MyCustomEntity::class),
         ORM\JoinTable(name: "node_type_foo_many_to_many"),
