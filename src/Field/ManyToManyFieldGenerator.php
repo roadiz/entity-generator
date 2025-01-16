@@ -114,12 +114,16 @@ class ManyToManyFieldGenerator extends AbstractFieldGenerator
     {
         return '
     /**
-     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
+     * @var \Doctrine\Common\Collections\Collection<' . $this->configuration['classname'] . '>|array<' . $this->configuration['classname'] . '> $' . $this->field->getVarName() . '
      * @return $this
      */
     public function ' . $this->field->getSetterName() . '($' . $this->field->getVarName() . ')
     {
-        $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
+        if (is_array($' . $this->field->getVarName() . ')) {
+            $this->' . $this->field->getVarName() . ' = new \Doctrine\Common\Collections\ArrayCollection($' . $this->field->getVarName() . ');
+        } else {
+            $this->' . $this->field->getVarName() . ' = $' . $this->field->getVarName() . ';
+        }
 
         return $this;
     }' . PHP_EOL;
