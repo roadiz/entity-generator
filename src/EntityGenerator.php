@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator;
 
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Literal;
-use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PhpNamespace;
-use Nette\PhpGenerator\Printer;
-use Nette\PhpGenerator\PsrPrinter;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use RZ\Roadiz\EntityGenerator\Field\AbstractFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\CollectionFieldGenerator;
 use RZ\Roadiz\EntityGenerator\Field\CustomFormsFieldGenerator;
@@ -28,24 +24,26 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Yaml;
 
-final class EntityGenerator implements EntityGeneratorInterface
+class EntityGenerator implements EntityGeneratorInterface
 {
-    /**
-     * @var AbstractFieldGenerator[]
-     */
-    private array $fieldGenerators;
-    private array $options;
-    private Printer $printer;
+    protected NodeTypeInterface $nodeType;
+    protected NodeTypeResolverInterface $nodeTypeResolver;
+    protected DefaultValuesResolverInterface $defaultValuesResolver;
+    protected array $fieldGenerators;
+    protected array $options;
 
     public function __construct(
-        private readonly NodeTypeInterface $nodeType,
-        private readonly NodeTypeResolverInterface $nodeTypeResolver,
-        private readonly DefaultValuesResolverInterface $defaultValuesResolver,
-        array $options = [],
+        NodeTypeInterface $nodeType,
+        NodeTypeResolverInterface $nodeTypeResolver,
+        DefaultValuesResolverInterface $defaultValuesResolver,
+        array $options = []
     ) {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
 
+        $this->nodeType = $nodeType;
+        $this->nodeTypeResolver = $nodeTypeResolver;
+        $this->defaultValuesResolver = $defaultValuesResolver;
         $this->fieldGenerators = [];
         $this->options = $resolver->resolve($options);
 
@@ -53,9 +51,11 @@ final class EntityGenerator implements EntityGeneratorInterface
             $this->fieldGenerators[] = $this->getFieldGenerator($field);
         }
         $this->fieldGenerators = array_filter($this->fieldGenerators);
-        $this->printer = new PsrPrinter();
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -73,7 +73,7 @@ final class EntityGenerator implements EntityGeneratorInterface
             'repository_class',
             'namespace',
             'use_native_json',
-            'use_api_platform_filters',
+            'use_api_platform_filters'
         ]);
         $resolver->setAllowedTypes('parent_class', 'string');
         $resolver->setAllowedTypes('node_class', 'string');
@@ -90,7 +90,7 @@ final class EntityGenerator implements EntityGeneratorInterface
         $normalizeClassName = function (OptionsResolver $resolver, string $className) {
             return (new UnicodeString($className))->startsWith('\\') ?
                 $className :
-                '\\'.$className;
+                '\\' . $className;
         };
 
         $resolver->setNormalizer('parent_class', $normalizeClassName);
@@ -104,7 +104,11 @@ final class EntityGenerator implements EntityGeneratorInterface
         $resolver->setNormalizer('namespace', $normalizeClassName);
     }
 
-    private function getFieldGenerator(NodeTypeFieldInterface $field): ?AbstractFieldGenerator
+    /**
+     * @param NodeTypeFieldInterface $field
+     * @return AbstractFieldGenerator|null
+     */
+    protected function getFieldGenerator(NodeTypeFieldInterface $field): ?AbstractFieldGenerator
     {
         if ($field->isYaml()) {
             return new YamlFieldGenerator($field, $this->defaultValuesResolver, $this->options);
@@ -124,9 +128,9 @@ final class EntityGenerator implements EntityGeneratorInterface
         if ($field->isManyToMany()) {
             $configuration = Yaml::parse($field->getDefaultValues() ?? '');
             if (
-                is_array($configuration)
-                && isset($configuration['proxy'])
-                && !empty($configuration['proxy']['classname'])
+                is_array($configuration) &&
+                isset($configuration['proxy']) &&
+                !empty($configuration['proxy']['classname'])
             ) {
                 /*
                  * Manually create a Many-to-Many relation using a proxy class
@@ -134,11 +138,10 @@ final class EntityGenerator implements EntityGeneratorInterface
                  */
                 return new ProxiedManyToManyFieldGenerator($field, $this->defaultValuesResolver, $this->options);
             }
-
             return new ManyToManyFieldGenerator($field, $this->defaultValuesResolver, $this->options);
         }
         if ($field->isNodes()) {
-            return new NodesFieldGenerator($this->nodeTypeResolver, $field, $this->defaultValuesResolver, $this->options);
+            return new NodesFieldGenerator($field, $this->nodeTypeResolver, $this->defaultValuesResolver, $this->options);
         }
         if (!$field->isVirtual()) {
             return new NonVirtualFieldGenerator($field, $this->defaultValuesResolver, $this->options);
@@ -147,87 +150,134 @@ final class EntityGenerator implements EntityGeneratorInterface
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getClassContent(): string
     {
-        $file = new PhpFile();
-        $file->setStrictTypes();
-        $file->addComment('THIS IS A GENERATED FILE, DO NOT EDIT IT.');
-        $file->addComment('IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE.');
-
-        $namespace = $file
-            ->addNamespace(trim($this->options['namespace'], '\\'))
-            ->addUse('ApiPlatform\Metadata\ApiFilter')
-            ->addUse('ApiPlatform\Metadata\ApiProperty')
-            ->addUse('ApiPlatform\Serializer\Filter\PropertyFilter')
-            ->addUse('ApiPlatform\Doctrine\Orm\Filter', 'Filter')
-            ->addUse('Doctrine\Common\Collections\Collection')
-            ->addUse($this->options['parent_class'])
-            ->addUse('Doctrine\ORM\Mapping', 'ORM')
-            ->addUse('Gedmo\Mapping\Annotation', 'Gedmo')
-            ->addUse('JMS\Serializer\Annotation', 'JMS')
-            ->addUse('RZ\Roadiz\CoreBundle\Entity\Node')
-            ->addUse('RZ\Roadiz\CoreBundle\Entity\Translation')
-            ->addUse('RZ\Roadiz\CoreBundle\Entity\UserLogEntry')
-            ->addUse('Symfony\Component\Serializer\Attribute', 'Serializer')
-        ;
-
-        $classType = $namespace->addClass($this->nodeType->getSourceEntityClassName())
-            ->setExtends($this->options['parent_class'])
-            ->addComment($this->nodeType->getName().' node-source entity.')
-            ->addComment($this->nodeType->getDescription() ?? '');
-
-        $this
-            ->addClassAttributes($classType, $namespace)
-            ->addClassFields($classType, $namespace)
-            ->addClassConstructor($classType)
-            ->addClassCloneMethod($classType)
-            ->addClassMethods($classType)
-        ;
-
-        return $this->printer->printFile($file);
+        return $this->getClassHeader() .
+            $this->getClassAnnotations() .
+            $this->getClassAttributes() .
+            $this->getClassBody();
     }
 
-    private function addClassAttributes(ClassType $classType, PhpNamespace $namespace): self
+    /**
+     * @return string
+     */
+    protected function getClassBody(): string
     {
-        $classType
-            ->addAttribute(
-                'Gedmo\Mapping\Annotation\Loggable',
-                ['logEntryClass' => new Literal('UserLogEntry::class')]
-            )
-            ->addAttribute(
-                'Doctrine\ORM\Mapping\Entity',
-                ['repositoryClass' => new Literal($namespace->simplifyName($this->options['repository_class']).'::class')]
-            )
-            ->addAttribute(
-                'Doctrine\ORM\Mapping\Table',
-                ['name' => $this->nodeType->getSourceEntityTableName()]
-            )
-        ;
-
-        foreach ($this->fieldGenerators as $fieldGenerator) {
-            $fieldGenerator->addFieldIndex($classType);
-        }
-
-        if (true === $this->options['use_api_platform_filters']) {
-            $classType->addAttribute(
-                'ApiPlatform\Metadata\ApiFilter',
-                [new Literal($namespace->simplifyName('\ApiPlatform\Serializer\Filter\PropertyFilter').'::class')]
-            );
-        }
-
-        return $this;
+        return 'class ' . $this->nodeType->getSourceEntityClassName() . ' extends ' . $this->options['parent_class'] . '
+{' . $this->getClassProperties() .
+        $this->getClassConstructor() .
+        $this->getNodeTypeNameGetter() .
+        $this->getNodeTypeReachableGetter() .
+        $this->getNodeTypePublishableGetter() .
+        $this->getClassCloneMethod() .
+        $this->getClassMethods() . '
+}' . PHP_EOL;
     }
 
-    private function addClassFields(ClassType $classType, PhpNamespace $namespace): self
+    /**
+     * @return string
+     */
+    protected function getClassHeader(): string
     {
-        foreach ($this->fieldGenerators as $fieldGenerator) {
-            $fieldGenerator->addField($classType, $namespace);
-        }
+        $useStatements = [
+            'use Doctrine\Common\Collections\Collection;',
+            'use JMS\Serializer\Annotation as Serializer;',
+            'use Symfony\Component\Serializer\Annotation as SymfonySerializer;',
+            'use Gedmo\Mapping\Annotation as Gedmo;',
+            'use Doctrine\ORM\Mapping as ORM;',
+        ];
 
-        return $this;
+        if ($this->options['use_api_platform_filters'] === true) {
+            $useStatements[] = 'use ApiPlatform\Metadata\ApiFilter;';
+            $useStatements[] = 'use ApiPlatform\Doctrine\Orm\Filter as OrmFilter;';
+            $useStatements[] = 'use ApiPlatform\Serializer\Filter\PropertyFilter;';
+        }
+        /*
+         * BE CAREFUL, USE statements are required for field generators which
+         * are using ::class syntax!
+         */
+        return '<?php
+
+declare(strict_types=1);
+
+/*
+ * THIS IS A GENERATED FILE, DO NOT EDIT IT
+ * IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE
+ */
+namespace ' . ltrim($this->options['namespace'], '\\') . ';
+
+' . implode(PHP_EOL, $useStatements) . PHP_EOL;
     }
 
-    private function addClassCloneMethod(ClassType $classType): self
+    protected function getClassAttributes(): string
+    {
+        $attributeGenerators = [
+            new AttributeGenerator('Gedmo\Loggable', [
+                'logEntryClass' => '\RZ\Roadiz\CoreBundle\Entity\UserLogEntry::class',
+            ]),
+            new AttributeGenerator('ORM\Entity', [
+                'repositoryClass' => $this->options['repository_class'] . '::class',
+            ]),
+            new AttributeGenerator('ORM\Table', [
+                'name' => AttributeGenerator::wrapString($this->nodeType->getSourceEntityTableName())
+            ])
+        ];
+
+        $indexes = [];
+        /** @var AbstractFieldGenerator $fieldGenerator */
+        foreach ($this->fieldGenerators as $fieldGenerator) {
+            $indexes[] = $fieldGenerator->getFieldIndex();
+        }
+        $attributeGenerators = [...$attributeGenerators, ...array_filter($indexes)];
+
+        if ($this->options['use_api_platform_filters'] === true) {
+            $attributeGenerators[] = new AttributeGenerator('ApiFilter', [
+                'PropertyFilter::class'
+            ]);
+        }
+
+        return (new AttributeListGenerator($attributeGenerators))->generate() . PHP_EOL;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassAnnotations(): string
+    {
+        $annotations = [
+            $this->nodeType->getName() . ' node-source entity.',
+            $this->nodeType->getDescription()
+        ];
+        $annotations = array_filter($annotations);
+
+        return '
+/**
+ * ' . implode(PHP_EOL . ' * ', $annotations) . '
+ */' . PHP_EOL;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassProperties(): string
+    {
+        $fieldsArray = [];
+        /** @var AbstractFieldGenerator $fieldGenerator */
+        foreach ($this->fieldGenerators as $fieldGenerator) {
+            $fieldsArray[] = $fieldGenerator->getField();
+        }
+        $fieldsArray = array_filter($fieldsArray);
+
+        return implode('', $fieldsArray);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getClassCloneMethod(): string
     {
         $cloneStatements = [];
         /** @var AbstractFieldGenerator $fieldGenerator */
@@ -236,83 +286,109 @@ final class EntityGenerator implements EntityGeneratorInterface
         }
         $cloneStatements = array_filter($cloneStatements);
 
-        if (0 === count($cloneStatements)) {
-            return $this;
+        if (count($cloneStatements) === 0) {
+            return '';
         }
 
-        $method = $classType
-            ->addMethod('__clone')
-            ->setReturnType('void')
-        ;
+        $statementSeparator = PHP_EOL . PHP_EOL . AbstractFieldGenerator::TAB . AbstractFieldGenerator::TAB;
+        $cloneStatementsString = implode($statementSeparator, $cloneStatements);
 
-        $method->addBody('parent::__clone();');
+        return '
+    public function __clone()
+    {
+        parent::__clone();
 
-        foreach ($cloneStatements as $cloneStatement) {
-            $method->addBody('');
-            $method->addBody($cloneStatement);
-        }
-
-        return $this;
+        ' . $cloneStatementsString . '
+    }' . PHP_EOL;
     }
 
-    private function addClassConstructor(ClassType $classType): self
+    /**
+     * @return string
+     */
+    protected function getClassConstructor(): string
     {
-        $constructorStatements = [];
+        $constructorArray = [];
+        /** @var AbstractFieldGenerator $fieldGenerator */
         foreach ($this->fieldGenerators as $fieldGenerator) {
-            $constructorStatements[] = $fieldGenerator->getFieldConstructorInitialization();
+            $constructorArray[] = $fieldGenerator->getFieldConstructorInitialization();
         }
-        $constructorStatements = array_filter($constructorStatements);
+        $constructorArray = array_filter($constructorArray);
 
-        if (count($constructorStatements) > 0) {
-            $constructorMethod = $classType->addMethod('__construct');
-            $constructorMethod->addParameter('node')
-                ->setType($this->options['node_class']);
-            $constructorMethod->addParameter('translation')
-                ->setType($this->options['translation_class']);
-            $constructorMethod->addBody('parent::__construct($node, $translation);');
-            foreach ($constructorStatements as $constructorStatement) {
-                $constructorMethod->addBody($constructorStatement);
-            }
+        if (count($constructorArray) > 0) {
+            return '
+    public function __construct(' . $this->options['node_class'] . ' $node, ' . $this->options['translation_class'] . ' $translation)
+    {
+        parent::__construct($node, $translation);
+
+        ' . implode(PHP_EOL . AbstractFieldGenerator::TAB . AbstractFieldGenerator::TAB, $constructorArray) . '
+    }' . PHP_EOL;
         }
 
-        return $this;
+        return '';
     }
 
-    private function addClassMethods(ClassType $classType): self
+    /**
+     * @return string
+     */
+    protected function getNodeTypeNameGetter(): string
     {
-        $classType->addMethod('getNodeTypeName')
-            ->setReturnType('string')
-            ->addAttribute('JMS\Serializer\Annotation\VirtualProperty')
-            ->addAttribute('JMS\Serializer\Annotation\Groups', [['nodes_sources', 'nodes_sources_default']])
-            ->addAttribute('JMS\Serializer\Annotation\SerializedName', ['@type'])
-            ->addAttribute('Symfony\Component\Serializer\Attribute\Groups', [['nodes_sources', 'nodes_sources_default']])
-            ->addAttribute('Symfony\Component\Serializer\Attribute\SerializedName', [
-                'serializedName' => '@type',
-            ])
-            ->setBody('return \''.$this->nodeType->getName().'\';')
-        ;
+            return '
+    #[
+        Serializer\VirtualProperty,
+        Serializer\Groups(["nodes_sources", "nodes_sources_default"]),
+        Serializer\SerializedName("@type"),
+        SymfonySerializer\Groups(["nodes_sources", "nodes_sources_default"]),
+        SymfonySerializer\SerializedName(serializedName: "@type")
+    ]
+    public function getNodeTypeName(): string
+    {
+        return \'' . $this->nodeType->getName() . '\';
+    }' . PHP_EOL;
+    }
 
-        $classType->addMethod('isReachable')
-            ->addComment('$this->nodeType->isReachable() proxy.')
-            ->addComment('@return bool Does this nodeSource is reachable over network?')
-            ->setReturnType('bool')
-            ->addAttribute('JMS\Serializer\Annotation\VirtualProperty')
-            ->setBody('return '.($this->nodeType->isReachable() ? 'true' : 'false').';')
-        ;
+    /**
+     * @return string
+     */
+    protected function getNodeTypeReachableGetter(): string
+    {
+        return '
+    /**
+     * $this->nodeType->isReachable() proxy.
+     *
+     * @return bool Does this nodeSource is reachable over network?
+     */
+    public function isReachable(): bool
+    {
+        return ' . ($this->nodeType->isReachable() ? 'true' : 'false') . ';
+    }' . PHP_EOL;
+    }
 
-        $classType->addMethod('isPublishable')
-            ->addComment('$this->nodeType->isPublishable() proxy.')
-            ->addComment('@return bool Does this nodeSource is publishable with date and time?')
-            ->setReturnType('bool')
-            ->addAttribute('JMS\Serializer\Annotation\VirtualProperty')
-            ->setBody('return '.($this->nodeType->isPublishable() ? 'true' : 'false').';')
-        ;
+    /**
+     * @return string
+     */
+    protected function getNodeTypePublishableGetter(): string
+    {
+        return '
+    /**
+     * $this->nodeType->isPublishable() proxy.
+     *
+     * @return bool Does this nodeSource is publishable with date and time?
+     */
+    public function isPublishable(): bool
+    {
+        return ' . ($this->nodeType->isPublishable() ? 'true' : 'false') . ';
+    }' . PHP_EOL;
+    }
 
-        $classType->addMethod('__toString')
-            ->setReturnType('string')
-            ->setBody('return \'['.$this->nodeType->getSourceEntityClassName().'] \' . parent::__toString();')
-        ;
-
-        return $this;
+    /**
+     * @return string
+     */
+    protected function getClassMethods(): string
+    {
+        return '
+    public function __toString(): string
+    {
+        return \'[' . $this->nodeType->getSourceEntityClassName() . '] \' . parent::__toString();
+    }';
     }
 }
