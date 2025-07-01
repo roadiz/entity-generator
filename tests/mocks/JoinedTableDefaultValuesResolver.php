@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RZ\Roadiz\EntityGenerator\Tests;
+namespace tests\mocks;
 
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\EntityGenerator\Field\DefaultValuesResolverInterface;
@@ -11,7 +11,7 @@ class JoinedTableDefaultValuesResolver implements DefaultValuesResolverInterface
 {
     public function getDefaultValuesAmongAllFields(NodeTypeFieldInterface $field): array
     {
-        return array_map('trim', $field->getDefaultValuesAsArray());
+        return array_map('trim', explode(',', $field->getDefaultValues()));
     }
 
     public function getMaxDefaultValuesLengthAmongAllFields(NodeTypeFieldInterface $field): int

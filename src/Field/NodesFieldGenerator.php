@@ -4,163 +4,167 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Method;
-use Nette\PhpGenerator\PhpNamespace;
-use Nette\PhpGenerator\Property;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 use Symfony\Component\String\UnicodeString;
 
-final class NodesFieldGenerator extends AbstractFieldGenerator
+class NodesFieldGenerator extends AbstractFieldGenerator
 {
+    private NodeTypeResolverInterface $nodeTypeResolver;
+
     public function __construct(
-        private readonly NodeTypeResolverInterface $nodeTypeResolver,
         NodeTypeFieldInterface $field,
+        NodeTypeResolverInterface $nodeTypeResolver,
         DefaultValuesResolverInterface $defaultValuesResolver,
-        array $options = [],
+        array $options = []
     ) {
         parent::__construct($field, $defaultValuesResolver, $options);
+        $this->nodeTypeResolver = $nodeTypeResolver;
     }
 
-    public function addField(ClassType $classType, PhpNamespace $namespace): void
+    /**
+     * Generate PHP code for current doctrine field.
+     *
+     * @return string
+     */
+    public function getField(): string
     {
-        $this->addFieldGetter($classType, $namespace);
-        $this->addFieldSetter($classType);
+        return $this->getFieldGetter() .
+            $this->getFieldAlternativeGetter() .
+            $this->getFieldSetter() . PHP_EOL;
     }
 
-    protected function addSerializationAttributes(Property|Method $property): self
+    protected function getSerializationAttributes(): array
     {
-        parent::addSerializationAttributes($property);
-        $property->addAttribute('JMS\Serializer\Annotation\VirtualProperty');
-        $property->addAttribute('JMS\Serializer\Annotation\SerializedName', [
-            $this->field->getVarName(),
+        $annotations = parent::getSerializationAttributes();
+        $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+        $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+            AttributeGenerator::wrapString($this->field->getVarName())
         ]);
-        $property->addAttribute('JMS\Serializer\Annotation\Type', [
-            'array<'.
-            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
-            '>',
+        $annotations[] = new AttributeGenerator('Serializer\Type', [
+            AttributeGenerator::wrapString(
+                'array<' .
+                (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString() .
+                '>'
+            )
         ]);
 
-        return $this;
+        return $annotations;
     }
 
     protected function getDefaultSerializationGroups(): array
     {
         $groups = parent::getDefaultSerializationGroups();
         $groups[] = 'nodes_sources_nodes';
-
         return $groups;
     }
 
+    /**
+     * @return string
+     */
     protected function getFieldSourcesName(): string
     {
-        return $this->field->getVarName().'Sources';
+        return $this->field->getVarName() . 'Sources';
     }
-
+    /**
+     * @return bool
+     */
     protected function hasOnlyOneNodeType(): bool
     {
         if (!empty($this->field->getDefaultValues())) {
-            $defaultValuesParsed = $this->field->getDefaultValuesAsArray();
-
-            return 1 === count(array_unique($defaultValuesParsed));
+            return count(explode(',', $this->field->getDefaultValues())) === 1;
         }
-
         return false;
     }
 
+    /**
+     * @return string
+     */
     protected function getRepositoryClass(): string
     {
-        $defaultValuesParsed = $this->field->getDefaultValuesAsArray();
-        if (count($defaultValuesParsed) > 0 && true === $this->hasOnlyOneNodeType()) {
-            $nodeTypeName = trim(array_values($defaultValuesParsed)[0]);
+        if (!empty($this->field->getDefaultValues()) && $this->hasOnlyOneNodeType() === true) {
+            $nodeTypeName = trim(explode(',', $this->field->getDefaultValues())[0]);
 
             $nodeType = $this->nodeTypeResolver->get($nodeTypeName);
             if (null !== $nodeType) {
                 $className = $nodeType->getSourceEntityFullQualifiedClassName();
-
                 return (new UnicodeString($className))->startsWith('\\') ?
                     $className :
-                    '\\'.$className;
+                    '\\' . $className;
             }
         }
-
         return $this->options['parent_class'];
     }
 
-    public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
+    /**
+     * @inheritDoc
+     */
+    public function getFieldGetter(): string
     {
-        $property = $classType->addProperty($this->getFieldSourcesName())
-            ->setType('?array')
-            ->setPrivate()
-            ->setValue(null)
-            ->addComment($this->getFieldSourcesName().' NodesSources direct field buffer.')
-            ->addComment('@var '.$this->getRepositoryClass().'[]|null');
-
-        $nodeSourceClasses = [];
-        if (!empty($this->field->getDefaultValues())) {
-            $defaultValuesParsed = $this->field->getDefaultValuesAsArray();
-            $nodeTypes = array_map(
-                fn ($nodeTypeName) => $this->nodeTypeResolver->get($nodeTypeName),
-                $defaultValuesParsed
-            );
-            $nodeSourceClasses = array_map(
-                fn ($nodeType) => '\\'.$nodeType->getSourceEntityFullQualifiedClassName().'::class',
-                array_filter($nodeTypes)
-            );
-        }
-        $repositoryClass = $this->getRepositoryClass().'::class';
-        if (1 === count($nodeSourceClasses)) {
-            $repositoryClass = array_shift($nodeSourceClasses);
-            $nodeSourceClasses = '';
-        } else {
-            $nodeSourceClasses = implode(', ', $nodeSourceClasses);
+        $autodoc = '';
+        $fieldAutoDoc = $this->getFieldAutodoc();
+        if (!empty($fieldAutoDoc)) {
+            $autodoc = PHP_EOL .
+                static::ANNOTATION_PREFIX .
+                implode(PHP_EOL . static::ANNOTATION_PREFIX, $fieldAutoDoc);
         }
 
-        $this->addFieldAutodoc($property);
-        $this->addFieldAttributes($property, $namespace, $this->isExcludingFieldFromJmsSerialization());
+        return '
+    /**
+     * ' . $this->getFieldSourcesName() . ' NodesSources direct field buffer.
+     * (Virtual field, this var is a buffer)
+     *' . $autodoc . '
+     * @var ' . $this->getRepositoryClass() . '[]|null
+     */
+' .  (new AttributeListGenerator(
+         $this->getFieldAttributes($this->isExcludingFieldFromJmsSerialization())
+     ))->generate(4) . '
+    private ?array $' . $this->getFieldSourcesName() . ' = null;
 
-        $getter = $classType->addMethod($this->field->getGetterName().'Sources')
-            ->setReturnType('array')
-            ->addComment('@return '.$this->getRepositoryClass().'[]')
-            ->setPublic();
-        $this->addSerializationAttributes($getter);
-        $getter->setBody(<<<PHP
-if (null === \$this->{$this->getFieldSourcesName()}) {
-    if (null !== \$this->objectManager) {
-        \$this->{$this->getFieldSourcesName()} = \$this->objectManager
-            ->getRepository({$repositoryClass})
-            ->findByNodesSourcesAndFieldNameAndTranslation(
-                \$this,
-                '{$this->field->getName()}',
-                [{$nodeSourceClasses}]
-            );
-    } else {
-        \$this->{$this->getFieldSourcesName()} = [];
-    }
-}
-return \$this->{$this->getFieldSourcesName()};
-PHP
-        );
-
-        return $this;
-    }
-
-    public function addFieldSetter(ClassType $classType): self
+    /**
+     * @return ' . $this->getRepositoryClass() . '[] ' . $this->field->getVarName() . ' nodes-sources array
+     */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
+    public function ' . $this->field->getGetterName() . 'Sources(): array
     {
-        $setter = $classType->addMethod($this->field->getSetterName().'Sources')
-            ->setReturnType('static')
-            ->addComment('@param '.$this->getRepositoryClass().'[]|null $'.$this->getFieldSourcesName())
-            ->addComment('@return $this')
-            ->setPublic();
-        $setter->addParameter($this->getFieldSourcesName())
-            ->setType('?array');
-        $setter->setBody(<<<PHP
-\$this->{$this->getFieldSourcesName()} = \${$this->getFieldSourcesName()};
-return \$this;
-PHP
-        );
+        if (null === $this->' . $this->getFieldSourcesName() . ') {
+            if (
+                null !== $this->objectManager &&
+                null !== $this->getNode() &&
+                null !== $this->getNode()->getNodeType()
+            ) {
+                $this->' . $this->getFieldSourcesName() . ' = $this->objectManager
+                    ->getRepository(' . $this->getRepositoryClass() . '::class)
+                    ->findByNodesSourcesAndFieldAndTranslation(
+                        $this,
+                        $this->getNode()->getNodeType()->getFieldByName("' . $this->field->getName() . '")
+                    );
+            } else {
+                $this->' . $this->getFieldSourcesName() . ' = [];
+            }
+        }
+        return $this->' . $this->getFieldSourcesName() . ';
+    }' . PHP_EOL;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFieldSetter(): string
+    {
+        return '
+    /**
+     * @param ' . $this->getRepositoryClass() . '[]|null $' . $this->getFieldSourcesName() . '
+     *
+     * @return $this
+     */
+    public function ' . $this->field->getSetterName() . 'Sources(?array $' . $this->getFieldSourcesName() . '): static
+    {
+        $this->' . $this->getFieldSourcesName() . ' = $' . $this->getFieldSourcesName() . ';
 
         return $this;
+    }' . PHP_EOL;
     }
 }
