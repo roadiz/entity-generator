@@ -16,11 +16,11 @@ use ApiPlatform\Serializer\Filter\PropertyFilter;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use JMS\Serializer\Annotation as JMS;
 use RZ\Roadiz\CoreBundle\Entity\Node;
 use RZ\Roadiz\CoreBundle\Entity\Translation;
 use RZ\Roadiz\CoreBundle\Entity\UserLogEntry;
 use Symfony\Component\Serializer\Attribute as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 use mock\Entity\NodesSources;
 
 /**
@@ -31,6 +31,7 @@ use mock\Entity\NodesSources;
 #[ORM\Table(name: 'ns_mock')]
 #[ORM\Index(columns: ['foo_datetime'])]
 #[ORM\Index(columns: ['fooIndexed'])]
+#[ORM\Index(columns: ['countryIndexed'])]
 #[ORM\Index(columns: ['boolIndexed'])]
 #[ORM\Index(columns: ['foo_decimal_excluded'])]
 #[ORM\Index(columns: ['layout'])]
@@ -46,9 +47,6 @@ class NSMock extends NodesSources
     #[ApiFilter(Filter\DateFilter::class)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'foo_datetime', type: 'datetime', nullable: true)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default', 'foo_datetime'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\Type('DateTime')]
     private ?\DateTime $fooDatetime = null;
 
     /**
@@ -61,9 +59,6 @@ class NSMock extends NodesSources
     #[Serializer\MaxDepth(1)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'foo', type: 'string', nullable: true, length: 250)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\Type('string')]
     private ?string $foo = null;
 
     /**
@@ -82,8 +77,6 @@ class NSMock extends NodesSources
     #[Serializer\MaxDepth(2)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'fooMultiple', type: 'json', nullable: true)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
     private ?array $fooMultiple = null;
 
     /**
@@ -98,10 +91,34 @@ class NSMock extends NodesSources
     #[ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'fooIndexed', type: 'string', nullable: true, length: 250)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\Type('string')]
     private ?string $fooIndexed = null;
+
+    /**
+     * Country indexed field.
+     * Country field with indexed values.
+     */
+    #[Serializer\SerializedName(serializedName: 'countryIndexed')]
+    #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[ApiProperty(description: 'Country indexed field: Country field with indexed values')]
+    #[Serializer\MaxDepth(1)]
+    #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
+    #[ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class)]
+    #[Gedmo\Versioned]
+    #[ORM\Column(name: 'countryIndexed', type: 'string', nullable: true, length: 5)]
+    private ?string $countryIndexed = null;
+
+    /**
+     * Foo required field.
+     * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     */
+    #[Serializer\SerializedName(serializedName: 'fooRequired')]
+    #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[ApiProperty(description: 'Foo required field: Maecenas sed diam eget risus varius blandit sit amet non magna')]
+    #[Serializer\MaxDepth(1)]
+    #[Assert\NotBlank]
+    #[Gedmo\Versioned]
+    #[ORM\Column(name: 'fooRequired', type: 'string', nullable: true, length: 250)]
+    private ?string $fooRequired = null;
 
     /**
      * Bool indexed field.
@@ -115,10 +132,17 @@ class NSMock extends NodesSources
     #[ApiFilter(Filter\BooleanFilter::class)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'boolIndexed', type: 'boolean', nullable: false, options: ['default' => false])]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\Type('bool')]
     private bool $boolIndexed = false;
+
+    /** Bool required field. */
+    #[Serializer\SerializedName(serializedName: 'boolRequired')]
+    #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[ApiProperty(description: 'Bool required field')]
+    #[Serializer\MaxDepth(2)]
+    #[Assert\IsTrue]
+    #[Gedmo\Versioned]
+    #[ORM\Column(name: 'boolRequired', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $boolRequired = false;
 
     /**
      * Foo markdown field.
@@ -147,9 +171,6 @@ class NSMock extends NodesSources
     #[Serializer\MaxDepth(1)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'foo_markdown', type: 'text', nullable: true)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\Type('string')]
     private ?string $fooMarkdown = null;
 
     /**
@@ -175,7 +196,6 @@ class NSMock extends NodesSources
      */
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'foo_markdown_excluded', type: 'text', nullable: true)]
-    #[JMS\Exclude]
     #[Serializer\Ignore]
     private ?string $fooMarkdownExcluded = null;
 
@@ -192,10 +212,6 @@ class NSMock extends NodesSources
     #[ApiFilter(Filter\RangeFilter::class)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'foo_decimal_excluded', type: 'decimal', nullable: true, precision: 18, scale: 3)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\Exclude(if: 'object.foo == \'test\'')]
-    #[JMS\Type('double')]
     private int|float|null $fooDecimalExcluded = null;
 
     /**
@@ -226,8 +242,6 @@ class NSMock extends NodesSources
     #[ORM\ManyToOne(targetEntity: \App\Entity\Base\Event::class)]
     #[ORM\JoinColumn(name: 'single_event_reference_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
     private ?\App\Entity\Base\Event $singleEventReference = null;
 
     /**
@@ -262,8 +276,6 @@ class NSMock extends NodesSources
     #[ORM\InverseJoinColumn(name: 'event_references_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(['sortingLastDateTime' => 'DESC'])]
     #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
     private Collection $eventReferences;
 
     /**
@@ -271,7 +283,6 @@ class NSMock extends NodesSources
      * Remontée d'événements manuelle.
      * @var \Doctrine\Common\Collections\Collection<int, \App\Entity\PositionedCity>
      */
-    #[JMS\Exclude]
     #[Serializer\Ignore]
     #[ORM\OneToMany(
         targetEntity: \App\Entity\PositionedCity::class,
@@ -281,6 +292,23 @@ class NSMock extends NodesSources
     )]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $eventReferencesProxiedProxy;
+
+    /**
+     * Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)
+     * Many to many required field.
+     * @var \Doctrine\Common\Collections\Collection<int, \App\Entity\PositionedCity>
+     */
+    #[Serializer\Ignore]
+    #[ORM\OneToMany(
+        targetEntity: \App\Entity\PositionedCity::class,
+        mappedBy: 'nodeSource',
+        orphanRemoval: true,
+        cascade: ['persist', 'remove'],
+    )]
+    #[Assert\Count(min: 1)]
+    #[Assert\NotNull]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $fooMtmRequiredProxy;
 
     /**
      * Remontée d'événements manuelle exclue.
@@ -310,16 +338,15 @@ class NSMock extends NodesSources
     #[ORM\InverseJoinColumn(name: 'event_references_excluded_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(['sortingLastDateTime' => 'DESC'])]
     #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    #[JMS\Exclude]
     #[Serializer\Ignore]
     private Collection $eventReferencesExcluded;
 
     /**
      * Bar documents field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * @var \mock\Entity\Document[]|null
      * (Virtual field, this var is a buffer)
      */
-    #[JMS\Exclude]
     #[Serializer\SerializedName(serializedName: 'bar')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_documents'])]
     #[ApiProperty(description: 'Bar documents field: Maecenas sed diam eget risus varius blandit sit amet non magna')]
@@ -332,7 +359,6 @@ class NSMock extends NodesSources
      *
      * @var \mock\Entity\CustomForm[]|null
      */
-    #[JMS\Exclude]
     #[Serializer\SerializedName(serializedName: 'theForms')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_custom_forms'])]
     #[ApiProperty(description: 'Custom forms field')]
@@ -349,7 +375,6 @@ class NSMock extends NodesSources
      * ForBar nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      */
-    #[JMS\Exclude]
     #[Serializer\SerializedName(serializedName: 'fooBar')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_nodes'])]
     #[ApiProperty(description: 'ForBar nodes field: Maecenas sed diam eget risus varius blandit sit amet non magna')]
@@ -365,7 +390,6 @@ class NSMock extends NodesSources
      * - Mock
      * - MockTwo
      */
-    #[JMS\Exclude]
     private ?array $fooBarHiddenSources = null;
 
     /**
@@ -375,7 +399,6 @@ class NSMock extends NodesSources
      * Default values:
      * - MockTwo
      */
-    #[JMS\Exclude]
     #[Serializer\SerializedName(serializedName: 'fooBarTyped')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_nodes'])]
     #[ApiProperty(description: 'ForBar nodes typed field')]
@@ -406,9 +429,6 @@ class NSMock extends NodesSources
     #[ApiFilter(\RZ\Roadiz\CoreBundle\Api\Filter\NotFilter::class)]
     #[Gedmo\Versioned]
     #[ORM\Column(name: 'layout', type: 'string', nullable: true, length: 21)]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\Type('string')]
     private ?string $layout = null;
 
     /**
@@ -424,8 +444,6 @@ class NSMock extends NodesSources
     #[ORM\ManyToOne(targetEntity: \MyCustomEntity::class)]
     #[ORM\JoinColumn(name: 'foo_many_to_one_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
     private ?\MyCustomEntity $fooManyToOne = null;
 
     /**
@@ -448,8 +466,6 @@ class NSMock extends NodesSources
     #[ORM\InverseJoinColumn(name: 'foo_many_to_many_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(['name' => 'asc'])]
     #[ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
     private Collection $fooManyToMany;
 
     /**
@@ -457,7 +473,6 @@ class NSMock extends NodesSources
      * For many_to_many proxied field.
      * @var \Doctrine\Common\Collections\Collection<int, \Themes\MyTheme\Entities\PositionedCity>
      */
-    #[JMS\Exclude]
     #[Serializer\Ignore]
     #[ORM\OneToMany(
         targetEntity: \Themes\MyTheme\Entities\PositionedCity::class,
@@ -541,6 +556,44 @@ class NSMock extends NodesSources
     }
 
     /**
+     * @return string|null
+     */
+    public function getCountryIndexed(): ?string
+    {
+        return $this->countryIndexed;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCountryIndexed(?string $countryIndexed): static
+    {
+        $this->countryIndexed = null !== $countryIndexed ?
+                    (string) $countryIndexed :
+                    null;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFooRequired(): ?string
+    {
+        return $this->fooRequired;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setFooRequired(?string $fooRequired): static
+    {
+        $this->fooRequired = null !== $fooRequired ?
+                    (string) $fooRequired :
+                    null;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function getBoolIndexed(): bool
@@ -554,6 +607,23 @@ class NSMock extends NodesSources
     public function setBoolIndexed(bool $boolIndexed): static
     {
         $this->boolIndexed = $boolIndexed;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBoolRequired(): bool
+    {
+        return $this->boolRequired;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setBoolRequired(bool $boolRequired): static
+    {
+        $this->boolRequired = $boolRequired;
         return $this;
     }
 
@@ -656,18 +726,12 @@ class NSMock extends NodesSources
         return $this->eventReferencesProxiedProxy;
     }
 
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('eventReferencesProxied')]
     #[Serializer\SerializedName(serializedName: 'eventReferencesProxied')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
     #[Serializer\MaxDepth(2)]
     public function getEventReferencesProxied(): array
     {
-        return $this->eventReferencesProxiedProxy->map(function (\App\Entity\PositionedCity $proxyEntity) {
-            return $proxyEntity->getCity();
-        })->getValues();
+        return $this->eventReferencesProxiedProxy->map(fn(\App\Entity\PositionedCity $proxyEntity) => $proxyEntity->getCity())->getValues();
     }
 
     /**
@@ -706,6 +770,57 @@ class NSMock extends NodesSources
     }
 
     /**
+     * @return Collection<int, \App\Entity\PositionedCity>
+     */
+    public function getFooMtmRequiredProxy(): Collection
+    {
+        return $this->fooMtmRequiredProxy;
+    }
+
+    #[Serializer\SerializedName(serializedName: 'fooMtmRequired')]
+    #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[Serializer\MaxDepth(2)]
+    public function getFooMtmRequired(): array
+    {
+        return $this->fooMtmRequiredProxy->map(fn(\App\Entity\PositionedCity $proxyEntity) => $proxyEntity->getCity())->getValues();
+    }
+
+    /**
+     * @param \Doctrine\Common\Collections\Collection<int, \App\Entity\PositionedCity> $fooMtmRequiredProxy
+     * @return $this
+     */
+    public function setFooMtmRequiredProxy(Collection $fooMtmRequiredProxy): static
+    {
+        $this->fooMtmRequiredProxy = $fooMtmRequiredProxy;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setFooMtmRequired(Collection|array|null $fooMtmRequired): static
+    {
+        foreach ($this->getFooMtmRequiredProxy() as $item) {
+            $item->setNodeSource(null);
+        }
+        $this->fooMtmRequiredProxy->clear();
+        if (null !== $fooMtmRequired) {
+            $position = 0;
+            foreach ($fooMtmRequired as $singleFooMtmRequired) {
+                $proxyEntity = new \App\Entity\PositionedCity();
+                $proxyEntity->setNodeSource($this);
+                if ($proxyEntity instanceof \RZ\Roadiz\Core\AbstractEntities\PositionedInterface) {
+                    $proxyEntity->setPosition(++$position);
+                }
+                $proxyEntity->setCity($singleFooMtmRequired);
+                $this->fooMtmRequiredProxy->add($proxyEntity);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, \App\Entity\Base\Event>
      */
     public function getEventReferencesExcluded(): Collection
@@ -730,11 +845,6 @@ class NSMock extends NodesSources
     /**
      * @return \mock\Entity\Document[]
      */
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_documents'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('bar')]
-    #[JMS\Type('array<mock\Entity\Document>')]
     public function getBar(): array
     {
         if (null === $this->bar) {
@@ -776,10 +886,6 @@ class NSMock extends NodesSources
     /**
      * @return \mock\Entity\CustomForm[] CustomForm array
      */
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_custom_forms'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('theForms')]
     public function getTheForms(): array
     {
         if (null === $this->theForms) {
@@ -818,11 +924,6 @@ class NSMock extends NodesSources
     /**
      * @return \mock\Entity\NodesSources[]
      */
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_nodes'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('fooBar')]
-    #[JMS\Type('array<mock\Entity\NodesSources>')]
     public function getFooBarSources(): array
     {
         if (null === $this->fooBarSources) {
@@ -854,11 +955,7 @@ class NSMock extends NodesSources
     /**
      * @return \mock\Entity\NodesSources[]
      */
-    #[JMS\Exclude]
     #[Serializer\Ignore]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('fooBarHidden')]
-    #[JMS\Type('array<mock\Entity\NodesSources>')]
     public function getFooBarHiddenSources(): array
     {
         if (null === $this->fooBarHiddenSources) {
@@ -890,11 +987,6 @@ class NSMock extends NodesSources
     /**
      * @return \tests\mocks\GeneratedNodesSources\NSMockTwo[]
      */
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default', 'nodes_sources_nodes'])]
-    #[JMS\MaxDepth(2)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('fooBarTyped')]
-    #[JMS\Type('array<mock\Entity\NodesSources>')]
     public function getFooBarTypedSources(): array
     {
         if (null === $this->fooBarTypedSources) {
@@ -986,18 +1078,12 @@ class NSMock extends NodesSources
         return $this->fooManyToManyProxiedProxy;
     }
 
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\MaxDepth(1)]
-    #[JMS\VirtualProperty]
-    #[JMS\SerializedName('fooManyToManyProxied')]
     #[Serializer\SerializedName(serializedName: 'fooManyToManyProxied')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
     #[Serializer\MaxDepth(1)]
     public function getFooManyToManyProxied(): array
     {
-        return $this->fooManyToManyProxiedProxy->map(function (\Themes\MyTheme\Entities\PositionedCity $proxyEntity) {
-            return $proxyEntity->getCity();
-        })->getValues();
+        return $this->fooManyToManyProxiedProxy->map(fn(\Themes\MyTheme\Entities\PositionedCity $proxyEntity) => $proxyEntity->getCity())->getValues();
     }
 
     /**
@@ -1040,11 +1126,13 @@ class NSMock extends NodesSources
         parent::__construct($node, $translation);
         $this->eventReferences = new \Doctrine\Common\Collections\ArrayCollection();
         $this->eventReferencesProxiedProxy = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->fooMtmRequiredProxy = new \Doctrine\Common\Collections\ArrayCollection();
         $this->eventReferencesExcluded = new \Doctrine\Common\Collections\ArrayCollection();
         $this->fooManyToMany = new \Doctrine\Common\Collections\ArrayCollection();
         $this->fooManyToManyProxiedProxy = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    #[\Override]
     public function __clone(): void
     {
         parent::__clone();
@@ -1057,6 +1145,14 @@ class NSMock extends NodesSources
         }
         $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxyClone;
 
+        $fooMtmRequiredProxyClone = new \Doctrine\Common\Collections\ArrayCollection();
+        foreach ($this->fooMtmRequiredProxy as $item) {
+            $itemClone = clone $item;
+            $itemClone->setNodeSource($this);
+            $fooMtmRequiredProxyClone->add($itemClone);
+        }
+        $this->fooMtmRequiredProxy = $fooMtmRequiredProxyClone;
+
         $fooManyToManyProxiedProxyClone = new \Doctrine\Common\Collections\ArrayCollection();
         foreach ($this->fooManyToManyProxiedProxy as $item) {
             $itemClone = clone $item;
@@ -1066,21 +1162,17 @@ class NSMock extends NodesSources
         $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxyClone;
     }
 
-    #[JMS\VirtualProperty]
-    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
-    #[JMS\SerializedName('@type')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
     #[Serializer\SerializedName(serializedName: '@type')]
+    #[\Override]
     public function getNodeTypeName(): string
     {
         return 'Mock';
     }
 
-    #[JMS\VirtualProperty]
-    #[JMS\Groups(['node_type'])]
-    #[JMS\SerializedName('nodeTypeColor')]
     #[Serializer\Groups(['node_type'])]
     #[Serializer\SerializedName(serializedName: 'nodeTypeColor')]
+    #[\Override]
     public function getNodeTypeColor(): string
     {
         return '';
@@ -1090,7 +1182,7 @@ class NSMock extends NodesSources
      * $this->nodeType->isReachable() proxy.
      * @return bool Does this nodeSource is reachable over network?
      */
-    #[JMS\VirtualProperty]
+    #[\Override]
     public function isReachable(): bool
     {
         return true;
@@ -1100,12 +1192,13 @@ class NSMock extends NodesSources
      * $this->nodeType->isPublishable() proxy.
      * @return bool Does this nodeSource is publishable with date and time?
      */
-    #[JMS\VirtualProperty]
+    #[\Override]
     public function isPublishable(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return '[NSMock] ' . parent::__toString();
