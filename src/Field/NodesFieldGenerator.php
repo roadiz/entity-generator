@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace RZ\Roadiz\EntityGenerator\Field;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
+use Nette\PhpGenerator\Property;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
 use Symfony\Component\String\UnicodeString;
@@ -21,14 +23,28 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
         parent::__construct($field, $defaultValuesResolver, $options);
     }
 
-    #[\Override]
     public function addField(ClassType $classType, PhpNamespace $namespace): void
     {
         $this->addFieldGetter($classType, $namespace);
         $this->addFieldSetter($classType);
     }
 
-    #[\Override]
+    protected function addSerializationAttributes(Property|Method $property): self
+    {
+        parent::addSerializationAttributes($property);
+        $property->addAttribute('JMS\Serializer\Annotation\VirtualProperty');
+        $property->addAttribute('JMS\Serializer\Annotation\SerializedName', [
+            $this->field->getVarName(),
+        ]);
+        $property->addAttribute('JMS\Serializer\Annotation\Type', [
+            'array<'.
+            (new UnicodeString($this->options['parent_class']))->trimStart('\\')->toString().
+            '>',
+        ]);
+
+        return $this;
+    }
+
     protected function getDefaultSerializationGroups(): array
     {
         $groups = parent::getDefaultSerializationGroups();
@@ -57,7 +73,7 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
     {
         $defaultValuesParsed = $this->field->getDefaultValuesAsArray();
         if (count($defaultValuesParsed) > 0 && true === $this->hasOnlyOneNodeType()) {
-            $nodeTypeName = trim((string) array_values($defaultValuesParsed)[0]);
+            $nodeTypeName = trim(array_values($defaultValuesParsed)[0]);
 
             $nodeType = $this->nodeTypeResolver->get($nodeTypeName);
             if (null !== $nodeType) {
@@ -72,7 +88,6 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
         return $this->options['parent_class'];
     }
 
-    #[\Override]
     public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $property = $classType->addProperty($this->getFieldSourcesName())
@@ -103,7 +118,7 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
         }
 
         $this->addFieldAutodoc($property);
-        $this->addFieldAttributes($property, $namespace);
+        $this->addFieldAttributes($property, $namespace, $this->isExcludingFieldFromJmsSerialization());
 
         $getter = $classType->addMethod($this->field->getGetterName().'Sources')
             ->setReturnType('array')
@@ -131,7 +146,6 @@ PHP
         return $this;
     }
 
-    #[\Override]
     public function addFieldSetter(ClassType $classType): self
     {
         $setter = $classType->addMethod($this->field->getSetterName().'Sources')

@@ -11,34 +11,28 @@ use Nette\PhpGenerator\Property;
 
 final class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    #[\Override]
     protected function addFieldAttributes(Property $property, PhpNamespace $namespace, bool $exclude = false): self
     {
         parent::addFieldAttributes($property, $namespace, $exclude);
 
         /*
          * Many Users have One Address.
-         * #[ORM\ManyToOne(targetEntity="Address", inversedBy="users")]
-         * #[ORM\JoinColumn(name="address_id", referencedColumnName="id", onDelete="SET NULL")]
+         * @\Doctrine\ORM\Mapping\ManyToOne(targetEntity="Address")
+         * @\Doctrine\ORM\Mapping\JoinColumn(name="address_id", referencedColumnName="id", onDelete="SET NULL")
          */
         $ormParams = [
             'name' => $this->field->getName().'_id',
             'referencedColumnName' => 'id',
             'onDelete' => 'SET NULL',
         ];
-        $attributeOptions = [
+        $property->addAttribute('Doctrine\ORM\Mapping\ManyToOne', [
             'targetEntity' => new Literal($this->getFullyQualifiedClassName().'::class'),
-        ];
-        $inversedBy = $this->configuration['inversedBy'] ?? $this->configuration['inversed_by'] ?? null;
-        if (is_string($inversedBy) && '' !== $inversedBy) {
-            $attributeOptions['inversedBy'] = $inversedBy;
-        }
-        $property->addAttribute(\Doctrine\ORM\Mapping\ManyToOne::class, $attributeOptions);
-        $property->addAttribute(\Doctrine\ORM\Mapping\JoinColumn::class, $ormParams);
+        ]);
+        $property->addAttribute('Doctrine\ORM\Mapping\JoinColumn', $ormParams);
 
         if (true === $this->options['use_api_platform_filters']) {
-            $property->addAttribute(\ApiPlatform\Metadata\ApiFilter::class, [
-                0 => new Literal($namespace->simplifyName(\ApiPlatform\Doctrine\Orm\Filter\SearchFilter::class).'::class'),
+            $property->addAttribute('ApiPlatform\Metadata\ApiFilter', [
+                0 => new Literal($namespace->simplifyName('\ApiPlatform\Doctrine\Orm\Filter\SearchFilter').'::class'),
                 'strategy' => 'exact',
             ]);
         }
@@ -48,7 +42,11 @@ final class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
 
-    #[\Override]
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
+    }
+
     public function addFieldAnnotation(Property $property): self
     {
         $this->addFieldAutodoc($property);
@@ -56,19 +54,16 @@ final class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
 
-    #[\Override]
     protected function getFieldTypeDeclaration(): string
     {
         return '?'.$this->getFullyQualifiedClassName();
     }
 
-    #[\Override]
     protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
         return new Literal('null');
     }
 
-    #[\Override]
     public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $classType->addMethod($this->field->getGetterName())
@@ -82,7 +77,6 @@ PHP
         return $this;
     }
 
-    #[\Override]
     public function addFieldSetter(ClassType $classType): self
     {
         $setter = $classType->addMethod($this->field->getSetterName())
