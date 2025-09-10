@@ -7,6 +7,7 @@ namespace RZ\Roadiz\EntityGenerator\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
+use Symfony\Component\Yaml\Yaml;
 
 trait NodeTypeAwareTestTrait
 {
@@ -38,6 +39,21 @@ trait NodeTypeAwareTestTrait
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(false),
                     (new SimpleNodeTypeField())
+                        ->setName('fooMultiple')
+                        ->setTypeName('multiple')
+                        ->setDoctrineType('json')
+                        ->setVirtual(false)
+                        ->setLabel('Foo Multiple field')
+                        ->setDefaultValues(<<<EOT
+- maecenas
+- eget
+- risus
+- varius
+- blandit
+- magna
+EOT)
+                        ->setIndexed(false),
+                    (new SimpleNodeTypeField())
                         ->setName('fooIndexed')
                         ->setTypeName('string')
                         ->setVirtual(false)
@@ -45,6 +61,23 @@ trait NodeTypeAwareTestTrait
                         ->setLabel('Foo indexed field')
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(true),
+                    (new SimpleNodeTypeField())
+                        ->setName('countryIndexed')
+                        ->setTypeName('country')
+                        ->setVirtual(false)
+                        ->setSerializationMaxDepth(1)
+                        ->setLabel('Country indexed field')
+                        ->setDescription('Country field with indexed values')
+                        ->setIndexed(true),
+                    (new SimpleNodeTypeField())
+                        ->setName('fooRequired')
+                        ->setTypeName('string')
+                        ->setVirtual(false)
+                        ->setSerializationMaxDepth(1)
+                        ->setLabel('Foo required field')
+                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
+                        ->setIndexed(false)
+                        ->setRequired(true),
                     (new SimpleNodeTypeField())
                         ->setName('boolIndexed')
                         ->setTypeName('bool')
@@ -54,6 +87,14 @@ trait NodeTypeAwareTestTrait
                         ->setLabel('Bool indexed field')
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(true),
+                    (new SimpleNodeTypeField())
+                        ->setName('boolRequired')
+                        ->setTypeName('bool')
+                        ->setDoctrineType('boolean')
+                        ->setVirtual(false)
+                        ->setLabel('Bool required field')
+                        ->setIndexed(false)
+                        ->setRequired(true),
                     (new SimpleNodeTypeField())
                         ->setName('foo_markdown')
                         ->setTypeName('markdown')
@@ -108,6 +149,14 @@ trait NodeTypeAwareTestTrait
                         ->setDefaultValues("# Entity class name\r\nclassname: \\App\\Entity\\Base\\Event\r\n# Displayable is the method used to display entity name\r\ndisplayable: getName\r\n# Same as Displayable but for a secondary information\r\nalt_displayable: getSortingFirstDateTime\r\n# Same as Displayable but for a secondary information\r\nthumbnail: getMainDocument\r\n# Searchable entity fields\r\nsearchable:\r\n    - name\r\n    - slug\r\n# This order will only be used for explorer\r\norderBy:\r\n    - field: sortingLastDateTime\r\n      direction: DESC\r\n# Use a proxy entity\r\nproxy:\r\n    classname: \\App\\Entity\\PositionedCity\r\n    self: nodeSource\r\n    relation: city\r\n    # This order will preserve position\r\n    orderBy:\r\n        - field: position\r\n          direction: ASC")
                         ->setIndexed(false),
                     (new SimpleNodeTypeField())
+                        ->setName('foo_mtm_required')
+                        ->setTypeName('many_to_many')
+                        ->setVirtual(false)
+                        ->setLabel('Many to many required field')
+                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
+                        ->setDefaultValues("# Entity class name\r\nclassname: \\App\\Entity\\Base\\Event\r\n# Displayable is the method used to display entity name\r\ndisplayable: getName\r\n# Same as Displayable but for a secondary information\r\nalt_displayable: getSortingFirstDateTime\r\n# Same as Displayable but for a secondary information\r\nthumbnail: getMainDocument\r\n# Searchable entity fields\r\nsearchable:\r\n    - name\r\n    - slug\r\n# This order will only be used for explorer\r\norderBy:\r\n    - field: sortingLastDateTime\r\n      direction: DESC\r\n# Use a proxy entity\r\nproxy:\r\n    classname: \\App\\Entity\\PositionedCity\r\n    self: nodeSource\r\n    relation: city\r\n    # This order will preserve position\r\n    orderBy:\r\n        - field: position\r\n          direction: ASC")
+                        ->setRequired(true),
+                    (new SimpleNodeTypeField())
                         ->setName('event_references_excluded')
                         ->setTypeName('many_to_many')
                         ->setVirtual(false)
@@ -144,6 +193,10 @@ trait NodeTypeAwareTestTrait
                         ->setExcludedFromSerialization(true)
                         ->setLabel('ForBar hidden nodes field')
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
+                        ->setDefaultValues(Yaml::dump([
+                            'Mock',
+                            'MockTwo',
+                        ]))
                         ->setIndexed(false),
                     (new SimpleNodeTypeField())
                         ->setName('foo_bar_typed')
@@ -151,13 +204,13 @@ trait NodeTypeAwareTestTrait
                         ->setVirtual(true)
                         ->setLabel('ForBar nodes typed field')
                         ->setIndexed(false)
-                        ->setDefaultValues('MockTwo'),
+                        ->setDefaultValues(Yaml::dump(['MockTwo'])),
                     (new SimpleNodeTypeField())
                         ->setName('layout')
                         ->setTypeName('enum')
                         ->setLabel('ForBar layout enum')
                         ->setIndexed(true)
-                        ->setDefaultValues('layout_odd, layout_odd_big_title, layout_even, layout_even_big_title, layout_media_grid'),
+                        ->setDefaultValues(Yaml::dump(['layout_odd', 'layout_odd_big_title', 'layout_even', 'layout_even_big_title', 'layout_media_grid'])),
                     (new SimpleNodeTypeField())
                         ->setName('foo_many_to_one')
                         ->setTypeName('many_to_one')
@@ -203,6 +256,43 @@ proxy:
         - field: position
           direction: ASC
 EOT)
+                        ->setIndexed(false),
+                ])
+            );
+
+        $mockNodeType
+            ->method('getSourceEntityTableName')
+            ->willReturn('ns_mock');
+        $mockNodeType
+            ->method('getSourceEntityClassName')
+            ->willReturn('NSMock');
+        $mockNodeType
+            ->method('getName')
+            ->willReturn('Mock');
+        $mockNodeType
+            ->method('isReachable')
+            ->willReturn(true);
+        $mockNodeType
+            ->method('isPublishable')
+            ->willReturn(true);
+
+        return $mockNodeType;
+    }
+
+    protected function getMockDocumentNodeType(): NodeTypeInterface
+    {
+        $mockNodeType = $this->createStub(NodeTypeInterface::class);
+        $mockNodeType
+            ->method('getFields')
+            ->willReturn(
+                new ArrayCollection([
+                    (new SimpleNodeTypeField())
+                        ->setName('bar')
+                        ->setTypeName('documents')
+                        ->setSerializationMaxDepth(1)
+                        ->setVirtual(true)
+                        ->setLabel('Bar documents field')
+                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(false),
                 ])
             );
