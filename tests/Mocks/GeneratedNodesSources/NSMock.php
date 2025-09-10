@@ -67,6 +67,26 @@ class NSMock extends NodesSources
     private ?string $foo = null;
 
     /**
+     * Foo Multiple field.
+     * Default values:
+     * - maecenas
+     * - eget
+     * - risus
+     * - varius
+     * - blandit
+     * - magna
+     */
+    #[Serializer\SerializedName(serializedName: 'fooMultiple')]
+    #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[ApiProperty(description: 'Foo Multiple field')]
+    #[Serializer\MaxDepth(2)]
+    #[Gedmo\Versioned]
+    #[ORM\Column(name: 'fooMultiple', type: 'json', nullable: true)]
+    #[JMS\Groups(['nodes_sources', 'nodes_sources_default'])]
+    #[JMS\MaxDepth(2)]
+    private ?array $fooMultiple = null;
+
+    /**
      * Foo indexed field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
      */
@@ -341,6 +361,9 @@ class NSMock extends NodesSources
      * @var \mock\Entity\NodesSources[]|null
      * ForBar hidden nodes field.
      * Maecenas sed diam eget risus varius blandit sit amet non magna.
+     * Default values:
+     * - Mock
+     * - MockTwo
      */
     #[JMS\Exclude]
     private ?array $fooBarHiddenSources = null;
@@ -350,7 +373,7 @@ class NSMock extends NodesSources
      * @var \tests\mocks\GeneratedNodesSources\NSMockTwo[]|null
      * ForBar nodes typed field.
      * Default values:
-     * MockTwo
+     * - MockTwo
      */
     #[JMS\Exclude]
     #[Serializer\SerializedName(serializedName: 'fooBarTyped')]
@@ -362,7 +385,11 @@ class NSMock extends NodesSources
     /**
      * ForBar layout enum.
      * Default values:
-     * layout_odd, layout_odd_big_title, layout_even, layout_even_big_title, layout_media_grid
+     * - layout_odd
+     * - layout_odd_big_title
+     * - layout_even
+     * - layout_even_big_title
+     * - layout_media_grid
      */
     #[Serializer\SerializedName(serializedName: 'layout')]
     #[Serializer\Groups(['nodes_sources', 'nodes_sources_default'])]
@@ -474,6 +501,23 @@ class NSMock extends NodesSources
         $this->foo = null !== $foo ?
                     (string) $foo :
                     null;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFooMultiple(): ?array
+    {
+        return null !== $this->fooMultiple ? array_values($this->fooMultiple) : null;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setFooMultiple(?array $fooMultiple): static
+    {
+        $this->fooMultiple = (null !== $fooMultiple) ? array_values($fooMultiple) : null;
         return $this;
     }
 
@@ -655,7 +699,6 @@ class NSMock extends NodesSources
                 }
                 $proxyEntity->setCity($singleEventReferencesProxied);
                 $this->eventReferencesProxiedProxy->add($proxyEntity);
-                $this->objectManager->persist($proxyEntity);
             }
         }
 
@@ -788,7 +831,8 @@ class NSMock extends NodesSources
                     ->getRepository(\mock\Entity\NodesSources::class)
                     ->findByNodesSourcesAndFieldNameAndTranslation(
                         $this,
-                        'foo_bar'
+                        'foo_bar',
+                        []
                     );
             } else {
                 $this->fooBarSources = [];
@@ -823,7 +867,8 @@ class NSMock extends NodesSources
                     ->getRepository(\mock\Entity\NodesSources::class)
                     ->findByNodesSourcesAndFieldNameAndTranslation(
                         $this,
-                        'foo_bar_hidden'
+                        'foo_bar_hidden',
+                        [\tests\mocks\GeneratedNodesSources\NSMock::class, \tests\mocks\GeneratedNodesSources\NSMockTwo::class]
                     );
             } else {
                 $this->fooBarHiddenSources = [];
@@ -858,7 +903,8 @@ class NSMock extends NodesSources
                     ->getRepository(\tests\mocks\GeneratedNodesSources\NSMockTwo::class)
                     ->findByNodesSourcesAndFieldNameAndTranslation(
                         $this,
-                        'foo_bar_typed'
+                        'foo_bar_typed',
+                        []
                     );
             } else {
                 $this->fooBarTypedSources = [];
@@ -983,7 +1029,6 @@ class NSMock extends NodesSources
                 }
                 $proxyEntity->setCity($singleFooManyToManyProxied);
                 $this->fooManyToManyProxiedProxy->add($proxyEntity);
-                $this->objectManager->persist($proxyEntity);
             }
         }
 
@@ -1009,7 +1054,6 @@ class NSMock extends NodesSources
             $itemClone = clone $item;
             $itemClone->setNodeSource($this);
             $eventReferencesProxiedProxyClone->add($itemClone);
-            $this->objectManager->persist($itemClone);
         }
         $this->eventReferencesProxiedProxy = $eventReferencesProxiedProxyClone;
 
@@ -1018,7 +1062,6 @@ class NSMock extends NodesSources
             $itemClone = clone $item;
             $itemClone->setNodeSource($this);
             $fooManyToManyProxiedProxyClone->add($itemClone);
-            $this->objectManager->persist($itemClone);
         }
         $this->fooManyToManyProxiedProxy = $fooManyToManyProxiedProxyClone;
     }
@@ -1031,6 +1074,16 @@ class NSMock extends NodesSources
     public function getNodeTypeName(): string
     {
         return 'Mock';
+    }
+
+    #[JMS\VirtualProperty]
+    #[JMS\Groups(['node_type'])]
+    #[JMS\SerializedName('nodeTypeColor')]
+    #[Serializer\Groups(['node_type'])]
+    #[Serializer\SerializedName(serializedName: 'nodeTypeColor')]
+    public function getNodeTypeColor(): string
+    {
+        return '';
     }
 
     /**
