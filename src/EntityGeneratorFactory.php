@@ -37,7 +37,7 @@ final readonly class EntityGeneratorFactory
     {
         $options = [
             'entity_namespace' => $this->options['namespace'],
-            'parent_class' => \RZ\Roadiz\CoreBundle\Repository\NodesSourcesRepository::class,
+            'parent_class' => 'RZ\Roadiz\CoreBundle\Repository\NodesSourcesRepository',
         ];
         $options['namespace'] = $this->options['namespace'].'\\Repository';
         $options['class_name'] = $nodeType->getSourceEntityClassName().'Repository';
