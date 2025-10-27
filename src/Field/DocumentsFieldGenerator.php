@@ -4,103 +4,117 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
-use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
-use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
-use Symfony\Component\String\UnicodeString;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Literal;
+use Nette\PhpGenerator\PhpNamespace;
+use Nette\PhpGenerator\Property;
 
-class DocumentsFieldGenerator extends AbstractFieldGenerator
+final class DocumentsFieldGenerator extends AbstractFieldGenerator
 {
-    protected function getSerializationAttributes(): array
+    #[\Override]
+    protected function addFieldAutodoc(Property $property): AbstractFieldGenerator
     {
-        $annotations = parent::getSerializationAttributes();
-        $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
-        $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
-            AttributeGenerator::wrapString($this->field->getVarName())
-        ]);
-        $annotations[] = new AttributeGenerator('Serializer\Type', [
-            AttributeGenerator::wrapString(
-                'array<' .
-                (new UnicodeString($this->options['document_class']))->trimStart('\\')->toString() .
-                '>'
-            )
-        ]);
+        parent::addFieldAutodoc($property);
 
-        return $annotations;
+        if (true === $this->options['use_document_dto']) {
+            $property->addComment('@var \RZ\Roadiz\CoreBundle\Model\DocumentDto[]|null');
+        } else {
+            $property->addComment('@var '.$this->options['document_class'].'[]|null');
+        }
+
+        return $this;
     }
 
+    #[\Override]
     protected function getDefaultSerializationGroups(): array
     {
         $groups = parent::getDefaultSerializationGroups();
         $groups[] = 'nodes_sources_documents';
+
         return $groups;
     }
 
+    #[\Override]
     protected function getFieldTypeDeclaration(): string
     {
         return '?array';
     }
 
-    protected function getFieldDefaultValueDeclaration(): string
+    #[\Override]
+    protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
-        return 'null';
+        return new Literal('null');
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldGetter(): string
+    #[\Override]
+    public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
-        return '
-    /**
-     * @return ' . $this->options['document_class'] . '[] Documents array
-     */
-' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
-    public function ' . $this->field->getGetterName() . '(): array
-    {
-        if (null === $this->' . $this->field->getVarName() . ') {
-            if (null !== $this->objectManager) {
-                $this->' . $this->field->getVarName() . ' = $this->objectManager
-                    ->getRepository(' . $this->options['document_class'] . '::class)
-                    ->findByNodeSourceAndFieldName(
-                        $this,
-                        \'' . $this->field->getName() . '\'
-                    );
-            } else {
-                $this->' . $this->field->getVarName() . ' = [];
-            }
+        $getter = $classType->addMethod($this->field->getGetterName())
+            ->setReturnType('array');
+        if (true === $this->options['use_document_dto']) {
+            $getter->addComment('@return \RZ\Roadiz\CoreBundle\Model\DocumentDto[]');
+            $method = 'findDocumentDtoByNodeSourceAndFieldName';
+        } else {
+            $getter->addComment('@return '.$this->options['document_class'].'[]');
+            $method = 'findByNodeSourceAndFieldName';
         }
-        return $this->' . $this->field->getVarName() . ';
-    }' . PHP_EOL;
-    }
-
-    /**
-     * Generate PHP setter method block.
-     *
-     * @return string
-     */
-    protected function getFieldSetter(): string
-    {
-        return '
-    /**
-     * @param ' . $this->options['document_class'] . ' $document
-     *
-     * @return $this
-     */
-    public function add' . ucfirst($this->field->getVarName()) . '(' . $this->options['document_class'] . ' $document): static
-    {
-        if (null !== $this->objectManager) {
-            $nodeSourceDocument = new ' . $this->options['document_proxy_class'] . '(
-                $this,
-                $document
+        $this->addSerializationAttributes($getter);
+        $getter->setBody(<<<EOF
+if (null === \$this->{$this->field->getVarName()}) {
+    if (null !== \$this->objectManager) {
+        \$this->{$this->field->getVarName()} = \$this->objectManager
+            ->getRepository({$namespace->simplifyName($this->options['document_class'])}::class)
+            ->{$method}(
+                \$this,
+                '{$this->field->getName()}'
             );
-            $nodeSourceDocument->setFieldName(\'' . $this->field->getName() . '\');
-            if (!$this->hasNodesSourcesDocuments($nodeSourceDocument)) {
-                $this->objectManager->persist($nodeSourceDocument);
-                $this->addDocumentsByFields($nodeSourceDocument);
-                $this->' . $this->field->getVarName() . ' = null;
-            }
-        }
+    } else {
+        \$this->{$this->field->getVarName()} = [];
+    }
+}
+return \$this->{$this->field->getVarName()};
+EOF
+        );
+
         return $this;
-    }' . PHP_EOL;
+    }
+
+    #[\Override]
+    protected function addFieldSetter(ClassType $classType): self
+    {
+        $setter = $classType->addMethod('add'.ucfirst($this->field->getVarName()))
+            ->setReturnType('static')
+            ->addComment('@return $this')
+            ->setPublic();
+
+        $setter->addParameter('document')
+            ->setType($this->options['document_class']);
+        $setter->setBody(<<<PHP
+if (null === \$this->objectManager) {
+    return \$this;
+}
+\$nodeSourceDocument = new {$this->options['document_proxy_class']}(
+    \$this,
+    \$document
+);
+\$nodeSourceDocument->setFieldName('{$this->field->getName()}');
+if (!\$this->hasNodesSourcesDocuments(\$nodeSourceDocument)) {
+    \$this->objectManager->persist(\$nodeSourceDocument);
+    \$this->addDocumentsByFields(\$nodeSourceDocument);
+    \$this->{$this->field->getVarName()} = null;
+}
+return \$this;
+PHP
+        );
+
+        return $this;
+    }
+
+    #[\Override]
+    protected function getApiPropertyOptions(): array
+    {
+        return [
+            'genId' => (true === $this->options['use_document_dto'] ? true : null),
+        ];
     }
 }
