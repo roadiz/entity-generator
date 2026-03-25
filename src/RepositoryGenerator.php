@@ -6,7 +6,6 @@ namespace RZ\Roadiz\EntityGenerator;
 
 use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\PsrPrinter;
-use RZ\Roadiz\Contracts\NodeType\NodeTypeClassLocatorInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\String\UnicodeString;
@@ -15,11 +14,8 @@ final class RepositoryGenerator implements RepositoryGeneratorInterface
 {
     private array $options;
 
-    public function __construct(
-        private readonly NodeTypeInterface $nodeType,
-        private readonly NodeTypeClassLocatorInterface $nodeTypeClassLocator,
-        array $options = [],
-    ) {
+    public function __construct(private readonly NodeTypeInterface $nodeType, array $options = [])
+    {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
 
@@ -34,7 +30,7 @@ final class RepositoryGenerator implements RepositoryGeneratorInterface
         $file->addComment('THIS IS A GENERATED FILE, DO NOT EDIT IT.');
         $file->addComment('IT WILL BE RECREATED AT EACH NODE-TYPE UPDATE.');
 
-        $fqcn = $this->options['entity_namespace'].'\\'.$this->nodeTypeClassLocator->getSourceEntityClassName($this->nodeType);
+        $fqcn = $this->options['entity_namespace'].'\\'.$this->nodeType->getSourceEntityClassName();
         $namespace = $file
             ->addNamespace(trim((string) $this->options['namespace'], '\\'))
             ->addUse(\Doctrine\Persistence\ManagerRegistry::class)
@@ -63,7 +59,7 @@ final class RepositoryGenerator implements RepositoryGeneratorInterface
             ->addComment('@method '.$simplifiedFqcn.'[]      findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)')
             ->addComment('@method '.$simplifiedFqcn.'|null   findOneByIdentifierAndTranslation(string $identifier, ?TranslationInterface $translation, bool $availableTranslation = false)')
             ->addComment('@method '.$simplifiedFqcn.'|null   findOneByNodeAndTranslation(Node $node, ?TranslationInterface $translation)')
-            ->addComment('@method '.$simplifiedFqcn.'[]      findByNodesSourcesAndFieldNameAndTranslation(NodesSources $nodesSources, string $fieldName, array $nodeSourceClasses = [])')
+            ->addComment('@method '.$simplifiedFqcn.'[]|null findByNodesSourcesAndFieldNameAndTranslation(NodesSources $nodesSources, string $fieldName, array $nodeSourceClasses = [])')
             ->addComment('@method int countBy(mixed $criteria)')
         ;
 
