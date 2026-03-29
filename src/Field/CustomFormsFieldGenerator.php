@@ -47,7 +47,7 @@ final class CustomFormsFieldGenerator extends AbstractFieldGenerator
     }
 
     #[\Override]
-    protected function getFieldDefaultValueDeclaration(): Literal
+    protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
         return new Literal('null');
     }

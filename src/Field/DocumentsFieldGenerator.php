@@ -41,7 +41,7 @@ final class DocumentsFieldGenerator extends AbstractFieldGenerator
     }
 
     #[\Override]
-    protected function getFieldDefaultValueDeclaration(): Literal
+    protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
         return new Literal('null');
     }

@@ -6,7 +6,6 @@ namespace RZ\Roadiz\EntityGenerator\Field;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use RZ\Roadiz\Contracts\NodeType\NodeTypeClassLocatorInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeFieldInterface;
 use RZ\Roadiz\Contracts\NodeType\NodeTypeResolverInterface;
 use Symfony\Component\String\UnicodeString;
@@ -15,7 +14,6 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
 {
     public function __construct(
         private readonly NodeTypeResolverInterface $nodeTypeResolver,
-        private readonly NodeTypeClassLocatorInterface $nodeTypeClassLocator,
         NodeTypeFieldInterface $field,
         DefaultValuesResolverInterface $defaultValuesResolver,
         array $options = [],
@@ -63,7 +61,7 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
 
             $nodeType = $this->nodeTypeResolver->get($nodeTypeName);
             if (null !== $nodeType) {
-                $className = $this->nodeTypeClassLocator->getSourceEntityFullQualifiedClassName($nodeType);
+                $className = $nodeType->getSourceEntityFullQualifiedClassName();
 
                 return (new UnicodeString($className))->startsWith('\\') ?
                     $className :
@@ -88,11 +86,11 @@ final class NodesFieldGenerator extends AbstractFieldGenerator
         if (!empty($this->field->getDefaultValues())) {
             $defaultValuesParsed = $this->field->getDefaultValuesAsArray();
             $nodeTypes = array_map(
-                $this->nodeTypeResolver->get(...),
+                fn ($nodeTypeName) => $this->nodeTypeResolver->get($nodeTypeName),
                 $defaultValuesParsed
             );
             $nodeSourceClasses = array_map(
-                fn ($nodeType) => '\\'.$this->nodeTypeClassLocator->getSourceEntityFullQualifiedClassName($nodeType).'::class',
+                fn ($nodeType) => '\\'.$nodeType->getSourceEntityFullQualifiedClassName().'::class',
                 array_filter($nodeTypes)
             );
         }
