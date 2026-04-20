@@ -62,23 +62,6 @@ EOT)
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(true),
                     (new SimpleNodeTypeField())
-                        ->setName('countryIndexed')
-                        ->setTypeName('country')
-                        ->setVirtual(false)
-                        ->setSerializationMaxDepth(1)
-                        ->setLabel('Country indexed field')
-                        ->setDescription('Country field with indexed values')
-                        ->setIndexed(true),
-                    (new SimpleNodeTypeField())
-                        ->setName('fooRequired')
-                        ->setTypeName('string')
-                        ->setVirtual(false)
-                        ->setSerializationMaxDepth(1)
-                        ->setLabel('Foo required field')
-                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
-                        ->setIndexed(false)
-                        ->setRequired(true),
-                    (new SimpleNodeTypeField())
                         ->setName('boolIndexed')
                         ->setTypeName('bool')
                         ->setDoctrineType('boolean')
@@ -87,30 +70,6 @@ EOT)
                         ->setLabel('Bool indexed field')
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setIndexed(true),
-                    (new SimpleNodeTypeField())
-                        ->setName('boolRequired')
-                        ->setTypeName('bool')
-                        ->setDoctrineType('boolean')
-                        ->setVirtual(false)
-                        ->setLabel('Bool required field')
-                        ->setIndexed(false)
-                        ->setRequired(true),
-                    (new SimpleNodeTypeField())
-                        ->setName('decimalOptional')
-                        ->setTypeName('decimal')
-                        ->setDoctrineType('decimal')
-                        ->setVirtual(false)
-                        ->setLabel('Decimal optional field')
-                        ->setIndexed(false)
-                        ->setRequired(false),
-                    (new SimpleNodeTypeField())
-                        ->setName('integerOptional')
-                        ->setTypeName('integer')
-                        ->setDoctrineType('integer')
-                        ->setVirtual(false)
-                        ->setLabel('Integer optional field')
-                        ->setIndexed(false)
-                        ->setRequired(false),
                     (new SimpleNodeTypeField())
                         ->setName('foo_markdown')
                         ->setTypeName('markdown')
@@ -164,14 +123,6 @@ EOT)
                         ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
                         ->setDefaultValues("# Entity class name\r\nclassname: \\App\\Entity\\Base\\Event\r\n# Displayable is the method used to display entity name\r\ndisplayable: getName\r\n# Same as Displayable but for a secondary information\r\nalt_displayable: getSortingFirstDateTime\r\n# Same as Displayable but for a secondary information\r\nthumbnail: getMainDocument\r\n# Searchable entity fields\r\nsearchable:\r\n    - name\r\n    - slug\r\n# This order will only be used for explorer\r\norderBy:\r\n    - field: sortingLastDateTime\r\n      direction: DESC\r\n# Use a proxy entity\r\nproxy:\r\n    classname: \\App\\Entity\\PositionedCity\r\n    self: nodeSource\r\n    relation: city\r\n    # This order will preserve position\r\n    orderBy:\r\n        - field: position\r\n          direction: ASC")
                         ->setIndexed(false),
-                    (new SimpleNodeTypeField())
-                        ->setName('foo_mtm_required')
-                        ->setTypeName('many_to_many')
-                        ->setVirtual(false)
-                        ->setLabel('Many to many required field')
-                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
-                        ->setDefaultValues("# Entity class name\r\nclassname: \\App\\Entity\\Base\\Event\r\n# Displayable is the method used to display entity name\r\ndisplayable: getName\r\n# Same as Displayable but for a secondary information\r\nalt_displayable: getSortingFirstDateTime\r\n# Same as Displayable but for a secondary information\r\nthumbnail: getMainDocument\r\n# Searchable entity fields\r\nsearchable:\r\n    - name\r\n    - slug\r\n# This order will only be used for explorer\r\norderBy:\r\n    - field: sortingLastDateTime\r\n      direction: DESC\r\n# Use a proxy entity\r\nproxy:\r\n    classname: \\App\\Entity\\PositionedCity\r\n    self: nodeSource\r\n    relation: city\r\n    # This order will preserve position\r\n    orderBy:\r\n        - field: position\r\n          direction: ASC")
-                        ->setRequired(true),
                     (new SimpleNodeTypeField())
                         ->setName('event_references_excluded')
                         ->setTypeName('many_to_many')
@@ -295,43 +246,6 @@ EOT)
         return $mockNodeType;
     }
 
-    protected function getMockDocumentNodeType(): NodeTypeInterface
-    {
-        $mockNodeType = $this->createStub(NodeTypeInterface::class);
-        $mockNodeType
-            ->method('getFields')
-            ->willReturn(
-                new ArrayCollection([
-                    (new SimpleNodeTypeField())
-                        ->setName('bar')
-                        ->setTypeName('documents')
-                        ->setSerializationMaxDepth(1)
-                        ->setVirtual(true)
-                        ->setLabel('Bar documents field')
-                        ->setDescription('Maecenas sed diam eget risus varius blandit sit amet non magna')
-                        ->setIndexed(false),
-                ])
-            );
-
-        $mockNodeType
-            ->method('getSourceEntityTableName')
-            ->willReturn('ns_mock');
-        $mockNodeType
-            ->method('getSourceEntityClassName')
-            ->willReturn('NSMock');
-        $mockNodeType
-            ->method('getName')
-            ->willReturn('Mock');
-        $mockNodeType
-            ->method('isReachable')
-            ->willReturn(true);
-        $mockNodeType
-            ->method('isPublishable')
-            ->willReturn(true);
-
-        return $mockNodeType;
-    }
-
     protected function getMockNodeTypeResolver(): NodeTypeResolverInterface
     {
         $mockNodeTypeResolver = $this->createStub(NodeTypeResolverInterface::class);
@@ -339,8 +253,8 @@ EOT)
             function (string $nodeTypeName): NodeTypeInterface {
                 $mockNodeType = $this->createStub(NodeTypeInterface::class);
                 $mockNodeType
-                    ->method('getName')
-                    ->willReturn($nodeTypeName)
+                    ->method('getSourceEntityFullQualifiedClassName')
+                    ->willReturn('tests\mocks\GeneratedNodesSources\NS'.$nodeTypeName)
                 ;
 
                 return $mockNodeType;
