@@ -63,7 +63,7 @@ final class ManyToOneFieldGenerator extends AbstractConfigurableFieldGenerator
     }
 
     #[\Override]
-    protected function getFieldDefaultValueDeclaration(): Literal
+    protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
         return new Literal('null');
     }
