@@ -6,7 +6,6 @@ namespace RZ\Roadiz\EntityGenerator\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RZ\Roadiz\EntityGenerator\EntityGeneratorFactory;
-use Symfony\Component\Filesystem\Filesystem;
 
 class EntityGeneratorFactoryTest extends TestCase
 {
@@ -38,7 +37,7 @@ class EntityGeneratorFactoryTest extends TestCase
         $generator = $this->getEntityGeneratorFactory();
 
         $this->assertEquals(
-            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSources/NSMock.php'),
+            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSources/NSMock.php'),
             $generator->create($this->getMockNodeType())->getClassContent()
         );
     }
@@ -62,13 +61,13 @@ class EntityGeneratorFactoryTest extends TestCase
         /*
          * Uncomment for generating a mock file from tests
          */
-        // (new Filesystem())->dumpFile(
-        //    dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php',
-        //    $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
-        // );
+        //        file_put_contents(
+        //            dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php',
+        //            $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
+        //        );
 
         $this->assertEquals(
-            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php'),
+            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php'),
             $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
         );
     }
@@ -92,13 +91,13 @@ class EntityGeneratorFactoryTest extends TestCase
         /*
          * Uncomment for generating a mock file from tests
          */
-        // (new Filesystem())->dumpFile(
-        //    dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php',
-        //    $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
-        // );
+        //        file_put_contents(
+        //            dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php',
+        //            $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
+        //        );
 
         $this->assertEquals(
-            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php'),
+            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php'),
             $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
         );
     }
