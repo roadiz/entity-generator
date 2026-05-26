@@ -255,6 +255,7 @@ EOT)
                         ->setTypeName('many_to_many')
                         ->setVirtual(false)
                         ->setSerializationMaxDepth(1)
+                        ->setNormalizationContext(['groups' => ['nodes_sources', 'nodes_sources_default', 'foo_many_to_many_proxied']])
                         ->setLabel('For many_to_many proxied field')
                         ->setDefaultValues(<<<EOT
 classname: \MyCustomEntity
@@ -339,8 +340,8 @@ EOT)
             function (string $nodeTypeName): NodeTypeInterface {
                 $mockNodeType = $this->createStub(NodeTypeInterface::class);
                 $mockNodeType
-                    ->method('getSourceEntityFullQualifiedClassName')
-                    ->willReturn('tests\mocks\GeneratedNodesSources\NS'.$nodeTypeName)
+                    ->method('getName')
+                    ->willReturn($nodeTypeName)
                 ;
 
                 return $mockNodeType;
