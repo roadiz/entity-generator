@@ -12,7 +12,6 @@ use Symfony\Component\String\UnicodeString;
 
 final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    #[\Override]
     protected function getFieldProperty(ClassType $classType): Property
     {
         return $classType
@@ -21,7 +20,6 @@ final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
             ->setType($this->getFieldTypeDeclaration());
     }
 
-    #[\Override]
     protected function addFieldAttributes(Property $property, PhpNamespace $namespace, bool $exclude = false): self
     {
         parent::addFieldAttributes($property, $namespace, $exclude);
@@ -54,28 +52,28 @@ final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
             'onDelete' => 'CASCADE',
         ];
 
-        $property->addAttribute(\Doctrine\ORM\Mapping\ManyToMany::class, [
+        $property->addAttribute('Doctrine\ORM\Mapping\ManyToMany', [
             'targetEntity' => new Literal($this->getFullyQualifiedClassName().'::class'),
         ]);
-        $property->addAttribute(\Doctrine\ORM\Mapping\JoinTable::class, [
+        $property->addAttribute('Doctrine\ORM\Mapping\JoinTable', [
             'name' => $entityA.'_'.$entityB,
         ]);
-        $property->addAttribute(\Doctrine\ORM\Mapping\JoinColumn::class, $joinColumnParams);
-        $property->addAttribute(\Doctrine\ORM\Mapping\InverseJoinColumn::class, $inverseJoinColumns);
+        $property->addAttribute('Doctrine\ORM\Mapping\JoinColumn', $joinColumnParams);
+        $property->addAttribute('Doctrine\ORM\Mapping\InverseJoinColumn', $inverseJoinColumns);
         if (count($this->configuration['orderBy']) > 0) {
             // use default order for Collections
             $orderBy = [];
             foreach ($this->configuration['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
-            $property->addAttribute(\Doctrine\ORM\Mapping\OrderBy::class, [
+            $property->addAttribute('Doctrine\ORM\Mapping\OrderBy', [
                 $orderBy,
             ]);
         }
 
         if (true === $this->options['use_api_platform_filters']) {
-            $property->addAttribute(\ApiPlatform\Metadata\ApiFilter::class, [
-                0 => new Literal($namespace->simplifyName(\ApiPlatform\Doctrine\Orm\Filter\SearchFilter::class).'::class'),
+            $property->addAttribute('ApiPlatform\Metadata\ApiFilter', [
+                0 => new Literal($namespace->simplifyName('\ApiPlatform\Doctrine\Orm\Filter\SearchFilter').'::class'),
                 'strategy' => 'exact',
             ]);
         }
@@ -85,7 +83,6 @@ final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
 
-    #[\Override]
     public function addFieldAnnotation(Property $property): self
     {
         $this->addFieldAutodoc($property);
@@ -96,22 +93,20 @@ final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
 
-    #[\Override]
     protected function getFieldTypeDeclaration(): string
     {
-        return \Doctrine\Common\Collections\Collection::class;
+        return '\Doctrine\Common\Collections\Collection';
     }
 
-    #[\Override]
     public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $classType->addMethod($this->field->getGetterName())
-            ->setReturnType(\Doctrine\Common\Collections\Collection::class)
+            ->setReturnType('\Doctrine\Common\Collections\Collection')
             ->setPublic()
             ->setBody('return $this->'.$this->field->getVarName().';')
             ->addComment(
                 '@return '.
-                $namespace->simplifyName(\Doctrine\Common\Collections\Collection::class).
+                $namespace->simplifyName('\Doctrine\Common\Collections\Collection').
                 '<int, '.$this->getFullyQualifiedClassName().
                 '>'
             );
@@ -119,7 +114,6 @@ final class ManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
         return $this;
     }
 
-    #[\Override]
     public function addFieldSetter(ClassType $classType): self
     {
         $setter = $classType->addMethod($this->field->getSetterName())
@@ -147,7 +141,11 @@ PHP
         return $this;
     }
 
-    #[\Override]
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
+    }
+
     public function getFieldConstructorInitialization(): string
     {
         return '$this->'.$this->field->getVarName().' = new \Doctrine\Common\Collections\ArrayCollection();';
