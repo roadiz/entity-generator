@@ -13,16 +13,12 @@ class EntityGeneratorTest extends TestCase
 {
     use NodeTypeAwareTestTrait;
 
-    protected function getEntityGenerator(NodeTypeInterface $nodeType, ?array $options = null, ?string $namespace = null): EntityGenerator
+    protected function getEntityGenerator(NodeTypeInterface $nodeType, ?array $options = null): EntityGenerator
     {
         return new EntityGenerator(
             $nodeType,
             $this->getMockNodeTypeResolver(),
             $this->getMockDefaultValuesResolver(),
-            new SimpleNodeTypeClassLocator(
-                $namespace ?? 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
-                $namespace ? $namespace.'\Repository' : 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources\Repository',
-            ),
             $options ?? [
                 'parent_class' => '\mock\Entity\NodesSources',
                 'node_class' => '\mock\Entity\Node',
@@ -32,6 +28,7 @@ class EntityGeneratorTest extends TestCase
                 'custom_form_class' => '\mock\Entity\CustomForm',
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
+                'namespace' => '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
                 'use_native_json' => true,
                 'use_api_platform_filters' => true,
             ]
@@ -68,9 +65,10 @@ class EntityGeneratorTest extends TestCase
             'custom_form_class' => 'mock\Entity\CustomForm',
             'custom_form_proxy_class' => 'mock\Entity\NodesSourcesCustomForm',
             'repository_class' => 'mock\Entity\Repository\NodesSourcesRepository',
+            'namespace' => 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
             'use_native_json' => true,
             'use_api_platform_filters' => true,
-        ], 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources');
+        ]);
         $this->assertEquals(
             (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSources/NSMock.php'),
             $generatorWithoutLeadingSlashes->getClassContent()
@@ -89,10 +87,11 @@ class EntityGeneratorTest extends TestCase
             'custom_form_class' => '\mock\Entity\CustomForm',
             'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
             'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
+            'namespace' => '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
             'use_native_json' => true,
             'use_api_platform_filters' => true,
             'use_document_dto' => true,
-        ], '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources');
+        ]);
 
         /*
          * Uncomment for generating a mock file from tests
@@ -119,10 +118,11 @@ class EntityGeneratorTest extends TestCase
             'custom_form_class' => 'mock\Entity\CustomForm',
             'custom_form_proxy_class' => 'mock\Entity\NodesSourcesCustomForm',
             'repository_class' => 'mock\Entity\Repository\NodesSourcesRepository',
+            'namespace' => 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
             'use_native_json' => true,
             'use_api_platform_filters' => true,
             'use_document_dto' => true,
-        ], 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources');
+        ]);
         $this->assertEquals(
             (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithDocumentDto/NSMock.php'),
             $generatorWithoutLeadingSlashes->getClassContent()

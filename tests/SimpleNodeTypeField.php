@@ -18,7 +18,6 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
     private ?string $defaultValues = null;
     private ?string $groupName = null;
     private array $serializationGroups = [];
-    private ?array $normalizationContext = null;
     private bool $excludedFromSerialization = false;
     private ?string $serializationExclusionExpression = null;
     private ?int $serializationMaxDepth = null;
@@ -429,18 +428,6 @@ final class SimpleNodeTypeField implements NodeTypeFieldInterface, SerializableI
     public function setSerializationGroups(array $serializationGroups): SimpleNodeTypeField
     {
         $this->serializationGroups = $serializationGroups;
-
-        return $this;
-    }
-
-    public function getNormalizationContext(): ?array
-    {
-        return $this->normalizationContext;
-    }
-
-    public function setNormalizationContext(?array $normalizationContext): SimpleNodeTypeField
-    {
-        $this->normalizationContext = $normalizationContext;
 
         return $this;
     }
