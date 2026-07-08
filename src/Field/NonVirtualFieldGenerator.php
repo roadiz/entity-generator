@@ -4,45 +4,50 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
-use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Literal;
+use Nette\PhpGenerator\PhpNamespace;
+use Nette\PhpGenerator\Property;
 
 class NonVirtualFieldGenerator extends AbstractFieldGenerator
 {
     /**
      * Generate PHP annotation block for Doctrine table indexes.
-     *
-     * @return AttributeGenerator|null
      */
-    public function getFieldIndex(): ?AttributeGenerator
+    #[\Override]
+    public function addFieldIndex(ClassType $classType): self
     {
         if ($this->field->isIndexed()) {
-            return new AttributeGenerator('ORM\Index', [
-                'columns' => '[' . AttributeGenerator::wrapString($this->field->getName()) . ']'
-            ]);
+            $classType->addAttribute(
+                \Doctrine\ORM\Mapping\Index::class,
+                [
+                    'columns' => [
+                        $this->field->getName(),
+                    ],
+                ]
+            );
         }
 
-        return null;
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     protected function getDoctrineType(): string
     {
         return $this->field->getDoctrineType();
     }
 
     /**
-     * @return int|null String field length, returns NULL if length is irrelevant.
+     * @return int|null string field length, returns NULL if length is irrelevant
      */
     protected function getFieldLength(): ?int
     {
         /*
          * Only set length for string (VARCHAR) type
          */
-        if ($this->getDoctrineType() !== 'string') {
+        if ('string' !== $this->getDoctrineType()) {
             return null;
         }
+
         return match (true) {
             $this->field->isColor() => 10,
             $this->field->isCountry() => 5,
@@ -52,14 +57,10 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         };
     }
 
-    protected function isExcludingFieldFromJmsSerialization(): bool
+    #[\Override]
+    protected function addFieldAttributes(Property $property, PhpNamespace $namespace, bool $exclude = false): self
     {
-        return false;
-    }
-
-    protected function getFieldAttributes(bool $exclude = false): array
-    {
-        $attributes = parent::getFieldAttributes($exclude);
+        parent::addFieldAttributes($property, $namespace, $exclude);
 
         /*
          * ?string $name = null,
@@ -77,9 +78,9 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
          * ?string $generated = null
          */
         $ormParams = [
-            'name' => AttributeGenerator::wrapString($this->field->getName()),
-            'type' => AttributeGenerator::wrapString($this->getDoctrineType()),
-            'nullable' => 'true',
+            'name' => $this->field->getName(),
+            'type' => $this->getDoctrineType(),
+            'nullable' => true,
         ];
 
         $fieldLength = $this->getFieldLength();
@@ -91,124 +92,98 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             $ormParams['precision'] = 18;
             $ormParams['scale'] = 3;
         } elseif ($this->field->isBool()) {
-            $ormParams['nullable'] = 'false';
-            $ormParams['options'] = '["default" => false]';
-        }
-
-        $attributes[] = new AttributeGenerator('Gedmo\Versioned');
-        $attributes[] = new AttributeGenerator('ORM\Column', $ormParams);
-
-        if (empty($this->getFieldAlternativeGetter()) && !empty($this->getSerializationAttributes())) {
-            return [
-                ...$attributes,
-                ...$this->getSerializationAttributes()
+            $ormParams['nullable'] = false;
+            $ormParams['options'] = [
+                'default' => false,
             ];
         }
 
-        return $attributes;
-    }
+        $property->addAttribute(\Gedmo\Mapping\Annotation\Versioned::class);
+        $property->addAttribute(\Doctrine\ORM\Mapping\Column::class, $ormParams);
 
-
-    /**
-     * @inheritDoc
-     */
-    public function getFieldAnnotation(): string
-    {
-        $autodoc = '';
-        if (!empty($this->getFieldAutodoc())) {
-            $autodoc = PHP_EOL .
-                static::ANNOTATION_PREFIX .
-                implode(PHP_EOL . static::ANNOTATION_PREFIX, $this->getFieldAutodoc());
+        if (!$this->hasFieldAlternativeGetter() && $this->hasSerializationAttributes()) {
+            $this->addSerializationAttributes($property);
         }
 
-        return '
-    /**' . $autodoc . '
-     */' . PHP_EOL;
+        return $this;
     }
 
+    #[\Override]
+    public function addFieldAnnotation(Property $property): self
+    {
+        $this->addFieldAutodoc($property);
+
+        return $this;
+    }
+
+    #[\Override]
     protected function getFieldTypeDeclaration(): string
     {
-        switch (true) {
-            case $this->field->isBool():
-                return 'bool';
-            case $this->field->isMultiple():
-                return '?array';
-            case $this->field->isInteger():
-            case $this->field->isDecimal():
-                return 'int|float|null';
-            case $this->field->isColor():
-            case $this->field->isEmail():
-            case $this->field->isString():
-            case $this->field->isCountry():
-            case $this->field->isMarkdown():
-            case $this->field->isText():
-            case $this->field->isRichText():
-            case $this->field->isEnum():
-                return '?string';
-            case $this->field->isDateTime():
-            case $this->field->isDate():
-                return '?\DateTime';
-            default:
-                return '';
-        }
+        return match (true) {
+            $this->field->isBool() => 'bool',
+            $this->field->isMultiple() => '?array',
+            $this->field->isInteger() => '?int', // https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/reference/types.html#integer
+            $this->field->isDecimal() => '?string', // https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/reference/types.html#decimal
+            $this->field->isColor(),
+            $this->field->isEmail(),
+            $this->field->isString(),
+            $this->field->isCountry(),
+            $this->field->isMarkdown(),
+            $this->field->isText(),
+            $this->field->isRichText(),
+            $this->field->isEnum() => '?string',
+            $this->field->isDateTime(),
+            $this->field->isDate() => '?\DateTime',
+            default => 'mixed',
+        };
     }
 
-    protected function getFieldDefaultValueDeclaration(): string
+    #[\Override]
+    protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
-        switch (true) {
-            case $this->field->isBool():
-                return 'false';
-            default:
-                return 'null';
-        }
+        return match (true) {
+            $this->field->isBool() => new Literal('false'),
+            default => new Literal('null'),
+        };
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldGetter(): string
+    #[\Override]
+    public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $type = $this->getFieldTypeDeclaration();
-        if (empty($type)) {
-            $docType = 'mixed';
-            $typeHint = '';
-        } else {
-            $docType = $this->toPhpDocType($type);
-            $typeHint = ': ' . $type;
-        }
-        $assignation = '$this->' . $this->field->getVarName();
+        $method = $classType->addMethod($this->field->getGetterName())
+            ->setPublic()
+            ->setReturnType($type)
+            ->addComment('@return '.$this->toPhpDocType($type));
 
         if ($this->field->isMultiple()) {
-            $assignation = sprintf('null !== %s ? array_values(%s) : null', $assignation, $assignation);
+            $method->setBody(
+                'return null !== $this->'.
+                $this->field->getVarName().' ? array_values($this->'.$this->field->getVarName().') : null;'
+            );
+        } else {
+            $method->setBody('return $this->'.$this->field->getVarName().';');
         }
 
-        return '
-    /**
-     * @return ' . $docType . '
-     */
-    public function ' . $this->field->getGetterName() . '()' . $typeHint . '
-    {
-        return ' . $assignation . ';
-    }' . PHP_EOL;
+        return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getFieldSetter(): string
+    #[\Override]
+    public function addFieldSetter(ClassType $classType): self
     {
-        $assignation = '$' . $this->field->getVarName();
+        $assignation = '$'.$this->field->getVarName();
         $nullable = true;
         $casting = '';
 
         switch (true) {
             case $this->field->isBool():
-                $casting = '(boolean) ';
+                $casting = '(bool) ';
                 $nullable = false;
                 break;
             case $this->field->isInteger():
                 $casting = '(int) ';
                 break;
+            case $this->field->isDecimal():
             case $this->field->isColor():
             case $this->field->isEmail():
             case $this->field->isString():
@@ -221,34 +196,29 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
                 break;
         }
 
-        $type = $this->getFieldTypeDeclaration();
-        if (empty($type)) {
-            $docType = 'mixed';
-            $typeHint = '';
-        } else {
-            $docType = $this->toPhpDocType($type);
-            $typeHint = $type . ' ';
-        }
+        $type = match (true) {
+            $this->field->isDecimal() => 'string|int|float|null',
+            default => $this->getFieldTypeDeclaration(),
+        };
 
         if ($nullable && !empty($casting)) {
-            $assignation = '$this->' . $this->field->getVarName() . ' = null !== $' . $this->field->getVarName() . ' ?
-            ' . $casting . $assignation . ' :
+            $assignation = '$this->'.$this->field->getVarName().' = null !== $'.$this->field->getVarName().' ?
+            '.$casting.$assignation.' :
             null;';
+        } elseif ($this->field->isMultiple()) {
+            $assignation = '$this->'.$this->field->getVarName().' = (null !== '.$assignation.') ? array_values('.$assignation.') : null;';
         } else {
-            $assignation = '$this->' . $this->field->getVarName() . ' = ' . $assignation . ';';
+            $assignation = '$this->'.$this->field->getVarName().' = '.$assignation.';';
         }
 
-        return '
-    /**
-     * @param ' . $docType . ' $' . $this->field->getVarName() . '
-     *
-     * @return $this
-     */
-    public function ' . $this->field->getSetterName() . '(' . $typeHint . '$' . $this->field->getVarName() . '): static
-    {
-        ' . $assignation . '
+        $method = $classType->addMethod($this->field->getSetterName())->setPublic();
+        $method->setReturnType('static')->addComment('@return $this');
+        $method->addParameter($this->field->getVarName())->setType($type);
+        $method
+            ->addBody($assignation)
+            ->addBody('return $this;')
+        ;
 
         return $this;
-    }' . PHP_EOL;
     }
 }
