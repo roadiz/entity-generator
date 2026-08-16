@@ -6,26 +6,31 @@ namespace RZ\Roadiz\EntityGenerator\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RZ\Roadiz\EntityGenerator\EntityGeneratorFactory;
+use Symfony\Component\Filesystem\Filesystem;
 
 class EntityGeneratorFactoryTest extends TestCase
 {
     use NodeTypeAwareTestTrait;
 
-    protected function getEntityGeneratorFactory(?array $options = null): EntityGeneratorFactory
+    protected function getEntityGeneratorFactory(?array $options = null, ?string $namespace = null): EntityGeneratorFactory
     {
         return new EntityGeneratorFactory(
             $this->getMockNodeTypeResolver(),
             $this->getMockDefaultValuesResolver(),
+            new SimpleNodeTypeClassLocator(
+                $namespace ?? 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
+                $namespace ? $namespace.'\Repository' : 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources\Repository',
+            ),
             $options ?? [
                 'parent_class' => '\mock\Entity\NodesSources',
                 'node_class' => '\mock\Entity\Node',
                 'translation_class' => '\mock\Entity\Translation',
                 'document_class' => '\mock\Entity\Document',
+                'document_base_class' => '\mock\Entity\Document',
                 'document_proxy_class' => '\mock\Entity\NodesSourcesDocument',
                 'custom_form_class' => '\mock\Entity\CustomForm',
                 'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
                 'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
-                'namespace' => '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSources',
                 'use_native_json' => true,
                 'use_api_platform_filters' => true,
             ]
@@ -37,7 +42,7 @@ class EntityGeneratorFactoryTest extends TestCase
         $generator = $this->getEntityGeneratorFactory();
 
         $this->assertEquals(
-            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSources/NSMock.php'),
+            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSources/NSMock.php'),
             $generator->create($this->getMockNodeType())->getClassContent()
         );
     }
@@ -49,25 +54,25 @@ class EntityGeneratorFactoryTest extends TestCase
             'node_class' => '\mock\Entity\Node',
             'translation_class' => '\mock\Entity\Translation',
             'document_class' => '\mock\Entity\Document',
+            'document_base_class' => '\mock\Entity\Document',
             'document_proxy_class' => '\mock\Entity\NodesSourcesDocument',
             'custom_form_class' => '\mock\Entity\CustomForm',
             'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
             'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
-            'namespace' => '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository',
             'use_native_json' => true,
             'use_api_platform_filters' => true,
-        ]);
+        ], 'RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository');
 
         /*
          * Uncomment for generating a mock file from tests
          */
-        //        file_put_contents(
-        //            dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php',
-        //            $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
-        //        );
+        // (new Filesystem())->dumpFile(
+        //    dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php',
+        //    $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
+        // );
 
         $this->assertEquals(
-            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php'),
+            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/NSMock.php'),
             $generator->createWithCustomRepository($this->getMockNodeType())->getClassContent()
         );
     }
@@ -79,25 +84,25 @@ class EntityGeneratorFactoryTest extends TestCase
             'node_class' => '\mock\Entity\Node',
             'translation_class' => '\mock\Entity\Translation',
             'document_class' => '\mock\Entity\Document',
+            'document_base_class' => '\mock\Entity\Document',
             'document_proxy_class' => '\mock\Entity\NodesSourcesDocument',
             'custom_form_class' => '\mock\Entity\CustomForm',
             'custom_form_proxy_class' => '\mock\Entity\NodesSourcesCustomForm',
             'repository_class' => '\mock\Entity\Repository\NodesSourcesRepository',
-            'namespace' => '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository',
             'use_native_json' => true,
             'use_api_platform_filters' => true,
-        ]);
+        ], '\RZ\Roadiz\EntityGenerator\Tests\Mocks\GeneratedNodesSourcesWithRepository');
 
         /*
          * Uncomment for generating a mock file from tests
          */
-        //        file_put_contents(
-        //            dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php',
-        //            $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
-        //        );
+        // (new Filesystem())->dumpFile(
+        //    dirname(__DIR__) . '/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php',
+        //    $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
+        // );
 
         $this->assertEquals(
-            file_get_contents(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php'),
+            (new Filesystem())->readFile(dirname(__DIR__).'/tests/Mocks/GeneratedNodesSourcesWithRepository/Repository/NSMockRepository.php'),
             $generator->createCustomRepository($this->getMockNodeType())->getClassContent()
         );
     }
