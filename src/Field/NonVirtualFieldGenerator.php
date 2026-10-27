@@ -14,12 +14,11 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
     /**
      * Generate PHP annotation block for Doctrine table indexes.
      */
-    #[\Override]
     public function addFieldIndex(ClassType $classType): self
     {
         if ($this->field->isIndexed()) {
             $classType->addAttribute(
-                \Doctrine\ORM\Mapping\Index::class,
+                'Doctrine\ORM\Mapping\Index',
                 [
                     'columns' => [
                         $this->field->getName(),
@@ -57,7 +56,11 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         };
     }
 
-    #[\Override]
+    protected function isExcludingFieldFromJmsSerialization(): bool
+    {
+        return false;
+    }
+
     protected function addFieldAttributes(Property $property, PhpNamespace $namespace, bool $exclude = false): self
     {
         parent::addFieldAttributes($property, $namespace, $exclude);
@@ -98,8 +101,8 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             ];
         }
 
-        $property->addAttribute(\Gedmo\Mapping\Annotation\Versioned::class);
-        $property->addAttribute(\Doctrine\ORM\Mapping\Column::class, $ormParams);
+        $property->addAttribute('Gedmo\Mapping\Annotation\Versioned');
+        $property->addAttribute('Doctrine\ORM\Mapping\Column', $ormParams);
 
         if (!$this->hasFieldAlternativeGetter() && $this->hasSerializationAttributes()) {
             $this->addSerializationAttributes($property);
@@ -108,7 +111,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         return $this;
     }
 
-    #[\Override]
     public function addFieldAnnotation(Property $property): self
     {
         $this->addFieldAutodoc($property);
@@ -116,14 +118,13 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         return $this;
     }
 
-    #[\Override]
     protected function getFieldTypeDeclaration(): string
     {
         return match (true) {
             $this->field->isBool() => 'bool',
             $this->field->isMultiple() => '?array',
-            $this->field->isInteger() => '?int', // https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/reference/types.html#integer
-            $this->field->isDecimal() => '?string', // https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/reference/types.html#decimal
+            $this->field->isInteger(),
+            $this->field->isDecimal() => 'int|float|null',
             $this->field->isColor(),
             $this->field->isEmail(),
             $this->field->isString(),
@@ -138,7 +139,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         };
     }
 
-    #[\Override]
     protected function getFieldDefaultValueDeclaration(): Literal|string|null
     {
         return match (true) {
@@ -147,7 +147,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         };
     }
 
-    #[\Override]
     public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $type = $this->getFieldTypeDeclaration();
@@ -168,7 +167,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
         return $this;
     }
 
-    #[\Override]
     public function addFieldSetter(ClassType $classType): self
     {
         $assignation = '$'.$this->field->getVarName();
@@ -183,7 +181,6 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
             case $this->field->isInteger():
                 $casting = '(int) ';
                 break;
-            case $this->field->isDecimal():
             case $this->field->isColor():
             case $this->field->isEmail():
             case $this->field->isString():
@@ -196,10 +193,7 @@ class NonVirtualFieldGenerator extends AbstractFieldGenerator
                 break;
         }
 
-        $type = match (true) {
-            $this->field->isDecimal() => 'string|int|float|null',
-            default => $this->getFieldTypeDeclaration(),
-        };
+        $type = $this->getFieldTypeDeclaration();
 
         if ($nullable && !empty($casting)) {
             $assignation = '$this->'.$this->field->getVarName().' = null !== $'.$this->field->getVarName().' ?
