@@ -13,7 +13,6 @@ use Symfony\Component\String\UnicodeString;
 
 final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGenerator
 {
-    #[\Override]
     protected function addSerializationAttributes(Property|Method $property): self
     {
         parent::addSerializationAttributes($property);
@@ -21,20 +20,18 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
             return $this;
         }
 
-        $property->addAttribute(\Symfony\Component\Serializer\Attribute\SerializedName::class, [
+        $property->addAttribute('JMS\Serializer\Annotation\VirtualProperty');
+        $property->addAttribute('JMS\Serializer\Annotation\SerializedName', [
+            $this->field->getVarName(),
+        ]);
+        $property->addAttribute('Symfony\Component\Serializer\Attribute\SerializedName', [
             'serializedName' => $this->field->getVarName(),
         ]);
-        if (null !== $this->getNormalizationContext()) {
-            $property->addAttribute(\Symfony\Component\Serializer\Attribute\Context::class, [
-                'normalizationContext' => $this->getNormalizationContext(),
-                'groups' => $this->getSerializationGroups(),
-            ]);
-        }
-        $property->addAttribute(\Symfony\Component\Serializer\Attribute\Groups::class, [
+        $property->addAttribute('Symfony\Component\Serializer\Attribute\Groups', [
             $this->getSerializationGroups(),
         ]);
         if ($this->getSerializationMaxDepth() > 0) {
-            $property->addAttribute(\Symfony\Component\Serializer\Attribute\MaxDepth::class, [
+            $property->addAttribute('Symfony\Component\Serializer\Attribute\MaxDepth', [
                 $this->getSerializationMaxDepth(),
             ]);
         }
@@ -45,20 +42,19 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
     /**
      * Generate PHP property declaration block.
      */
-    #[\Override]
     protected function getFieldProperty(ClassType $classType): Property
     {
         return $classType
             ->addProperty($this->getProxiedVarName())
             ->setPrivate()
             ->addComment('Buffer var to get referenced entities (documents, nodes, cforms, doctrine entities)')
-            ->setType(\Doctrine\Common\Collections\Collection::class);
+            ->setType('\Doctrine\Common\Collections\Collection');
     }
 
-    #[\Override]
     protected function addFieldAttributes(Property $property, PhpNamespace $namespace, bool $exclude = false): self
     {
-        $property->addAttribute(\Symfony\Component\Serializer\Attribute\Ignore::class);
+        $property->addAttribute('JMS\Serializer\Annotation\Exclude');
+        $property->addAttribute('Symfony\Component\Serializer\Attribute\Ignore');
 
         /*
          * Many Users have Many Groups.
@@ -74,14 +70,7 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
             'cascade' => ['persist', 'remove'],
         ];
 
-        $property->addAttribute(\Doctrine\ORM\Mapping\OneToMany::class, $ormParams);
-
-        if ($this->field->isRequired()) {
-            $property->addAttribute(\Symfony\Component\Validator\Constraints\Count::class, [
-                'min' => 1,
-            ]);
-            $property->addAttribute(\Symfony\Component\Validator\Constraints\NotNull::class);
-        }
+        $property->addAttribute('Doctrine\ORM\Mapping\OneToMany', $ormParams);
 
         if (isset($this->configuration['proxy']['orderBy']) && count($this->configuration['proxy']['orderBy']) > 0) {
             // use default order for Collections
@@ -89,7 +78,7 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
             foreach ($this->configuration['proxy']['orderBy'] as $order) {
                 $orderBy[$order['field']] = $order['direction'];
             }
-            $property->addAttribute(\Doctrine\ORM\Mapping\OrderBy::class, [
+            $property->addAttribute('Doctrine\ORM\Mapping\OrderBy', [
                 $orderBy,
             ]);
         }
@@ -97,7 +86,6 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
         return $this;
     }
 
-    #[\Override]
     public function addFieldAnnotation(Property $property): self
     {
         $property->addComment($this->field->getLabel().'.');
@@ -106,16 +94,15 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
         return $this;
     }
 
-    #[\Override]
     public function addFieldGetter(ClassType $classType, PhpNamespace $namespace): self
     {
         $classType->addMethod($this->getProxiedGetterName())
-            ->setReturnType(\Doctrine\Common\Collections\Collection::class)
+            ->setReturnType('\Doctrine\Common\Collections\Collection')
             ->setPublic()
             ->setBody('return $this->'.$this->getProxiedVarName().';')
             ->addComment(
                 '@return '.
-                $namespace->simplifyName(\Doctrine\Common\Collections\Collection::class).
+                $namespace->simplifyName('\Doctrine\Common\Collections\Collection').
                 '<int, '.
                 $this->getProxyClassname().
                 '>'
@@ -127,14 +114,15 @@ final class ProxiedManyToManyFieldGenerator extends AbstractConfigurableFieldGen
             ->setReturnType('array');
         $this->addSerializationAttributes($getter);
         $getter->setBody(<<<EOF
-return \$this->{$this->getProxiedVarName()}->map(fn({$this->getProxyClassname()} \$proxyEntity) => \$proxyEntity->{$this->getProxyRelationGetterName()}())->getValues();
+return \$this->{$this->getProxiedVarName()}->map(function ({$this->getProxyClassname()} \$proxyEntity) {
+    return \$proxyEntity->{$this->getProxyRelationGetterName()}();
+})->getValues();
 EOF
         );
 
         return $this;
     }
 
-    #[\Override]
     public function addFieldSetter(ClassType $classType): self
     {
         $proxySetter = $classType->addMethod($this->getProxiedSetterName())
@@ -144,7 +132,7 @@ EOF
             ->addComment('@return $this')
         ;
         $proxySetter->addParameter($this->getProxiedVarName())
-            ->setType(\Doctrine\Common\Collections\Collection::class);
+            ->setType('\Doctrine\Common\Collections\Collection');
 
         $proxySetter->setBody(<<<EOF
 \$this->{$this->getProxiedVarName()} = \${$this->getProxiedVarName()};
@@ -187,7 +175,6 @@ EOF
         return $this;
     }
 
-    #[\Override]
     public function getFieldConstructorInitialization(): string
     {
         return '$this->'.$this->getProxiedVarName().' = new \Doctrine\Common\Collections\ArrayCollection();';
@@ -210,17 +197,17 @@ EOF
 
     protected function getProxySelfSetterName(): string
     {
-        return 'set'.ucwords((string) $this->configuration['proxy']['self']);
+        return 'set'.ucwords($this->configuration['proxy']['self']);
     }
 
     protected function getProxyRelationSetterName(): string
     {
-        return 'set'.ucwords((string) $this->configuration['proxy']['relation']);
+        return 'set'.ucwords($this->configuration['proxy']['relation']);
     }
 
     protected function getProxyRelationGetterName(): string
     {
-        return 'get'.ucwords((string) $this->configuration['proxy']['relation']);
+        return 'get'.ucwords($this->configuration['proxy']['relation']);
     }
 
     protected function getProxyClassname(): string
@@ -230,7 +217,6 @@ EOF
             '\\'.$this->configuration['proxy']['classname'];
     }
 
-    #[\Override]
     public function getCloneStatements(): string
     {
         return <<<PHP
