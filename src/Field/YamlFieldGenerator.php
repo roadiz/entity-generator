@@ -4,41 +4,38 @@ declare(strict_types=1);
 
 namespace RZ\Roadiz\EntityGenerator\Field;
 
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Method;
-use Nette\PhpGenerator\Property;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeGenerator;
+use RZ\Roadiz\EntityGenerator\Attribute\AttributeListGenerator;
 
-final class YamlFieldGenerator extends NonVirtualFieldGenerator
+class YamlFieldGenerator extends NonVirtualFieldGenerator
 {
-    protected function addSerializationAttributes(Property|Method $property): self
+    protected function getSerializationAttributes(): array
     {
-        parent::addSerializationAttributes($property);
+        $annotations = parent::getSerializationAttributes();
         if (!$this->excludeFromSerialization()) {
-            $property->addAttribute('JMS\Serializer\Annotation\VirtualProperty');
-            $property->addAttribute('JMS\Serializer\Annotation\SerializedName', [
-                $this->field->getVarName(),
+            $annotations[] = new AttributeGenerator('Serializer\VirtualProperty');
+            $annotations[] = new AttributeGenerator('Serializer\SerializedName', [
+                AttributeGenerator::wrapString($this->field->getVarName())
             ]);
-            $property->addAttribute('Symfony\Component\Serializer\Attribute\SerializedName', [
-                'serializedName' => $this->field->getVarName(),
+            $annotations[] = new AttributeGenerator('SymfonySerializer\SerializedName', [
+                'serializedName' => AttributeGenerator::wrapString($this->field->getVarName())
             ]);
-            $property->addAttribute('Symfony\Component\Serializer\Attribute\Groups', [
-                $this->getSerializationGroups(),
+            $annotations[] = new AttributeGenerator('SymfonySerializer\Groups', [
+                $this->getSerializationGroups()
             ]);
             if ($this->getSerializationMaxDepth() > 0) {
-                $property->addAttribute('Symfony\Component\Serializer\Attribute\MaxDepth', [
-                    $this->getSerializationMaxDepth(),
+                $annotations[] = new AttributeGenerator('SymfonySerializer\MaxDepth', [
+                    $this->getSerializationMaxDepth()
                 ]);
             }
         }
-
-        return $this;
+        return $annotations;
     }
 
     protected function getDefaultSerializationGroups(): array
     {
         $groups = parent::getDefaultSerializationGroups();
         $groups[] = 'nodes_sources_yaml';
-
         return $groups;
     }
 
@@ -47,28 +44,23 @@ final class YamlFieldGenerator extends NonVirtualFieldGenerator
         return false;
     }
 
-    protected function hasFieldAlternativeGetter(): bool
+    /**
+     * @return string
+     */
+    public function getFieldAlternativeGetter(): string
     {
-        return true;
-    }
-
-    public function addFieldAlternativeGetter(ClassType $classType): self
+        $assignation = '$this->' . $this->field->getVarName();
+        return '
+    /**
+     * @return object|array|null
+     */
+' . (new AttributeListGenerator($this->getSerializationAttributes()))->generate(4) . '
+    public function ' . $this->field->getGetterName() . 'AsObject()
     {
-        $assignation = '$this->'.$this->field->getVarName();
-
-        $method = $classType->addMethod($this->field->getGetterName().'AsObject')
-            ->setReturnType('object|array|null')
-            ->setVisibility('public')
-        ;
-        $this->addSerializationAttributes($method);
-        $method->setBody(<<<PHP
-if (null !== {$assignation}) {
-    return \Symfony\Component\Yaml\Yaml::parse({$assignation});
-}
-return null;
-PHP
-        );
-
-        return $this;
+        if (null !== ' . $assignation . ') {
+            return \Symfony\Component\Yaml\Yaml::parse(' . $assignation . ');
+        }
+        return null;
+    }' . PHP_EOL;
     }
 }
